@@ -1,0 +1,18 @@
+# Production container for the Pultrum frontend.
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+#
+# This publishes the app on host port 3001 so a reverse proxy (e.g. the Nginx
+# in the backend stack) can forward your app domain to it. Set NEXT_PUBLIC_API_URL
+# in .env to the public backend URL (https://api.seudominio.com).
+
+services:
+  web:
+    build: .
+    image: pultrum-frontend
+    container_name: pultrum-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3001:3000"

@@ -1,0 +1,428 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "emails": "E-mails",
+    "orders": "Bestellingen",
+    "settings": "Instellingen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stubTitle": "Placeholder",
+    "stubDetails": "Nog geen API gekoppeld. Voeg hier operationele widgets toe.",
+    "cards": {
+      "emailsReceived": "E-mails ontvangen",
+      "ordersProcessed": "Bestellingen verwerkt",
+      "missingInfo": "Ontbrekende info",
+      "readyToXml": "Klaar voor XML",
+      "waitingCustomer": "Wachten op klant",
+      "processingAi": "AI-verwerking",
+      "sentToCreativeGears": "Verzonden naar Creative Gears",
+      "errors": "Fouten",
+      "emailsReceivedToday": "Vandaag ontvangen e-mails"
+    },
+    "latestOrders": {
+      "title": "Laatste bestellingen",
+      "empty": "Geen bestellingen gevonden",
+      "columns": {
+        "id": "ID",
+        "customer": "Klant/e-mail",
+        "department": "Afdeling",
+        "type": "Type",
+        "status": "Status",
+        "createdAt": "Aangemaakt",
+        "action": "Actie"
+      }
+    },
+    "workQueue": {
+      "title": "Werkvoorraad",
+      "empty": "Geen bestellingen gevonden",
+      "columns": {
+        "id": "Korte ID",
+        "customer": "Klant",
+        "context": "Onderwerp / e-mail",
+        "subject": "Onderwerp",
+        "aiConfidence": "AI-betrouwbaarheid",
+        "status": "Status",
+        "updatedAt": "Laatst bijgewerkt",
+        "action": "Actie"
+      }
+    },
+    "errors": {
+      "title": "Probleem met laden"
+    }
+  },
+  "emails": {
+    "title": "E-mails",
+    "stubTitle": "Placeholder",
+    "stubDetails": "Nog geen API gekoppeld. Hier komt een lijst met e-mails.",
+    "syncMailbox": "Mailbox sync",
+    "mailboxIdPlaceholder": "Mailbox ID",
+    "toast": {
+      "syncSuccess": "Mailbox gesynchroniseerd",
+      "syncError": "Mailbox sync mislukt"
+    },
+    "filters": {
+      "title": "Filters",
+      "searchPlaceholder": "Zoek op onderwerp of afzender",
+      "status": "Status",
+      "department": "Afdeling",
+      "hasAttachments": "Heeft bijlagen",
+      "all": "Alles",
+      "yes": "Ja",
+      "no": "Nee",
+      "showing": "Toont {count} van {total} (max {pageSize})"
+    },
+    "error": {
+      "title": "Kon e-mails niet laden"
+    },
+    "empty": "Geen e-mails gevonden",
+    "table": {
+      "title": "E-mails",
+      "yes": "Ja",
+      "no": "Nee",
+      "columns": {
+        "subject": "Onderwerp",
+        "sender": "Afzender",
+        "mailbox": "Mailbox/afdeling",
+        "receivedAt": "Ontvangen op",
+        "hasAttachments": "Heeft bijlagen",
+        "status": "Status",
+        "action": "Actie"
+      }
+    },
+    "detail": {
+      "title": "E-mail",
+      "backToEmails": "Terug naar e-mails",
+      "openLinkedOrder": "Bestelling openen",
+      "classification": {
+        "reclassify": "Herclassificeren",
+        "reclassifySuccess": "Herclassificatie gestart",
+        "reclassifyError": "Herclassificeren mislukt",
+        "processAnyway": "Toch verwerken",
+        "processAnywaySuccess": "Verwerking gestart",
+        "processAnywayError": "Verwerken mislukt",
+        "notTransportTitle": "Geclassificeerd als geen transportorder"
+      },
+      "attachments": "Bijlagen",
+      "errorTitle": "Kon e-mail niet laden",
+      "empty": "E-mail niet gevonden",
+      "yes": "Ja",
+      "no": "Nee",
+      "labels": {
+        "mailbox": "Mailbox",
+        "receivedAt": "Ontvangen op",
+        "hasAttachments": "Heeft bijlagen",
+        "conversation": "Conversatie",
+        "bodyText": "Bericht (tekst)"
+      }
+    }
+  },
+  "orders": {
+    "title": "Bestellingen",
+    "queueSubtitle": "Operationele wachtrij met visuele prioriteit, e-mailcontext en snelle toegang tot de volgende actie.",
+    "detailTitle": "Bestelling",
+    "stubTitle": "Voorbeeldbestellingen",
+    "stubDetails": "Nog geen API gekoppeld. Dit is een placeholder."
+    ,
+    "quickFilters": {
+      "title": "Snelle wachtrijen",
+      "description": "Schakel tussen de hoofdwachtrijen om het dagelijkse werk van de operator te prioriteren.",
+      "tabs": {
+        "all": "Alle",
+        "waiting": "Wachten op klant",
+        "ready": "Klaar voor XML",
+        "processing": "AI-verwerking",
+        "sent": "Verzonden",
+        "error": "Fout",
+        "today": "E-mails van vandaag"
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "searchPlaceholder": "Zoek op klant, onderwerp of e-mail",
+      "department": "Afdeling",
+      "type": "Type",
+      "all": "Alles",
+      "showing": "Toont {count} van {total} (max {pageSize})"
+    },
+    "error": {
+      "title": "Kon bestellingen niet laden"
+    },
+    "empty": "Geen bestellingen gevonden",
+    "table": {
+      "title": "Bestelwachtrij",
+      "selected": "geselecteerd",
+      "selectAll": "Alle rijen selecteren",
+      "selectRow": "Rij selecteren",
+      "columns": {
+        "id": "ID",
+        "customer": "Klant",
+        "subjectEmail": "Onderwerp / e-mail",
+        "department": "Afdeling",
+        "status": "Status",
+        "confidence": "Betrouwbaarheid",
+        "missingFields": "Ontbrekende velden",
+        "updatedAt": "Laatst bijgewerkt",
+        "actions": "Acties",
+        "audit": "Audit"
+      }
+    },
+    "auditActions": {
+      "AI_AUTO_PROCESSING_TRIGGERED": "AI-verwerking gestart",
+      "AI_AUTO_PROCESSING_SKIPPED": "AI-verwerking overgeslagen",
+      "AI_EXTRACTION_REQUESTED": "AI-extractie aangevraagd",
+      "AI_EXTRACTION_COMPLETED": "AI-velden geëxtraheerd",
+      "AI_EXTRACTION_FAILED": "AI-extractie mislukt",
+      "AI_REPLY_REQUESTED": "AI-antwoord aangevraagd",
+      "AI_REPLY_DRAFT_CREATED": "AI-antwoordconcept aangemaakt",
+      "AI_REPLY_FAILED": "AI-antwoord mislukt",
+      "CUSTOMER_REPLY_LINKED": "Klantantwoord gekoppeld",
+      "LINK_METHOD_USED": "Antwoord gekoppeld aan order",
+      "MODIFICATION_DETECTED": "Wijziging gedetecteerd",
+      "ORDER_REPLY_SENT": "Antwoord naar klant verzonden",
+      "ORDER_REPROCESSED": "Order opnieuw verwerkt",
+      "ORDER_UPDATED_FROM_REPLY": "Order bijgewerkt via antwoord"
+    },
+    "detail": {
+      "backToOrders": "Terug naar bestellingen",
+      "openOriginalEmail": "Originele e-mail openen",
+      "errorTitle": "Kon bestelling niet laden",
+      "empty": "Bestelling niet gevonden",
+      "actions": {
+        "reprocess": "Opnieuw verwerken",
+        "processWithAi": "E-mail verwerken met AI",
+        "generateReply": "Klantantwoord genereren",
+        "sendXml": "XML sturen"
+      },
+      "confirm": {
+        "reprocessTitle": "Bestelling opnieuw verwerken?",
+        "reprocessDesc": "Dit voert de verwerkingspipeline opnieuw uit met dezelfde ordergegevens.",
+        "processAiTitle": "E-mail verwerken met AI?",
+        "processAiDesc": "Dit voert AI-extractie uit op de e-mail en bijlagen en werkt de gedetecteerde velden bij.",
+        "replyAiTitle": "Klantantwoord genereren?",
+        "replyAiDesc": "Dit laat AI een bewerkbare conceptmail genereren om ontbrekende informatie op te vragen.",
+        "xmlTitle": "XML voor deze bestelling verzenden?",
+        "xmlDesc": "Dit probeert de XML-payload te leveren aan Creative Gears."
+      },
+      "toast": {
+        "reprocessSuccess": "Bestelling opnieuw verwerkt",
+        "reprocessError": "Opnieuw verwerken mislukt",
+        "processWithAiSuccess": "E-mail verwerkt met AI",
+        "processWithAiError": "E-mail verwerken met AI mislukt",
+        "generateReplySuccess": "Conceptantwoord gegenereerd",
+        "generateReplyError": "Conceptantwoord genereren mislukt",
+        "sendXmlSuccess": "XML verzonden",
+        "sendXmlError": "XML verzenden mislukt"
+      },
+      "originalEmail": {
+        "title": "Originele e-mail",
+        "from": "Van",
+        "subject": "Onderwerp",
+        "receivedAt": "Ontvangen op",
+        "bodyText": "Bericht (tekst)",
+        "attachments": "Bijlagen",
+        "noAttachments": "Geen bijlagen",
+        "noBodyText": "Geen berichttekst",
+        "notLoaded": "E-mail niet geladen"
+      },
+      "timeline": {
+        "title": "Tijdlijn / Status",
+        "status": "Status",
+        "type": "Type",
+        "department": "Afdeling",
+        "confidence": "Betrouwbaarheid"
+      },
+      "detectedFields": {
+        "title": "Gedetecteerde velden",
+        "titleWithCount": "Gedetecteerde velden ({count})",
+        "empty": "Geen velden"
+      },
+      "calculatedFields": {
+        "title": "Berekende velden",
+        "empty": "Geen berekende velden"
+      },
+      "technicalInfo": {
+        "title": "Technische informatie",
+        "empty": "Geen technische informatie"
+      },
+      "fieldOrigin": {
+        "email": "E-mail",
+        "system": "Systeem",
+        "calculated": "Berekend",
+        "optional": "Optioneel"
+      },
+      "missingFields": {
+        "title": "Ontbrekende velden",
+        "titleWithCount": "Ontbrekende velden ({count})",
+        "empty": "Geen ontbrekende velden"
+      },
+      "aiRequests": {
+        "title": "AI-verzoeken",
+        "empty": "Geen AI-verzoeken",
+        "payload": "JSON-payload",
+        "response": "JSON-response"
+      },
+      "xmlDeliveries": {
+        "title": "XML-leveringen",
+        "empty": "Geen XML-leveringen",
+        "xmlPayload": "XML-payload",
+        "response": "Response",
+        "view": "XML weergeven",
+        "preview": "XML bekijken",
+        "previewTitle": "XML-voorbeeld",
+        "previewDescription": "Gegenereerd op basis van de huidige ordergegevens. Nog niet verzonden naar Creative Gears.",
+        "previewError": "XML-voorbeeld genereren mislukt"
+      },
+      "json": {
+        "show": "Tonen",
+        "hide": "Verbergen"
+      },
+      "replyDraft": {
+        "title": "Antwoord aan klant",
+        "to": "Aan",
+        "subject": "Onderwerp",
+        "body": "E-mailtekst",
+        "noDraft": "Geen conceptantwoord gevonden voor deze order.",
+        "generate": "Antwoord genereren met AI",
+        "save": "Wijzigingen opslaan",
+        "send": "Antwoord verzenden",
+        "sent": "Antwoord verzonden",
+        "sentReadonly": "Dit antwoord is verzonden. Bewerken is uitgeschakeld.",
+        "unsaved": "Je hebt niet-opgeslagen wijzigingen",
+        "saved": "Alle wijzigingen opgeslagen",
+        "saving": "Concept opslaan…",
+        "saveSuccess": "Concept opgeslagen",
+        "saveError": "Concept opslaan mislukt",
+        "sending": "Antwoord verzenden…",
+        "sendSuccess": "Antwoord verzonden",
+        "sendError": "Antwoord verzenden mislukt",
+        "generating": "Antwoord genereren…",
+        "generateSuccess": "AI-aanvraag in wachtrij gezet",
+        "generateError": "Antwoord genereren mislukt",
+        "confirmTitle": "Dit antwoord naar de klant sturen?",
+        "confirmDesc": "Dit verstuurt een e-mail via de geconfigureerde SMTP-provider."
+      }
+    }
+  },
+  "settings": {
+    "title": "Instellingen",
+    "backend": {
+      "title": "Backend",
+      "apiUrl": "API URL",
+      "connectionStatus": "Verbindingsstatus",
+      "connected": "Verbonden",
+      "disconnected": "Niet verbonden"
+    },
+    "mailProvider": {
+      "title": "Mail provider",
+      "currentProvider": "Huidige provider",
+      "providers": {
+        "imap": "IMAP",
+        "graph": "Graph"
+      },
+      "host": "Host",
+      "user": "Gebruiker/mailbox",
+      "configured": "Geconfigureerd",
+      "testSync": "Sync testen",
+      "testSyncHint": "Gebruik de sync-knop op de E-mails pagina/Topbar."
+    },
+    "creativeGears": {
+      "title": "Creative Gears",
+      "configStatus": "Geconfigureerd",
+      "endpointConfigured": "Endpoint geconfigureerd"
+    },
+    "ai": {
+      "title": "AI",
+      "configStatus": "API geconfigureerd"
+    }
+  },
+  "topbar": {
+    "language": "Taal",
+    "systemTitle": "RENOVO IA | Pultrum",
+    "syncMailbox": "Mailbox sync",
+    "logout": "Uitloggen",
+    "mailboxIdPlaceholder": "Mailbox ID",
+    "mailboxSelectPlaceholder": "Selecteer een mailbox",
+    "noActiveMailboxes": "Geen actieve mailboxes",
+    "toast": {
+      "syncSuccess": "Mailbox gesynchroniseerd",
+      "syncError": "Mailbox sync mislukt"
+    }
+  },
+  "auth": {
+    "brand": "RENOVO IA",
+    "title": "Pultrum Mail Processor",
+    "subtitle": "Meld je aan om door te gaan.",
+    "email": "E-mail",
+    "emailPlaceholder": "admin@renovoia.local",
+    "password": "Wachtwoord",
+    "passwordPlaceholder": "••••••••",
+    "signIn": "Inloggen",
+    "loginError": "Inloggen mislukt"
+  },
+  "languages": {
+    "nl": "NL",
+    "en": "EN",
+    "pt": "PT"
+  },
+  "enums": {
+    "generic": {
+      "CONFIGURED": "Geconfigureerd",
+      "NOT_CONFIGURED": "Niet geconfigureerd"
+    },
+    "department": {
+      "OPEN_TRANSPORT": "Open transport",
+      "STUK_GOED": "Stukgoed"
+    },
+    "orderType": {
+      "NEW_ORDER": "Nieuwe bestelling",
+      "MODIFICATION": "Wijziging",
+      "UNKNOWN": "Onbekend"
+    },
+    "emailStatus": {
+      "RECEIVED": "Ontvangen",
+      "PROCESSING": "Verwerken",
+      "PROCESSED": "Verwerkt",
+      "FAILED": "Mislukt"
+    },
+    "orderStatus": {
+      "EMAIL_RECEIVED": "E-mail ontvangen",
+      "PROCESSING": "Verwerken",
+      "AI_PROCESSING": "AI-verwerking",
+      "NEW_ORDER": "Nieuwe bestelling",
+      "MODIFICATION_DETECTED": "Wijziging gedetecteerd",
+      "MISSING_INFORMATION": "Ontbrekende informatie",
+      "WAITING_CUSTOMER_RESPONSE": "Wachten op klantreactie",
+      "READY_TO_XML": "Klaar voor XML",
+      "XML_GENERATED": "XML gegenereerd",
+      "SENT_TO_CREATIVE_GEARS": "Verzonden naar Creative Gears",
+      "CREATIVE_GEARS_ACCEPTED": "Creative Gears geaccepteerd",
+      "CREATIVE_GEARS_REJECTED": "Creative Gears afgewezen",
+      "MANUAL_REVIEW": "Handmatige controle",
+      "FAILED": "Mislukt"
+    },
+    "xmlDeliveryStatus": {
+      "PENDING": "In afwachting",
+      "SENT": "Verzonden",
+      "ACCEPTED": "Geaccepteerd",
+      "REJECTED": "Afgewezen",
+      "FAILED": "Mislukt"
+    }
+  },
+  "common": {
+    "open": "Openen",
+    "cancel": "Annuleren",
+    "sync": "Sync",
+    "loading": "Laden...",
+    "done": "Klaar",
+    "error": "Er ging iets mis",
+    "close": "Sluiten",
+    "na": "—",
+    "view": "Bekijken",
+    "refetch": "Verversen",
+    "tryAgain": "Opnieuw proberen"
+  },
+  "app": {
+    "name": "Pultrum"
+  }
+}

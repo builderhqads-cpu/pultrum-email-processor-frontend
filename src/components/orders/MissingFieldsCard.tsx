@@ -1,0 +1,201 @@
+'use client';
+
+import {useLocale} from 'next-intl';
+
+import {Badge} from '@/components/ui/badge';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import type {Locale} from '@/i18n/routing';
+import type {MissingField, OrderField, ValidationWarning} from '@/types';
+import {
+  isCustomerMissingField,
+  isOptionalRequirement
+} from './order-field-classification';
+import {OrderCollapsibleSection} from './OrderCollapsibleSection';
+
+type MissingItem = {
+  id: string;
+  key: string;
+  label: string;
+  reason: string | null;
+};
+
+export function MissingFieldsCard({
+  fields,
+  missingFields,
+  validationWarnings,
+  hideHeader
+}: {
+  fields: OrderField[];
+  missingFields: MissingField[];
+  validationWarnings: ValidationWarning[];
+  hideHeader?: boolean;
+}) {
+  const locale = useLocale() as Locale;
+  const labels = sectionLabels[locale] ?? sectionLabels.en;
+
+  const requiredFields: MissingItem[] = missingFields
+    .filter((field) => isCustomerMissingField(field))
+    .map((field) => ({
+      id: field.id,
+      key: field.key,
+      label: field.label,
+      reason: field.reason ?? null
+    }));
+
+  const recommendedFields: MissingItem[] = validationWarnings
+    .filter((field) => isCustomerMissingField(field))
+    .map((field) => ({
+      id: field.id,
+      key: field.key,
+      label: field.label,
+      reason: field.reason ?? null
+    }));
+
+  const optionalFields: MissingItem[] = fields
+    .filter((field) => isOptionalRequirement(field.requirement))
+    .filter((field) => field.missing)
+    .filter((field) => isCustomerMissingField(field))
+    .filter((field, index, all) => all.findIndex((item) => item.key === field.key) === index)
+    .map((field) => ({
+      id: field.id,
+      key: field.key,
+      label: field.label,
+      reason: labels.optionalReason
+    }));
+
+  const totalMissing = requiredFields.length + recommendedFields.length + optionalFields.length;
+
+  const body = (
+    <div className="space-y-4">
+      <Section
+        title={labels.requiredTitle}
+        description={labels.requiredDescription}
+        emptyLabel={labels.requiredEmpty}
+        items={requiredFields}
+        defaultOpen
+      />
+      <Section
+        title={labels.recommendedTitle}
+        description={labels.recommendedDescription}
+        emptyLabel={labels.recommendedEmpty}
+        items={recommendedFields}
+        defaultOpen
+      />
+      <Section
+        title={labels.optionalTitle}
+        description={labels.optionalDescription}
+        emptyLabel={labels.optionalEmpty}
+        items={optionalFields}
+        defaultOpen={false}
+      />
+    </div>
+  );
+
+  if (hideHeader) {
+    return body;
+  }
+
+  return (
+    <Card className="min-w-0 overflow-hidden">
+      <CardHeader>
+        <CardTitle className="text-base">{labels.titleWithCount(totalMissing)}</CardTitle>
+      </CardHeader>
+      <CardContent>{body}</CardContent>
+    </Card>
+  );
+}
+
+function Section({
+  title,
+  description,
+  emptyLabel,
+  items,
+  defaultOpen
+}: {
+  title: string;
+  description: string;
+  emptyLabel: string;
+  items: MissingItem[];
+  defaultOpen: boolean;
+}) {
+  return (
+    <OrderCollapsibleSection
+      title={title}
+      description={description}
+      defaultOpen={defaultOpen}
+      badge={<Badge variant="outline">{items.length}</Badge>}
+    >
+      {items.length ? (
+        <div className="space-y-3">
+          {items.map((field) => (
+            <div key={field.id} className="min-w-0 rounded-lg border bg-background p-3">
+              <div className="break-words text-sm font-medium">{field.label}</div>
+              <div className="mt-0.5 break-all font-mono text-[11px] text-muted-foreground">{field.key}</div>
+              {field.reason ? (
+                <div className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                  {field.reason}
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-sm text-muted-foreground">{emptyLabel}</div>
+      )}
+    </OrderCollapsibleSection>
+  );
+}
+
+const sectionLabels: Record<Locale, {
+  titleWithCount: (count: number) => string;
+  requiredTitle: string;
+  recommendedTitle: string;
+  optionalTitle: string;
+  requiredDescription: string;
+  recommendedDescription: string;
+  optionalDescription: string;
+  requiredEmpty: string;
+  recommendedEmpty: string;
+  optionalEmpty: string;
+  optionalReason: string;
+}> = {
+  pt: {
+    titleWithCount: (count) => `Campos faltantes (${count})`,
+    requiredTitle: 'Campos obrigatorios faltantes',
+    recommendedTitle: 'Campos recomendados faltantes',
+    optionalTitle: 'Campos opcionais',
+    requiredDescription: 'Obrigatorios que bloqueiam o envio do XML.',
+    recommendedDescription: 'Recomendados que melhoram o pedido, mas nao bloqueiam.',
+    optionalDescription: 'Campos opcionais nao informados.',
+    requiredEmpty: 'Nenhum campo obrigatorio faltante.',
+    recommendedEmpty: 'Nenhum aviso recomendado pendente.',
+    optionalEmpty: 'Nenhum campo opcional pendente.',
+    optionalReason: 'Opcional nao informado.'
+  },
+  en: {
+    titleWithCount: (count) => `Missing fields (${count})`,
+    requiredTitle: 'Missing required fields',
+    recommendedTitle: 'Missing recommended fields',
+    optionalTitle: 'Optional fields',
+    requiredDescription: 'Required fields that block XML delivery.',
+    recommendedDescription: 'Recommended fields that improve the order but do not block.',
+    optionalDescription: 'Optional fields that were not provided.',
+    requiredEmpty: 'No required fields are missing.',
+    recommendedEmpty: 'No recommended warnings are pending.',
+    optionalEmpty: 'No optional fields are pending.',
+    optionalReason: 'Optional field not provided.'
+  },
+  nl: {
+    titleWithCount: (count) => `Ontbrekende velden (${count})`,
+    requiredTitle: 'Ontbrekende verplichte velden',
+    recommendedTitle: 'Ontbrekende aanbevolen velden',
+    optionalTitle: 'Optionele velden',
+    requiredDescription: 'Verplichte velden die het verzenden van XML blokkeren.',
+    recommendedDescription: 'Aanbevolen velden die de order verbeteren maar niet blokkeren.',
+    optionalDescription: 'Optionele velden die niet zijn opgegeven.',
+    requiredEmpty: 'Geen verplichte velden ontbreken.',
+    recommendedEmpty: 'Geen openstaande aanbevolen waarschuwingen.',
+    optionalEmpty: 'Geen openstaande optionele velden.',
+    optionalReason: 'Optioneel veld niet opgegeven.'
+  }
+};

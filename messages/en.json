@@ -1,0 +1,428 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "emails": "Emails",
+    "orders": "Orders",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stubTitle": "Placeholder",
+    "stubDetails": "No API connected yet. Add operational widgets here.",
+    "cards": {
+      "emailsReceived": "Emails received",
+      "ordersProcessed": "Orders processed",
+      "missingInfo": "Missing information",
+      "readyToXml": "Ready for XML",
+      "waitingCustomer": "Waiting on customer",
+      "processingAi": "AI processing",
+      "sentToCreativeGears": "Sent to Creative Gears",
+      "errors": "Errors",
+      "emailsReceivedToday": "Emails received today"
+    },
+    "latestOrders": {
+      "title": "Latest orders",
+      "empty": "No orders found",
+      "columns": {
+        "id": "Short ID",
+        "customer": "Customer/email",
+        "department": "Department",
+        "type": "Type",
+        "status": "Status",
+        "createdAt": "Created at",
+        "action": "Action"
+      }
+    },
+    "workQueue": {
+      "title": "Work queue",
+      "empty": "No orders found",
+      "columns": {
+        "id": "Short ID",
+        "customer": "Customer",
+        "context": "Subject / email",
+        "subject": "Subject",
+        "aiConfidence": "AI Confidence",
+        "status": "Status",
+        "updatedAt": "Last update",
+        "action": "Action"
+      }
+    },
+    "errors": {
+      "title": "Loading error"
+    }
+  },
+  "emails": {
+    "title": "Emails",
+    "stubTitle": "Placeholder",
+    "stubDetails": "No API connected yet. This will list inbound/processed emails.",
+    "syncMailbox": "Sync mailbox",
+    "mailboxIdPlaceholder": "Mailbox ID",
+    "toast": {
+      "syncSuccess": "Mailbox synced",
+      "syncError": "Mailbox sync failed"
+    },
+    "filters": {
+      "title": "Filters",
+      "searchPlaceholder": "Search by subject or sender",
+      "status": "Status",
+      "department": "Department",
+      "hasAttachments": "Has attachments",
+      "all": "All",
+      "yes": "Yes",
+      "no": "No",
+      "showing": "Showing {count} of {total} (max {pageSize})"
+    },
+    "error": {
+      "title": "Failed to load emails"
+    },
+    "empty": "No emails found",
+    "table": {
+      "title": "Emails",
+      "yes": "Yes",
+      "no": "No",
+      "columns": {
+        "subject": "Subject",
+        "sender": "Sender",
+        "mailbox": "Mailbox/department",
+        "receivedAt": "Received at",
+        "hasAttachments": "Has attachments",
+        "status": "Status",
+        "action": "Action"
+      }
+    },
+    "detail": {
+      "title": "Email",
+      "backToEmails": "Back to emails",
+      "openLinkedOrder": "Open order",
+      "classification": {
+        "reclassify": "Reclassify",
+        "reclassifySuccess": "Re-classification started",
+        "reclassifyError": "Failed to re-classify",
+        "processAnyway": "Process anyway",
+        "processAnywaySuccess": "Processing started",
+        "processAnywayError": "Failed to process",
+        "notTransportTitle": "Classified as not a transport order"
+      },
+      "attachments": "Attachments",
+      "errorTitle": "Failed to load email",
+      "empty": "Email not found",
+      "yes": "Yes",
+      "no": "No",
+      "labels": {
+        "mailbox": "Mailbox",
+        "receivedAt": "Received at",
+        "hasAttachments": "Has attachments",
+        "conversation": "Conversation",
+        "bodyText": "Body (text)"
+      }
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "queueSubtitle": "Operational queue with visual priority, email context, and fast access to the next action.",
+    "detailTitle": "Order",
+    "stubTitle": "Stub orders",
+    "stubDetails": "No API connected yet. This is a placeholder."
+    ,
+    "quickFilters": {
+      "title": "Quick queues",
+      "description": "Switch between the main queues to prioritize the operator's daily work.",
+      "tabs": {
+        "all": "All",
+        "waiting": "Waiting on customer",
+        "ready": "Ready for XML",
+        "processing": "AI processing",
+        "sent": "Sent",
+        "error": "Error",
+        "today": "Today's emails"
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "searchPlaceholder": "Search by customer, subject, or email",
+      "department": "Department",
+      "type": "Type",
+      "all": "All",
+      "showing": "Showing {count} of {total} (max {pageSize})"
+    },
+    "error": {
+      "title": "Failed to load orders"
+    },
+    "empty": "No orders found",
+    "table": {
+      "title": "Order queue",
+      "selected": "selected",
+      "selectAll": "Select all rows",
+      "selectRow": "Select row",
+      "columns": {
+        "id": "Short ID",
+        "customer": "Customer",
+        "subjectEmail": "Subject / email",
+        "department": "Department",
+        "status": "Status",
+        "confidence": "Confidence",
+        "missingFields": "Missing fields",
+        "updatedAt": "Last update",
+        "actions": "Actions",
+        "audit": "Audit"
+      }
+    },
+    "auditActions": {
+      "AI_AUTO_PROCESSING_TRIGGERED": "AI processing triggered",
+      "AI_AUTO_PROCESSING_SKIPPED": "AI processing skipped",
+      "AI_EXTRACTION_REQUESTED": "AI extraction requested",
+      "AI_EXTRACTION_COMPLETED": "AI extracted fields",
+      "AI_EXTRACTION_FAILED": "AI extraction failed",
+      "AI_REPLY_REQUESTED": "AI reply requested",
+      "AI_REPLY_DRAFT_CREATED": "AI reply draft created",
+      "AI_REPLY_FAILED": "AI reply failed",
+      "CUSTOMER_REPLY_LINKED": "Customer reply linked",
+      "LINK_METHOD_USED": "Reply linked to order",
+      "MODIFICATION_DETECTED": "Modification detected",
+      "ORDER_REPLY_SENT": "Reply sent to customer",
+      "ORDER_REPROCESSED": "Order reprocessed",
+      "ORDER_UPDATED_FROM_REPLY": "Order updated from reply"
+    },
+    "detail": {
+      "backToOrders": "Back to orders",
+      "openOriginalEmail": "Open original email",
+      "errorTitle": "Failed to load order",
+      "empty": "Order not found",
+      "actions": {
+        "reprocess": "Reprocess",
+        "processWithAi": "Process email with AI",
+        "generateReply": "Generate customer reply",
+        "sendXml": "Send XML"
+      },
+      "confirm": {
+        "reprocessTitle": "Reprocess this order?",
+        "reprocessDesc": "This will run the processing pipeline again for the same order data.",
+        "processAiTitle": "Process email with AI?",
+        "processAiDesc": "This will run AI extraction against the email and attachments and update detected fields.",
+        "replyAiTitle": "Generate customer reply?",
+        "replyAiDesc": "This will ask AI to generate an editable draft reply requesting missing information.",
+        "xmlTitle": "Send XML for this order?",
+        "xmlDesc": "This will attempt to deliver the XML payload to Creative Gears."
+      },
+      "toast": {
+        "reprocessSuccess": "Order reprocessed",
+        "reprocessError": "Failed to reprocess order",
+        "processWithAiSuccess": "Email processed with AI",
+        "processWithAiError": "Failed to process email with AI",
+        "generateReplySuccess": "Reply draft generated",
+        "generateReplyError": "Failed to generate reply draft",
+        "sendXmlSuccess": "XML sent",
+        "sendXmlError": "Failed to send XML"
+      },
+      "originalEmail": {
+        "title": "Original email",
+        "from": "From",
+        "subject": "Subject",
+        "receivedAt": "Received at",
+        "bodyText": "Body (text)",
+        "attachments": "Attachments",
+        "noAttachments": "No attachments",
+        "noBodyText": "No body text",
+        "notLoaded": "Email not loaded"
+      },
+      "timeline": {
+        "title": "Timeline / Status",
+        "status": "Status",
+        "type": "Type",
+        "department": "Department",
+        "confidence": "Confidence"
+      },
+      "detectedFields": {
+        "title": "Detected fields",
+        "titleWithCount": "Detected fields ({count})",
+        "empty": "No detected fields"
+      },
+      "calculatedFields": {
+        "title": "Calculated fields",
+        "empty": "No calculated fields"
+      },
+      "technicalInfo": {
+        "title": "Technical information",
+        "empty": "No technical information"
+      },
+      "fieldOrigin": {
+        "email": "Email",
+        "system": "System",
+        "calculated": "Calculated",
+        "optional": "Optional"
+      },
+      "missingFields": {
+        "title": "Missing fields",
+        "titleWithCount": "Missing fields ({count})",
+        "empty": "No missing fields"
+      },
+      "aiRequests": {
+        "title": "AI requests",
+        "empty": "No AI requests",
+        "payload": "Payload JSON",
+        "response": "Response JSON"
+      },
+      "xmlDeliveries": {
+        "title": "XML deliveries",
+        "empty": "No XML deliveries",
+        "xmlPayload": "XML payload",
+        "response": "Response payload",
+        "view": "View XML",
+        "preview": "Preview XML",
+        "previewTitle": "XML preview",
+        "previewDescription": "Generated from the current order data. Not sent to Creative Gears yet.",
+        "previewError": "Failed to generate XML preview"
+      },
+      "json": {
+        "show": "Show",
+        "hide": "Hide"
+      },
+      "replyDraft": {
+        "title": "Customer reply",
+        "to": "To",
+        "subject": "Subject",
+        "body": "Email body",
+        "noDraft": "No reply draft found for this order.",
+        "generate": "Generate reply with AI",
+        "save": "Save changes",
+        "send": "Send reply",
+        "sent": "Reply sent",
+        "sentReadonly": "This reply has been sent. Editing is disabled.",
+        "unsaved": "You have unsaved changes",
+        "saved": "All changes saved",
+        "saving": "Saving draft…",
+        "saveSuccess": "Draft saved",
+        "saveError": "Failed to save draft",
+        "sending": "Sending reply…",
+        "sendSuccess": "Reply sent",
+        "sendError": "Failed to send reply",
+        "generating": "Generating reply…",
+        "generateSuccess": "AI request enqueued",
+        "generateError": "Failed to generate reply",
+        "confirmTitle": "Send this reply to the customer?",
+        "confirmDesc": "This will send an email using the configured SMTP provider."
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "backend": {
+      "title": "Backend",
+      "apiUrl": "API URL",
+      "connectionStatus": "Connection status",
+      "connected": "Connected",
+      "disconnected": "Disconnected"
+    },
+    "mailProvider": {
+      "title": "Mail Provider",
+      "currentProvider": "Current provider",
+      "providers": {
+        "imap": "IMAP",
+        "graph": "Graph"
+      },
+      "host": "Host",
+      "user": "User/mailbox",
+      "configured": "Configured",
+      "testSync": "Test sync",
+      "testSyncHint": "Use the sync button on the Emails screen/Topbar."
+    },
+    "creativeGears": {
+      "title": "Creative Gears",
+      "configStatus": "Configured",
+      "endpointConfigured": "Endpoint configured"
+    },
+    "ai": {
+      "title": "AI",
+      "configStatus": "API configured"
+    }
+  },
+  "topbar": {
+    "language": "Language",
+    "systemTitle": "RENOVO IA | Pultrum",
+    "syncMailbox": "Sync mailbox",
+    "logout": "Logout",
+    "mailboxIdPlaceholder": "Mailbox ID",
+    "mailboxSelectPlaceholder": "Select a mailbox",
+    "noActiveMailboxes": "No active mailboxes",
+    "toast": {
+      "syncSuccess": "Mailbox synced",
+      "syncError": "Mailbox sync failed"
+    }
+  },
+  "auth": {
+    "brand": "RENOVO IA",
+    "title": "Pultrum Mail Processor",
+    "subtitle": "Sign in to continue.",
+    "email": "Email",
+    "emailPlaceholder": "admin@renovoia.local",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "signIn": "Sign in",
+    "loginError": "Login failed"
+  },
+  "languages": {
+    "nl": "NL",
+    "en": "EN",
+    "pt": "PT"
+  },
+  "enums": {
+    "generic": {
+      "CONFIGURED": "Configured",
+      "NOT_CONFIGURED": "Not configured"
+    },
+    "department": {
+      "OPEN_TRANSPORT": "Open transport",
+      "STUK_GOED": "General cargo"
+    },
+    "orderType": {
+      "NEW_ORDER": "New order",
+      "MODIFICATION": "Modification",
+      "UNKNOWN": "Unknown"
+    },
+    "emailStatus": {
+      "RECEIVED": "Received",
+      "PROCESSING": "Processing",
+      "PROCESSED": "Processed",
+      "FAILED": "Failed"
+    },
+    "orderStatus": {
+      "EMAIL_RECEIVED": "Email received",
+      "PROCESSING": "Processing",
+      "AI_PROCESSING": "AI processing",
+      "NEW_ORDER": "New order",
+      "MODIFICATION_DETECTED": "Modification detected",
+      "MISSING_INFORMATION": "Missing information",
+      "WAITING_CUSTOMER_RESPONSE": "Waiting for customer response",
+      "READY_TO_XML": "Ready for XML",
+      "XML_GENERATED": "XML generated",
+      "SENT_TO_CREATIVE_GEARS": "Sent to Creative Gears",
+      "CREATIVE_GEARS_ACCEPTED": "Creative Gears accepted",
+      "CREATIVE_GEARS_REJECTED": "Creative Gears rejected",
+      "MANUAL_REVIEW": "Manual review",
+      "FAILED": "Failed"
+    },
+    "xmlDeliveryStatus": {
+      "PENDING": "Pending",
+      "SENT": "Sent",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "FAILED": "Failed"
+    }
+  },
+  "common": {
+    "open": "Open",
+    "cancel": "Cancel",
+    "sync": "Sync",
+    "loading": "Loading...",
+    "done": "Done",
+    "error": "Something went wrong",
+    "close": "Close",
+    "na": "—",
+    "view": "View",
+    "refetch": "Refetch",
+    "tryAgain": "Try again"
+  },
+  "app": {
+    "name": "Pultrum"
+  }
+}

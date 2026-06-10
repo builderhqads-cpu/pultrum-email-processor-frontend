@@ -1,0 +1,431 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "emails": "E-mails",
+    "orders": "Pedidos",
+    "settings": "Configurações"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stubTitle": "Placeholder",
+    "stubDetails": "Ainda sem API conectada. Adicione widgets operacionais aqui.",
+    "cards": {
+      "emailsReceived": "E-mails recebidos",
+      "ordersProcessed": "Pedidos processados",
+      "missingInfo": "Faltando informações",
+      "readyToXml": "Prontos para XML",
+      "waitingCustomer": "Aguardando cliente",
+      "processingAi": "Processando IA",
+      "sentToCreativeGears": "Enviados ao Creative Gears",
+      "errors": "Erros",
+      "emailsReceivedToday": "Emails recebidos hoje"
+    },
+    "latestOrders": {
+      "title": "Últimos pedidos",
+      "empty": "Nenhum pedido encontrado",
+      "columns": {
+        "id": "ID",
+        "customer": "Cliente/e-mail",
+        "department": "Departamento",
+        "type": "Tipo",
+        "status": "Status",
+        "createdAt": "Criado em",
+        "action": "Ação"
+      }
+    },
+    "workQueue": {
+      "title": "Fila de trabalho",
+      "empty": "Nenhum pedido encontrado",
+      "columns": {
+        "id": "ID curto",
+        "customer": "Cliente",
+        "context": "Assunto / email",
+        "subject": "Assunto",
+        "aiConfidence": "Confiança da IA",
+        "status": "Status",
+        "updatedAt": "Ultima atualizacao",
+        "action": "Acao"
+      }
+    },
+    "errors": {
+      "title": "Erro ao carregar"
+    }
+  },
+  "emails": {
+    "title": "E-mails",
+    "stubTitle": "Placeholder",
+    "stubDetails": "Ainda sem API conectada. Aqui vai uma lista de e-mails.",
+    "syncMailbox": "Sincronizar mailbox",
+    "mailboxIdPlaceholder": "ID da mailbox",
+    "toast": {
+      "syncSuccess": "Mailbox sincronizada",
+      "syncError": "Falha ao sincronizar mailbox"
+    },
+    "filters": {
+      "title": "Filtros",
+      "searchPlaceholder": "Buscar por assunto ou remetente",
+      "status": "Status",
+      "department": "Departamento",
+      "hasAttachments": "Tem anexos",
+      "all": "Todos",
+      "yes": "Sim",
+      "no": "Não",
+      "showing": "Mostrando {count} de {total} (máx {pageSize})"
+    },
+    "error": {
+      "title": "Falha ao carregar e-mails"
+    },
+    "empty": "Nenhum e-mail encontrado",
+    "table": {
+      "title": "E-mails",
+      "yes": "Sim",
+      "no": "Não",
+      "columns": {
+        "subject": "Assunto",
+        "sender": "Remetente",
+        "mailbox": "Mailbox/departamento",
+        "receivedAt": "Recebido em",
+        "hasAttachments": "Tem anexos",
+        "status": "Status",
+        "action": "Ação"
+      }
+    },
+    "detail": {
+      "title": "E-mail",
+      "backToEmails": "Voltar para emails",
+      "openLinkedOrder": "Abrir pedido",
+      "classification": {
+        "reclassify": "Reclassificar",
+        "reclassifySuccess": "Reclassificacao iniciada",
+        "reclassifyError": "Falha ao reclassificar",
+        "processAnyway": "Processar mesmo assim",
+        "processAnywaySuccess": "Processamento iniciado",
+        "processAnywayError": "Falha ao processar",
+        "notTransportTitle": "Classificado como nao sendo pedido de transporte"
+      },
+      "attachments": "Anexos",
+      "errorTitle": "Falha ao carregar e-mail",
+      "empty": "E-mail não encontrado",
+      "yes": "Sim",
+      "no": "Não",
+      "labels": {
+        "mailbox": "Mailbox",
+        "receivedAt": "Recebido em",
+        "hasAttachments": "Tem anexos",
+        "conversation": "Conversa",
+        "bodyText": "Mensagem (texto)"
+      }
+    }
+  },
+  "orders": {
+    "title": "Pedidos",
+    "queueSubtitle": "Fila operacional com prioridade visual, contexto do email e acesso rápido ao próximo passo.",
+    "detailTitle": "Pedido",
+    "stubTitle": "Pedidos (exemplo)",
+    "stubDetails": "Ainda sem API conectada. Isso é um placeholder."
+    ,
+    "quickFilters": {
+      "title": "Filas rápidas",
+      "description": "Troque entre as filas principais para priorizar o trabalho do operador.",
+      "tabs": {
+        "all": "Todos",
+        "waiting": "Aguardando cliente",
+        "ready": "Pronto para XML",
+        "processing": "Processando IA",
+        "sent": "Enviado",
+        "error": "Erro",
+        "today": "Emails de hoje"
+      }
+    },
+    "filters": {
+      "title": "Filtros",
+      "searchPlaceholder": "Buscar por cliente, assunto ou email",
+      "department": "Departamento",
+      "type": "Tipo",
+      "all": "Todos",
+      "showing": "Mostrando {count} de {total} (máx {pageSize})"
+    },
+    "error": {
+      "title": "Falha ao carregar pedidos"
+    },
+    "empty": "Nenhum pedido encontrado",
+    "table": {
+      "title": "Fila de pedidos",
+      "selected": "selecionado(s)",
+      "selectAll": "Selecionar todas as linhas",
+      "selectRow": "Selecionar linha",
+      "columns": {
+        "id": "ID curto",
+        "customer": "Cliente",
+        "subjectEmail": "Assunto / email",
+        "department": "Departamento",
+        "status": "Status",
+        "confidence": "Confiança",
+        "missingFields": "Campos faltando",
+        "updatedAt": "Última atualização",
+        "actions": "Ações",
+        "audit": "Auditoria"
+      }
+    },
+    "auditActions": {
+      "AI_AUTO_PROCESSING_TRIGGERED": "Processamento de IA iniciado",
+      "AI_AUTO_PROCESSING_SKIPPED": "Processamento de IA ignorado",
+      "AI_EXTRACTION_REQUESTED": "Extração de IA solicitada",
+      "AI_EXTRACTION_COMPLETED": "IA extraiu campos",
+      "AI_EXTRACTION_FAILED": "Extração de IA falhou",
+      "AI_REPLY_REQUESTED": "Resposta de IA solicitada",
+      "AI_REPLY_DRAFT_CREATED": "Rascunho de resposta criado",
+      "AI_REPLY_FAILED": "Resposta de IA falhou",
+      "CUSTOMER_REPLY_LINKED": "Resposta do cliente vinculada",
+      "LINK_METHOD_USED": "Resposta vinculada ao pedido",
+      "MODIFICATION_DETECTED": "Modificação detectada",
+      "ORDER_REPLY_SENT": "Resposta enviada ao cliente",
+      "ORDER_REPROCESSED": "Pedido reprocessado",
+      "ORDER_UPDATED_FROM_REPLY": "Pedido atualizado pela resposta"
+    },
+    "detail": {
+      "backToOrders": "Voltar para pedidos",
+      "openOriginalEmail": "Abrir email original",
+      "errorTitle": "Falha ao carregar pedido",
+      "empty": "Pedido não encontrado",
+      "actions": {
+        "reprocess": "Reprocessar",
+        "processWithAi": "Processar email com IA",
+        "generateReply": "Gerar resposta ao cliente",
+        "sendXml": "Enviar XML"
+      },
+      "confirm": {
+        "reprocessTitle": "Reprocessar este pedido?",
+        "reprocessDesc": "Isso executa novamente o pipeline de processamento com os mesmos dados do pedido.",
+        "processAiTitle": "Processar email com IA?",
+        "processAiDesc": "Isso executa extração por IA no email e anexos e atualiza os campos detectados.",
+        "replyAiTitle": "Gerar resposta ao cliente?",
+        "replyAiDesc": "Isso solicita à IA a geração de um rascunho editável pedindo informações faltantes.",
+        "xmlTitle": "Enviar XML deste pedido?",
+        "xmlDesc": "Isso tentará entregar o XML para o Creative Gears."
+      },
+      "toast": {
+        "reprocessSuccess": "Pedido reprocessado",
+        "reprocessError": "Falha ao reprocessar pedido",
+        "processWithAiSuccess": "Email processado com IA",
+        "processWithAiError": "Falha ao processar email com IA",
+        "generateReplySuccess": "Rascunho gerado",
+        "generateReplyError": "Falha ao gerar rascunho",
+        "sendXmlSuccess": "XML enviado",
+        "sendXmlError": "Falha ao enviar XML"
+      },
+      "originalEmail": {
+        "title": "Email original",
+        "from": "Remetente",
+        "senderDetails": "Dados do remetente",
+        "subject": "Assunto",
+        "receivedAt": "Recebido em",
+        "bodyText": "Mensagem (texto)",
+        "attachments": "Anexos",
+        "attachmentsDescription": "Arquivos enviados junto com o email original.",
+        "bodyDescription": "Leia o conteudo completo sem perder a visao geral do pedido.",
+        "noAttachments": "Sem anexos",
+        "noBodyText": "Sem corpo em texto",
+        "notLoaded": "E-mail não carregado"
+      },
+      "timeline": {
+        "title": "Linha do tempo / Status",
+        "status": "Status",
+        "type": "Tipo",
+        "department": "Departamento",
+        "confidence": "Confiança"
+      },
+      "detectedFields": {
+        "title": "Campos detectados",
+        "titleWithCount": "Campos detectados ({count})",
+        "empty": "Nenhum campo detectado"
+      },
+      "calculatedFields": {
+        "title": "Campos calculados",
+        "empty": "Nenhum campo calculado"
+      },
+      "technicalInfo": {
+        "title": "Informações técnicas",
+        "empty": "Nenhuma informação técnica"
+      },
+      "fieldOrigin": {
+        "email": "Email",
+        "system": "Sistema",
+        "calculated": "Calculado",
+        "optional": "Opcional"
+      },
+      "missingFields": {
+        "title": "Campos faltantes",
+        "titleWithCount": "Campos faltantes ({count})",
+        "empty": "Nenhum campo faltante"
+      },
+      "aiRequests": {
+        "title": "Requisições de IA",
+        "empty": "Nenhuma requisição de IA",
+        "payload": "Payload JSON",
+        "response": "Resposta JSON"
+      },
+      "xmlDeliveries": {
+        "title": "Entregas XML",
+        "empty": "Nenhuma entrega XML",
+        "xmlPayload": "XML",
+        "response": "Resposta",
+        "view": "Ver XML",
+        "preview": "Visualizar XML",
+        "previewTitle": "Previa do XML",
+        "previewDescription": "Gerado a partir dos dados atuais do pedido. Ainda nao enviado ao Creative Gears.",
+        "previewError": "Falha ao gerar a previa do XML"
+      },
+      "json": {
+        "show": "Mostrar",
+        "hide": "Ocultar"
+      },
+      "replyDraft": {
+        "title": "Resposta ao cliente",
+        "to": "Para",
+        "subject": "Assunto",
+        "body": "Corpo do email",
+        "noDraft": "Nenhum rascunho encontrado para este pedido.",
+        "generate": "Gerar resposta com IA",
+        "save": "Salvar alterações",
+        "send": "Enviar resposta",
+        "sent": "Resposta enviada",
+        "sentReadonly": "Esta resposta já foi enviada. A edição está desabilitada.",
+        "unsaved": "Você tem alterações não salvas",
+        "saved": "Todas as alterações salvas",
+        "saving": "Salvando rascunho…",
+        "saveSuccess": "Rascunho salvo",
+        "saveError": "Falha ao salvar rascunho",
+        "sending": "Enviando resposta…",
+        "sendSuccess": "Resposta enviada",
+        "sendError": "Falha ao enviar resposta",
+        "generating": "Gerando resposta…",
+        "generateSuccess": "Solicitação para IA enfileirada",
+        "generateError": "Falha ao gerar resposta",
+        "confirmTitle": "Enviar esta resposta ao cliente?",
+        "confirmDesc": "Isso enviará um email usando o provedor SMTP configurado."
+      }
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "backend": {
+      "title": "Backend",
+      "apiUrl": "API URL",
+      "connectionStatus": "Status da conexão",
+      "connected": "Conectado",
+      "disconnected": "Desconectado"
+    },
+    "mailProvider": {
+      "title": "Provedor de e-mail",
+      "currentProvider": "Provedor atual",
+      "providers": {
+        "imap": "IMAP",
+        "graph": "Graph"
+      },
+      "host": "Host",
+      "user": "Usuário/mailbox",
+      "configured": "Configurado",
+      "testSync": "Testar sincronização",
+      "testSyncHint": "Use o botão de sync na tela de E-mails/Topbar."
+    },
+    "creativeGears": {
+      "title": "Creative Gears",
+      "configStatus": "Status",
+      "endpointConfigured": "Endpoint configurado"
+    },
+    "ai": {
+      "title": "IA",
+      "configStatus": "API configurada"
+    }
+  },
+  "topbar": {
+    "language": "Idioma",
+    "systemTitle": "RENOVO IA | Pultrum",
+    "syncMailbox": "Sincronizar mailbox",
+    "logout": "Sair",
+    "mailboxIdPlaceholder": "ID da mailbox",
+    "mailboxSelectPlaceholder": "Selecione uma mailbox",
+    "noActiveMailboxes": "Nenhuma mailbox ativa",
+    "toast": {
+      "syncSuccess": "Mailbox sincronizada",
+      "syncError": "Falha ao sincronizar mailbox"
+    }
+  },
+  "auth": {
+    "brand": "RENOVO IA",
+    "title": "Pultrum Mail Processor",
+    "subtitle": "Entre para continuar.",
+    "email": "E-mail",
+    "emailPlaceholder": "admin@renovoia.local",
+    "password": "Senha",
+    "passwordPlaceholder": "••••••••",
+    "signIn": "Entrar",
+    "loginError": "Falha no login"
+  },
+  "languages": {
+    "nl": "NL",
+    "en": "EN",
+    "pt": "PT"
+  },
+  "enums": {
+    "generic": {
+      "CONFIGURED": "Configurado",
+      "NOT_CONFIGURED": "Não configurado"
+    },
+    "department": {
+      "OPEN_TRANSPORT": "Open transport",
+      "STUK_GOED": "Stukgoed"
+    },
+    "orderType": {
+      "NEW_ORDER": "Novo pedido",
+      "MODIFICATION": "Modificação",
+      "UNKNOWN": "Desconhecido"
+    },
+    "emailStatus": {
+      "RECEIVED": "Recebido",
+      "PROCESSING": "Processando",
+      "PROCESSED": "Processado",
+      "FAILED": "Falhou"
+    },
+    "orderStatus": {
+      "EMAIL_RECEIVED": "E-mail recebido",
+      "PROCESSING": "Processando",
+      "AI_PROCESSING": "Processando com IA",
+      "NEW_ORDER": "Novo pedido",
+      "MODIFICATION_DETECTED": "Modificação detectada",
+      "MISSING_INFORMATION": "Faltando informações",
+      "WAITING_CUSTOMER_RESPONSE": "Aguardando resposta do cliente",
+      "READY_TO_XML": "Pronto para XML",
+      "XML_GENERATED": "XML gerado",
+      "SENT_TO_CREATIVE_GEARS": "Enviado ao Creative Gears",
+      "CREATIVE_GEARS_ACCEPTED": "Aceito pelo Creative Gears",
+      "CREATIVE_GEARS_REJECTED": "Rejeitado pelo Creative Gears",
+      "MANUAL_REVIEW": "Revisão manual",
+      "FAILED": "Falhou"
+    },
+    "xmlDeliveryStatus": {
+      "PENDING": "Pendente",
+      "SENT": "Enviado",
+      "ACCEPTED": "Aceito",
+      "REJECTED": "Rejeitado",
+      "FAILED": "Falhou"
+    }
+  },
+  "common": {
+    "open": "Abrir",
+    "cancel": "Cancelar",
+    "sync": "Sincronizar",
+    "loading": "Carregando...",
+    "done": "Concluído",
+    "error": "Algo deu errado",
+    "close": "Fechar",
+    "na": "—",
+    "view": "Ver",
+    "refetch": "Recarregar",
+    "tryAgain": "Tentar novamente"
+  },
+  "app": {
+    "name": "Pultrum"
+  }
+}
