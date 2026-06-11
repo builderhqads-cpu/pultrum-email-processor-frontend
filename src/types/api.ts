@@ -223,6 +223,7 @@ export type ValidationWarning = {
 export type AiRequest = {
   id: string;
   orderId: string;
+  type?: "PROCESSING" | "REPLY" | (string & {});
   payloadJson: unknown;
   responseJson: unknown | null;
   status: string;

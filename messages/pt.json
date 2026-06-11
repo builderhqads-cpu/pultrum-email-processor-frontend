@@ -263,7 +263,11 @@
         "title": "Requisições de IA",
         "empty": "Nenhuma requisição de IA",
         "payload": "Payload JSON",
-        "response": "Resposta JSON"
+        "response": "Resposta JSON",
+        "types": {
+          "PROCESSING": "Processamento",
+          "REPLY": "Geração de resposta"
+        }
       },
       "xmlDeliveries": {
         "title": "Entregas XML",

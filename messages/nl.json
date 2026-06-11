@@ -260,7 +260,11 @@
         "title": "AI-verzoeken",
         "empty": "Geen AI-verzoeken",
         "payload": "JSON-payload",
-        "response": "JSON-response"
+        "response": "JSON-response",
+        "types": {
+          "PROCESSING": "Verwerking",
+          "REPLY": "Antwoord genereren"
+        }
       },
       "xmlDeliveries": {
         "title": "XML-leveringen",

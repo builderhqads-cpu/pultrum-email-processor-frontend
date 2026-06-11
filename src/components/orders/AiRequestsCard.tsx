@@ -30,7 +30,12 @@ export function AiRequestsCard({aiRequests}: {aiRequests: AiRequest[]}) {
                 <div key={r.id} className="rounded-lg border bg-background p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {r.type ? (
+                          <span className="inline-flex items-center rounded-full border bg-muted/40 px-2 py-0.5 text-xs font-medium text-foreground">
+                            {t(`aiRequests.types.${r.type}`)}
+                          </span>
+                        ) : null}
                         <StatusBadge status={r.status} />
                         <span className="font-mono text-xs text-muted-foreground">
                           {formatDateTime(r.createdAt, locale)}

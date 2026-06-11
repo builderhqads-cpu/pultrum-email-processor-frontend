@@ -260,7 +260,11 @@
         "title": "AI requests",
         "empty": "No AI requests",
         "payload": "Payload JSON",
-        "response": "Response JSON"
+        "response": "Response JSON",
+        "types": {
+          "PROCESSING": "Processing",
+          "REPLY": "Reply generation"
+        }
       },
       "xmlDeliveries": {
         "title": "XML deliveries",

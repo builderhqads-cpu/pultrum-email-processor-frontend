@@ -3,6 +3,7 @@
 import {
   Bot,
   CheckCheck,
+  ChevronDown,
   CircleAlert,
   CircleCheckBig,
   FileCheck2,
@@ -12,6 +13,7 @@ import {
   Send
 } from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
+import {useState} from 'react';
 
 import {useEmail} from '@/hooks/use-email';
 import {useReplyDraft} from '@/hooks/use-reply-draft';
@@ -74,18 +76,39 @@ export function OrderStatusSummary({order}: {order: TransportOrder}) {
     locale
   });
 
+  const [expanded, setExpanded] = useState(false);
+  // Current step = the furthest reached (last completed/error); fallback to first.
+  const lastDoneIndex = steps.reduce(
+    (acc, step, i) => (step.state === 'completed' || step.state === 'error' ? i : acc),
+    -1
+  );
+  const currentIndex = lastDoneIndex >= 0 ? lastDoneIndex : 0;
+  const visibleSteps = expanded
+    ? steps.map((step, index) => ({step, index}))
+    : [{step: steps[currentIndex], index: currentIndex}];
+
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4">
-        <div className="min-w-0">
-          <CardTitle className="text-base">{t('timeline.title')}</CardTitle>
-          <div className="mt-1 truncate text-xs text-muted-foreground">{currentStatusLabel}</div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex min-w-0 flex-1 items-start gap-2 text-left"
+        >
+          <ChevronDown
+            className={`mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+          <div className="min-w-0">
+            <CardTitle className="text-base">{t('timeline.title')}</CardTitle>
+            <div className="mt-1 truncate text-xs text-muted-foreground">{currentStatusLabel}</div>
+          </div>
+        </button>
         <StatusBadge status={order.status ?? tCommon('na')} />
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-0 rounded-xl border bg-background px-4 py-3">
-          {steps.map((step, index) => {
+          {visibleSteps.map(({step, index}) => {
             const iconTone = step.state === 'completed'
               ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200'
               : step.state === 'error'
@@ -108,7 +131,7 @@ export function OrderStatusSummary({order}: {order: TransportOrder}) {
                   <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${iconTone}`}>
                     <StepIcon className="h-4 w-4" />
                   </span>
-                  {index < steps.length - 1 ? <span className={`mt-2 h-full min-h-6 w-px ${lineTone}`} /> : null}
+                  {expanded && index < steps.length - 1 ? <span className={`mt-2 h-full min-h-6 w-px ${lineTone}`} /> : null}
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -154,6 +177,14 @@ function buildTimelineSteps({
     order.fields.some((field) => field.source === 'AI' && (field.value ?? '').trim().length > 0);
   const aiFailed = aiStatus === 'FAILED';
   const aiSkipped = aiStatus === 'SKIPPED';
+  // The AI step is skipped (not pending) when the pipeline moved past field
+  // validation without the AI ever running — e.g. a customer reply filled the
+  // gaps deterministically, so no AI extraction was recorded.
+  const aiBranchSkipped =
+    !aiCompleted &&
+    !aiFailed &&
+    order.status !== 'AI_PROCESSING' &&
+    (aiSkipped || laterThanValidation.includes(order.status));
   const xmlFailed = normalizeStatus(latestXmlDeliveryStatus) === 'FAILED';
   const xmlRejected = normalizeStatus(latestXmlDeliveryStatus) === 'REJECTED' || order.status === 'CREATIVE_GEARS_REJECTED';
   const xmlAccepted = normalizeStatus(latestXmlDeliveryStatus) === 'ACCEPTED' || order.status === 'CREATIVE_GEARS_ACCEPTED';
@@ -175,16 +206,14 @@ function buildTimelineSteps({
     {
       id: 'ai_processed',
       label: labels.aiProcessed,
-      date: aiExtraction?.date ?? (aiSkipped ? order.updatedAt || null : null),
+      date: aiExtraction?.date ?? (aiBranchSkipped ? order.updatedAt || null : null),
       state: aiFailed
         ? 'error'
         : aiCompleted
           ? 'completed'
-          : aiSkipped
+          : aiBranchSkipped
             ? 'skipped'
-            : order.status === 'AI_PROCESSING'
-              ? 'pending'
-              : 'pending',
+            : 'pending',
       icon: Bot
     },
     {
