@@ -2,7 +2,9 @@ import {defineRouting} from 'next-intl/routing';
 
 export const routing = defineRouting({
   locales: ['nl', 'en', 'pt'] as const,
-  defaultLocale: 'nl'
+  defaultLocale: 'nl',
+  // Default locale (nl) has no prefix (/login), others do (/en/login, /pt/login).
+  localePrefix: 'as-needed'
 });
 
 export type Locale = (typeof routing.locales)[number];

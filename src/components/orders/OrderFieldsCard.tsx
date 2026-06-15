@@ -10,6 +10,7 @@ import {cn} from '@/lib/utils';
 import type {Locale} from '@/i18n/routing';
 import type {OrderField} from '@/types';
 import {getFieldGroup, type FieldGroup} from './order-field-classification';
+import {fieldLabel} from './field-labels';
 import {OrderCollapsibleSection} from './OrderCollapsibleSection';
 
 function hasValue(value: unknown) {
@@ -72,7 +73,7 @@ export function OrderFieldsCard({
           >
             {items.length ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {items.map((field) => renderField(field, tCommon('na')))}
+                {items.map((field) => renderField(field, tCommon('na'), locale))}
               </div>
             ) : (
               <div className="text-sm text-muted-foreground">{labels[group].empty}</div>
@@ -89,7 +90,7 @@ export function OrderFieldsCard({
           badge={<Badge variant="outline">{groupedFields.additional.length}</Badge>}
         >
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {groupedFields.additional.map((field) => renderField(field, tCommon('na')))}
+            {groupedFields.additional.map((field) => renderField(field, tCommon('na'), locale))}
           </div>
         </OrderCollapsibleSection>
       ) : null}
@@ -112,7 +113,7 @@ export function OrderFieldsCard({
   );
 }
 
-function renderField(field: OrderField, naLabel: string) {
+function renderField(field: OrderField, naLabel: string, locale: Locale) {
   const confidence = typeof field.confidence === 'number' ? field.confidence : null;
   const lowConfidence = confidence != null && confidence < 0.8;
 
@@ -126,7 +127,7 @@ function renderField(field: OrderField, naLabel: string) {
     >
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 break-words text-xs font-medium text-muted-foreground">
-          {field.label}
+          {fieldLabel(field.key, locale, field.label)}
         </div>
         {confidence != null ? (
           <span
@@ -142,8 +143,6 @@ function renderField(field: OrderField, naLabel: string) {
       <div className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground [overflow-wrap:anywhere]">
         {field.value ?? <span className="text-muted-foreground">{naLabel}</span>}
       </div>
-
-      <div className="mt-1 break-all font-mono text-[10px] text-muted-foreground">{field.key}</div>
     </div>
   );
 }

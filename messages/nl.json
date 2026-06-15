@@ -304,7 +304,7 @@
         "generateSuccess": "AI-aanvraag in wachtrij gezet",
         "generateError": "Antwoord genereren mislukt",
         "confirmTitle": "Dit antwoord naar de klant sturen?",
-        "confirmDesc": "Dit verstuurt een e-mail via de geconfigureerde SMTP-provider."
+        "confirmDesc": "De klant ontvangt deze e-mail direct. Deze actie kan niet ongedaan worden gemaakt."
       }
     }
   },
@@ -342,7 +342,7 @@
   },
   "topbar": {
     "language": "Taal",
-    "systemTitle": "RENOVO IA | Pultrum",
+    "systemTitle": "RENOVO IA | Pultrum AI",
     "syncMailbox": "Mailbox sync",
     "logout": "Uitloggen",
     "mailboxIdPlaceholder": "Mailbox ID",
@@ -355,9 +355,12 @@
   },
   "auth": {
     "brand": "RENOVO IA",
-    "title": "Pultrum Mail Processor",
+    "title": "Pultrum AI",
     "subtitle": "Meld je aan om door te gaan.",
-    "email": "E-mail",
+    "tagline": "Een platform voor geautomatiseerde verwerking van logistieke e-mails, met AI.",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "forgotPasswordHint": "Neem contact op met je beheerder om je wachtwoord te resetten.",
+    "email": "Je e-mail",
     "emailPlaceholder": "admin@renovoia.local",
     "password": "Wachtwoord",
     "passwordPlaceholder": "••••••••",
@@ -427,6 +430,6 @@
     "tryAgain": "Opnieuw proberen"
   },
   "app": {
-    "name": "Pultrum"
+    "name": "Pultrum AI"
   }
 }

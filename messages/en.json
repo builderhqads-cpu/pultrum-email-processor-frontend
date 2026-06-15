@@ -304,7 +304,7 @@
         "generateSuccess": "AI request enqueued",
         "generateError": "Failed to generate reply",
         "confirmTitle": "Send this reply to the customer?",
-        "confirmDesc": "This will send an email using the configured SMTP provider."
+        "confirmDesc": "The customer will receive this email immediately. This action can't be undone."
       }
     }
   },
@@ -342,7 +342,7 @@
   },
   "topbar": {
     "language": "Language",
-    "systemTitle": "RENOVO IA | Pultrum",
+    "systemTitle": "RENOVO IA | Pultrum AI",
     "syncMailbox": "Sync mailbox",
     "logout": "Logout",
     "mailboxIdPlaceholder": "Mailbox ID",
@@ -355,9 +355,12 @@
   },
   "auth": {
     "brand": "RENOVO IA",
-    "title": "Pultrum Mail Processor",
+    "title": "Pultrum AI",
     "subtitle": "Sign in to continue.",
-    "email": "Email",
+    "tagline": "A platform for automated logistics email processing, built with AI.",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordHint": "Contact your administrator to reset your password.",
+    "email": "Your email",
     "emailPlaceholder": "admin@renovoia.local",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
@@ -427,6 +430,6 @@
     "tryAgain": "Try again"
   },
   "app": {
-    "name": "Pultrum"
+    "name": "Pultrum AI"
   }
 }

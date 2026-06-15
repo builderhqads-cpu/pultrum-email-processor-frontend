@@ -11,6 +11,7 @@ import {
   isOptionalRequirement
 } from './order-field-classification';
 import {OrderCollapsibleSection} from './OrderCollapsibleSection';
+import {fieldLabel} from './field-labels';
 
 type MissingItem = {
   id: string;
@@ -38,8 +39,8 @@ export function MissingFieldsCard({
     .map((field) => ({
       id: field.id,
       key: field.key,
-      label: field.label,
-      reason: field.reason ?? null
+      label: fieldLabel(field.key, locale, field.label),
+      reason: labels.requiredReason
     }));
 
   const recommendedFields: MissingItem[] = validationWarnings
@@ -47,8 +48,8 @@ export function MissingFieldsCard({
     .map((field) => ({
       id: field.id,
       key: field.key,
-      label: field.label,
-      reason: field.reason ?? null
+      label: fieldLabel(field.key, locale, field.label),
+      reason: labels.recommendedReason
     }));
 
   const optionalFields: MissingItem[] = fields
@@ -59,7 +60,7 @@ export function MissingFieldsCard({
     .map((field) => ({
       id: field.id,
       key: field.key,
-      label: field.label,
+      label: fieldLabel(field.key, locale, field.label),
       reason: labels.optionalReason
     }));
 
@@ -130,7 +131,6 @@ function Section({
           {items.map((field) => (
             <div key={field.id} className="min-w-0 rounded-lg border bg-background p-3">
               <div className="break-words text-sm font-medium">{field.label}</div>
-              <div className="mt-0.5 break-all font-mono text-[11px] text-muted-foreground">{field.key}</div>
               {field.reason ? (
                 <div className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
                   {field.reason}
@@ -158,6 +158,8 @@ const sectionLabels: Record<Locale, {
   recommendedEmpty: string;
   optionalEmpty: string;
   optionalReason: string;
+  requiredReason: string;
+  recommendedReason: string;
 }> = {
   pt: {
     titleWithCount: (count) => `Campos faltantes (${count})`,
@@ -170,7 +172,9 @@ const sectionLabels: Record<Locale, {
     requiredEmpty: 'Nenhum campo obrigatorio faltante.',
     recommendedEmpty: 'Nenhum aviso recomendado pendente.',
     optionalEmpty: 'Nenhum campo opcional pendente.',
-    optionalReason: 'Opcional nao informado.'
+    optionalReason: 'Opcional nao informado.',
+    requiredReason: 'Não detectado no conteúdo do e-mail.',
+    recommendedReason: 'Recomendado, mas não detectado no conteúdo do e-mail.'
   },
   en: {
     titleWithCount: (count) => `Missing fields (${count})`,
@@ -183,7 +187,9 @@ const sectionLabels: Record<Locale, {
     requiredEmpty: 'No required fields are missing.',
     recommendedEmpty: 'No recommended warnings are pending.',
     optionalEmpty: 'No optional fields are pending.',
-    optionalReason: 'Optional field not provided.'
+    optionalReason: 'Optional field not provided.',
+    requiredReason: 'Not detected in email content.',
+    recommendedReason: 'Recommended but not detected in email content.'
   },
   nl: {
     titleWithCount: (count) => `Ontbrekende velden (${count})`,
@@ -196,6 +202,8 @@ const sectionLabels: Record<Locale, {
     requiredEmpty: 'Geen verplichte velden ontbreken.',
     recommendedEmpty: 'Geen openstaande aanbevolen waarschuwingen.',
     optionalEmpty: 'Geen openstaande optionele velden.',
-    optionalReason: 'Optioneel veld niet opgegeven.'
+    optionalReason: 'Optioneel veld niet opgegeven.',
+    requiredReason: 'Niet gevonden in de e-mailinhoud.',
+    recommendedReason: 'Aanbevolen maar niet gevonden in de e-mailinhoud.'
   }
 };

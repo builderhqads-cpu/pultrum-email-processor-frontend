@@ -15,6 +15,11 @@ import '../globals.css';
 const fontSans = Geist({subsets: ['latin'], variable: '--font-sans'});
 const fontMono = Geist_Mono({subsets: ['latin'], variable: '--font-geist-mono'});
 
+export const metadata = {
+  title: 'Pultrum AI',
+  description: 'Automated logistics email processing, built with AI.'
+};
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({locale}));
 }
