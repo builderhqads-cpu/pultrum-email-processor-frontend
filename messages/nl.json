@@ -381,6 +381,14 @@
       "success": "Account aangemaakt. Log in om door te gaan.",
       "haveAccount": "Heb je al een account?",
       "signInLink": "Inloggen"
+    },
+    "reset": {
+      "title": "Wachtwoord resetten",
+      "subtitle": "Stel een nieuw wachtwoord in met je registratiecode.",
+      "newPassword": "Nieuw wachtwoord",
+      "submit": "Wachtwoord resetten",
+      "success": "Wachtwoord bijgewerkt. Log in om door te gaan.",
+      "error": "Wachtwoord resetten mislukt"
     }
   },
   "languages": {

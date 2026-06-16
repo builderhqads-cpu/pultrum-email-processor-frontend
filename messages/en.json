@@ -381,6 +381,14 @@
       "success": "Account created. Please sign in.",
       "haveAccount": "Already have an account?",
       "signInLink": "Sign in"
+    },
+    "reset": {
+      "title": "Reset password",
+      "subtitle": "Set a new password with your registration code.",
+      "newPassword": "New password",
+      "submit": "Reset password",
+      "success": "Password updated. Please sign in.",
+      "error": "Could not reset password"
     }
   },
   "languages": {

@@ -384,6 +384,14 @@
       "success": "Conta criada. Faça login para continuar.",
       "haveAccount": "Já tem uma conta?",
       "signInLink": "Entrar"
+    },
+    "reset": {
+      "title": "Redefinir senha",
+      "subtitle": "Defina uma nova senha com o código de cadastro.",
+      "newPassword": "Nova senha",
+      "submit": "Redefinir senha",
+      "success": "Senha atualizada. Faça login para continuar.",
+      "error": "Não foi possível redefinir a senha"
     }
   },
   "languages": {

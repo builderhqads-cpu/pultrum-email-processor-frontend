@@ -21,7 +21,10 @@ export function AppLayout({
   const t = useTranslations();
 
   const isPublicRoute = useMemo(
-    () => pathname === '/login' || pathname === '/register',
+    () =>
+      pathname === '/login' ||
+      pathname === '/register' ||
+      pathname === '/reset-password',
     [pathname]
   );
 

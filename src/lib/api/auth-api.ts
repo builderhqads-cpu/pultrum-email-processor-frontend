@@ -47,6 +47,17 @@ export async function register(payload: RegisterRequest) {
   return data as LoginResponse;
 }
 
+export type ResetPasswordRequest = {
+  email: string;
+  password: string;
+  code: string;
+};
+
+export async function resetPassword(payload: ResetPasswordRequest) {
+  const {data} = await apiClient.post('/auth/reset-password', payload);
+  return (data ?? {}) as {ok?: boolean};
+}
+
 export async function me() {
   const {data} = await apiClient.get('/auth/me');
   if (!data || typeof data !== 'object') {
