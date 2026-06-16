@@ -48,6 +48,21 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     return res.user;
   }, [refreshMe]);
 
+  const register = useCallback(
+    async (payload: {
+      name: string;
+      email: string;
+      password: string;
+      code: string;
+    }) => {
+      // Create the account only — do NOT start a session. The user is sent to
+      // the login page to sign in afterwards.
+      const res = await authApi.register(payload);
+      return res.user;
+    },
+    []
+  );
+
   const logout = useCallback(() => {
     clearAccessToken();
     setUser(null);
@@ -61,10 +76,11 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
       user,
       error,
       login,
+      register,
       logout,
       refreshMe
     }),
-    [status, user, error, login, logout, refreshMe]
+    [status, user, error, login, register, logout, refreshMe]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

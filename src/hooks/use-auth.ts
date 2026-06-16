@@ -10,6 +10,12 @@ export type AuthContextValue = {
   user: AuthUser | null;
   error: string | null;
   login: (email: string, password: string) => Promise<AuthUser>;
+  register: (payload: {
+    name: string;
+    email: string;
+    password: string;
+    code: string;
+  }) => Promise<AuthUser>;
   logout: () => void;
   refreshMe: () => Promise<void>;
 };

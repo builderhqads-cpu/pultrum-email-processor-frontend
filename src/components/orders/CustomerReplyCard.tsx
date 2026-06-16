@@ -86,7 +86,8 @@ export function CustomerReplyCard({
   const [body, setBody] = useState('');
 
   const sent = draftQuery.data?.status === 'SENT';
-  const canEdit = Boolean(draftQuery.data) && !sent;
+  // Editing/resending stays allowed after a send (e.g. reminders).
+  const canEdit = Boolean(draftQuery.data);
   const hasChanges =
     Boolean(draftQuery.data) &&
     (toEmail !== (draftQuery.data?.toEmail || '') ||
@@ -233,47 +234,53 @@ export function CustomerReplyCard({
             </div>
           </div>
 
-          {!sent ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => {
-                    syncDraftToForm();
-                    setEditorOpen(true);
-                  }}
-                >
-                  <SquarePen className="h-4 w-4" />
-                  {labels.edit}
-                </Button>
+          {sent ? (
+            <div className="rounded-xl border bg-background p-3 text-xs text-muted-foreground">
+              {t('sentReadonly')}
+            </div>
+          ) : null}
 
-                <AlertDialog>
-                  <AlertDialogTrigger
-                    render={<Button variant="secondary" size="sm" className="gap-2" disabled={sendReply.isPending} />}
-                  >
-                    <Send className="h-4 w-4" />
-                    {sendReply.isPending ? tCommon('loading') : t('send')}
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  syncDraftToForm();
+                  setEditorOpen(true);
+                }}
+              >
+                <SquarePen className="h-4 w-4" />
+                {labels.edit}
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={<Button variant="secondary" size="sm" className="gap-2" disabled={sendReply.isPending} />}
+                >
+                  <Send className="h-4 w-4" />
+                  {sendReply.isPending
+                    ? tCommon('loading')
+                    : sent
+                      ? t('resend')
+                      : t('send')}
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
                     <AlertDialogTitle>{t('confirmTitle')}</AlertDialogTitle>
                     <AlertDialogDescription>{t('confirmDesc')}</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
-                    <AlertDialogClose onClick={() => onSend()}>{t('send')}</AlertDialogClose>
+                    <AlertDialogClose onClick={() => onSend()}>
+                      {sent ? t('resend') : t('send')}
+                    </AlertDialogClose>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              </div>
             </div>
-          ) : (
-            <div className="rounded-xl border bg-background p-3 text-xs text-muted-foreground">
-              {t('sentReadonly')}
-            </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 

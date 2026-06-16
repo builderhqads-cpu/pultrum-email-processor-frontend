@@ -15,6 +15,7 @@ import {OriginalEmailCard} from '@/components/orders/OriginalEmailCard';
 import {OrderStatusSummary} from '@/components/orders/OrderStatusSummary';
 import {OrderFieldsCard} from '@/components/orders/OrderFieldsCard';
 import {MissingFieldsCard} from '@/components/orders/MissingFieldsCard';
+import {RequiredMissingSummary} from '@/components/orders/RequiredMissingSummary';
 import {AiRequestsCard} from '@/components/orders/AiRequestsCard';
 import {XmlDeliveriesCard} from '@/components/orders/XmlDeliveriesCard';
 import {Skeleton} from '@/components/ui/skeleton';
@@ -83,6 +84,7 @@ export function OrderDetailsView({id}: {id: string}) {
 
         {/* Center: detected data with tabs */}
         <div className="min-w-0 space-y-6">
+          <RequiredMissingSummary missingFields={data.missingFields} />
           <Card className="min-w-0 overflow-hidden">
             <div className="flex flex-wrap gap-1 border-b px-3">
               <TabButton active={dataTab === 'detected'} onClick={() => setDataTab('detected')}>

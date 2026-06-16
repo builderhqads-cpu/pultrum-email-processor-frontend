@@ -29,6 +29,24 @@ export async function login(payload: LoginRequest) {
   return data as LoginResponse;
 }
 
+export type RegisterRequest = {
+  name: string;
+  email: string;
+  password: string;
+  code: string;
+};
+
+export async function register(payload: RegisterRequest) {
+  const {data} = await apiClient.post('/auth/register', payload);
+  if (!data || typeof data !== 'object') {
+    throw new ApiError({
+      message: 'Unexpected response from POST /auth/register (expected object)',
+      data
+    });
+  }
+  return data as LoginResponse;
+}
+
 export async function me() {
   const {data} = await apiClient.get('/auth/me');
   if (!data || typeof data !== 'object') {

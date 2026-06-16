@@ -4,6 +4,7 @@ import {useLocale} from 'next-intl';
 
 import {Badge} from '@/components/ui/badge';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {cn} from '@/lib/utils';
 import type {Locale} from '@/i18n/routing';
 import type {MissingField, OrderField, ValidationWarning} from '@/types';
 import {
@@ -74,6 +75,7 @@ export function MissingFieldsCard({
         emptyLabel={labels.requiredEmpty}
         items={requiredFields}
         defaultOpen
+        tone="danger"
       />
       <Section
         title={labels.recommendedTitle}
@@ -111,26 +113,53 @@ function Section({
   description,
   emptyLabel,
   items,
-  defaultOpen
+  defaultOpen,
+  tone
 }: {
   title: string;
   description: string;
   emptyLabel: string;
   items: MissingItem[];
   defaultOpen: boolean;
+  tone?: 'danger';
 }) {
+  const danger = tone === 'danger';
   return (
     <OrderCollapsibleSection
       title={title}
       description={description}
       defaultOpen={defaultOpen}
-      badge={<Badge variant="outline">{items.length}</Badge>}
+      badge={
+        <Badge
+          variant="outline"
+          className={
+            danger && items.length
+              ? 'border-destructive/40 bg-destructive/10 text-destructive'
+              : undefined
+          }
+        >
+          {items.length}
+        </Badge>
+      }
     >
       {items.length ? (
         <div className="space-y-3">
           {items.map((field) => (
-            <div key={field.id} className="min-w-0 rounded-lg border bg-background p-3">
-              <div className="break-words text-sm font-medium">{field.label}</div>
+            <div
+              key={field.id}
+              className={cn(
+                'min-w-0 rounded-lg border bg-background p-3',
+                danger && 'border-destructive/40 bg-destructive/5'
+              )}
+            >
+              <div
+                className={cn(
+                  'break-words text-sm font-medium',
+                  danger && 'text-destructive'
+                )}
+              >
+                {field.label}
+              </div>
               {field.reason ? (
                 <div className="mt-2 whitespace-pre-wrap break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
                   {field.reason}
@@ -166,9 +195,9 @@ const sectionLabels: Record<Locale, {
     requiredTitle: 'Campos obrigatorios faltantes',
     recommendedTitle: 'Campos recomendados faltantes',
     optionalTitle: 'Campos opcionais',
-    requiredDescription: 'Obrigatorios que bloqueiam o envio do XML.',
-    recommendedDescription: 'Recomendados que melhoram o pedido, mas nao bloqueiam.',
-    optionalDescription: 'Campos opcionais nao informados.',
+    requiredDescription: 'Obrigatórios — solicitados na resposta ao cliente.',
+    recommendedDescription: 'Recomendados — não solicitados (coleta futura).',
+    optionalDescription: 'Opcionais — não solicitados (coleta futura).',
     requiredEmpty: 'Nenhum campo obrigatorio faltante.',
     recommendedEmpty: 'Nenhum aviso recomendado pendente.',
     optionalEmpty: 'Nenhum campo opcional pendente.',
@@ -181,9 +210,9 @@ const sectionLabels: Record<Locale, {
     requiredTitle: 'Missing required fields',
     recommendedTitle: 'Missing recommended fields',
     optionalTitle: 'Optional fields',
-    requiredDescription: 'Required fields that block XML delivery.',
-    recommendedDescription: 'Recommended fields that improve the order but do not block.',
-    optionalDescription: 'Optional fields that were not provided.',
+    requiredDescription: 'Required — requested in the customer reply.',
+    recommendedDescription: 'Recommended — not requested (future collection).',
+    optionalDescription: 'Optional — not requested (future collection).',
     requiredEmpty: 'No required fields are missing.',
     recommendedEmpty: 'No recommended warnings are pending.',
     optionalEmpty: 'No optional fields are pending.',
@@ -196,9 +225,9 @@ const sectionLabels: Record<Locale, {
     requiredTitle: 'Ontbrekende verplichte velden',
     recommendedTitle: 'Ontbrekende aanbevolen velden',
     optionalTitle: 'Optionele velden',
-    requiredDescription: 'Verplichte velden die het verzenden van XML blokkeren.',
-    recommendedDescription: 'Aanbevolen velden die de order verbeteren maar niet blokkeren.',
-    optionalDescription: 'Optionele velden die niet zijn opgegeven.',
+    requiredDescription: 'Verplicht — worden in het antwoord opgevraagd.',
+    recommendedDescription: 'Aanbevolen — niet opgevraagd (voor latere verzameling).',
+    optionalDescription: 'Optioneel — niet opgevraagd (voor latere verzameling).',
     requiredEmpty: 'Geen verplichte velden ontbreken.',
     recommendedEmpty: 'Geen openstaande aanbevolen waarschuwingen.',
     optionalEmpty: 'Geen openstaande optionele velden.',

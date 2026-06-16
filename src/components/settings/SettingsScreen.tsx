@@ -1240,11 +1240,11 @@ const settingsLabels: Record<
       deleteAction: "Verwijderen",
       deleteLoading: "Mailbox wordt verwijderd...",
       deleteSuccess:
-        "Mailbox {email} verwijderd. {emails} e-mail(s) en {orders} bestelling(en) verwijderd.",
+        "Mailbox {email} verwijderd. {emails} e-mail(s) en {orders} opdracht(en) verwijderd.",
       deleteError: "Mailbox verwijderen mislukt",
       deleteConfirmTitle: "Deze mailbox verwijderen?",
       deleteConfirmDescription:
-        "De mailbox {email} van afdeling {department} wordt permanent verwijderd. Alle e-mails, bijlagen en bestellingen die via deze mailbox zijn gesynchroniseerd worden ook verwijderd.",
+        "De mailbox {email} van afdeling {department} wordt permanent verwijderd. Alle e-mails, bijlagen en opdrachten die via deze mailbox zijn gesynchroniseerd worden ook verwijderd.",
       activateAction: "Activeren",
       deactivateAction: "Deactiveren",
       activateLoading: "Mailbox wordt geactiveerd...",

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Inbox, MailOpen, Paperclip } from "lucide-react";
+import { ChevronRight, Inbox, MailOpen, Paperclip } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -152,6 +152,91 @@ export default function EmailsPage() {
     [baseFiltered, queueTab],
   );
 
+  // Conversation view: group by conversationId (fallback threadKey/id). Groups
+  // are ordered by most recent activity; messages within a group are oldest-first
+  // (original on top, replies below).
+  const groups = useMemo(() => {
+    const map = new Map<string, EmailMessageListItem[]>();
+    for (const item of filtered) {
+      const key = item.conversationId || item.threadKey || item.id;
+      const arr = map.get(key);
+      if (arr) arr.push(item);
+      else map.set(key, [item]);
+    }
+    return Array.from(map.entries())
+      .map(([key, items]) => {
+        const sorted = [...items].sort(
+          (a, b) =>
+            new Date(a.receivedAt).getTime() - new Date(b.receivedAt).getTime(),
+        );
+        const latestTs = new Date(
+          sorted[sorted.length - 1].receivedAt,
+        ).getTime();
+        return { key, items: sorted, latestTs };
+      })
+      .sort((a, b) => b.latestTs - a.latestTs);
+  }, [filtered]);
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = (key: string) =>
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  const renderEmailRow = (
+    item: EmailMessageListItem,
+    opts: { nested?: boolean },
+  ) => (
+    <button
+      key={item.id}
+      type="button"
+      onClick={() => setSelectedId(item.id)}
+      className={cn(
+        "block w-full px-3 py-2.5 text-left transition-colors hover:bg-muted/50",
+        opts.nested ? "border-t bg-muted/10 pl-8" : "border-b",
+        selectedId === item.id && "bg-muted",
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className={cn(
+            "h-2 w-2 shrink-0 rounded-full",
+            statusDotClass(item.status),
+          )}
+        />
+        <span
+          className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+          title={item.fromEmail || tCommon("na")}
+        >
+          {item.fromEmail || tCommon("na")}
+        </span>
+        <span className="shrink-0 text-[11px] text-muted-foreground">
+          {item.receivedAt ? formatListTime(item.receivedAt, uiLocale) : ""}
+        </span>
+      </div>
+      <div
+        className="mt-1 truncate pl-4 text-sm text-muted-foreground"
+        title={item.subject || tCommon("na")}
+      >
+        {item.subject || tCommon("na")}
+      </div>
+      <div className="mt-1.5 flex items-center gap-2 pl-4">
+        <StatusBadge status={item.status ?? tCommon("na")} />
+        {item.isTransportOrder === false ? (
+          <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+            {labels.notTransport}
+          </span>
+        ) : null}
+        {item.hasAttachments ? (
+          <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+        ) : null}
+      </div>
+    </button>
+  );
+
   // Keep a valid selection: default to the first email, and recover when the
   // current selection drops out of the filtered list.
   useEffect(() => {
@@ -275,55 +360,69 @@ export default function EmailsPage() {
                 className="border-0 bg-transparent shadow-none"
               />
             ) : (
-              filtered.map((item) => {
-                const active = selectedId === item.id;
+              groups.map((group) => {
+                if (group.items.length === 1) {
+                  return renderEmailRow(group.items[0], {});
+                }
+                const latest = group.items[group.items.length - 1];
+                const expanded = expandedGroups.has(group.key);
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setSelectedId(item.id)}
-                    className={cn(
-                      "block w-full border-b px-3 py-2.5 text-left transition-colors hover:bg-muted/50",
-                      active && "bg-muted",
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          "h-2 w-2 shrink-0 rounded-full",
-                          statusDotClass(item.status),
-                        )}
-                      />
-                      <span
-                        className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
-                        title={item.fromEmail || tCommon("na")}
-                      >
-                        {item.fromEmail || tCommon("na")}
-                      </span>
-                      <span className="shrink-0 text-[11px] text-muted-foreground">
-                        {item.receivedAt
-                          ? formatListTime(item.receivedAt, uiLocale)
-                          : ""}
-                      </span>
-                    </div>
-                    <div
-                      className="mt-1 truncate pl-4 text-sm text-muted-foreground"
-                      title={item.subject || tCommon("na")}
+                  <div key={group.key} className="border-b">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleGroup(group.key);
+                        setSelectedId(latest.id);
+                      }}
+                      className={cn(
+                        "block w-full px-3 py-2.5 text-left transition-colors hover:bg-muted/50",
+                        !expanded && selectedId === latest.id && "bg-muted",
+                      )}
                     >
-                      {item.subject || tCommon("na")}
-                    </div>
-                    <div className="mt-1.5 flex items-center gap-2 pl-4">
-                      <StatusBadge status={item.status ?? tCommon("na")} />
-                      {item.isTransportOrder === false ? (
-                        <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                          {labels.notTransport}
+                      <div className="flex items-center gap-2">
+                        <ChevronRight
+                          className={cn(
+                            "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
+                            expanded && "rotate-90",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "h-2 w-2 shrink-0 rounded-full",
+                            statusDotClass(latest.status),
+                          )}
+                        />
+                        <span
+                          className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+                          title={latest.fromEmail || tCommon("na")}
+                        >
+                          {latest.fromEmail || tCommon("na")}
                         </span>
-                      ) : null}
-                      {item.hasAttachments ? (
-                        <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
-                      ) : null}
-                    </div>
-                  </button>
+                        <span className="shrink-0 text-[11px] text-muted-foreground">
+                          {latest.receivedAt
+                            ? formatListTime(latest.receivedAt, uiLocale)
+                            : ""}
+                        </span>
+                      </div>
+                      <div
+                        className="mt-1 truncate pl-5 text-sm text-muted-foreground"
+                        title={latest.subject || tCommon("na")}
+                      >
+                        {latest.subject || tCommon("na")}
+                      </div>
+                      <div className="mt-1.5 flex items-center gap-2 pl-5">
+                        <StatusBadge status={latest.status ?? tCommon("na")} />
+                        <span className="inline-flex items-center rounded-full border border-sky-300 bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/20 dark:text-sky-300">
+                          {labels.replies(group.items.length - 1)}
+                        </span>
+                      </div>
+                    </button>
+                    {expanded
+                      ? group.items.map((it) =>
+                          renderEmailRow(it, { nested: true }),
+                        )
+                      : null}
+                  </div>
                 );
               })
             )}
@@ -399,6 +498,7 @@ const emailPageLabels: Record<
     deleteConfirmTitle: string;
     deleteConfirm: string;
     notTransport: string;
+    replies: (count: number) => string;
   }
 > = {
   pt: {
@@ -422,6 +522,7 @@ const emailPageLabels: Record<
     deleteConfirm:
       "Essa acao remove o e-mail do sistema. Se houver um pedido vinculado, ele e os replies tambem serao removidos.",
     notTransport: "Nao e transporte",
+    replies: (n) => (n === 1 ? "1 resposta" : `${n} respostas`),
   },
   en: {
     inboxTitle: "Triage Inbox",
@@ -444,6 +545,7 @@ const emailPageLabels: Record<
     deleteConfirm:
       "This removes the email from the system. If an order is linked, it and its replies are removed too.",
     notTransport: "Not transport",
+    replies: (n) => (n === 1 ? "1 reply" : `${n} replies`),
   },
   nl: {
     inboxTitle: "Triage-inbox",
@@ -460,11 +562,12 @@ const emailPageLabels: Record<
     deleteAction: "Verwijderen",
     deleteLoading: "E-mail verwijderen...",
     deleteSuccess: "E-mail verwijderd",
-    deleteSuccessWithOrder: "E-mail en gekoppelde bestelling verwijderd",
+    deleteSuccessWithOrder: "E-mail en gekoppelde opdracht verwijderd",
     deleteError: "E-mail verwijderen mislukt",
     deleteConfirmTitle: "Deze e-mail verwijderen?",
     deleteConfirm:
-      "Hiermee wordt de e-mail uit het systeem verwijderd. Een gekoppelde bestelling en replies worden ook verwijderd.",
+      "Hiermee wordt de e-mail uit het systeem verwijderd. Een gekoppelde opdracht en antwoorden worden ook verwijderd.",
     notTransport: "Geen transport",
+    replies: (n) => (n === 1 ? "1 antwoord" : `${n} antwoorden`),
   },
 };

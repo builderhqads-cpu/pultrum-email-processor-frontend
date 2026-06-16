@@ -121,6 +121,8 @@ export type EmailMessageListItem = {
   id: string;
   providerMessageId: string;
   graphMessageId?: string;
+  conversationId?: string | null;
+  threadKey?: string | null;
   fromEmail: string;
   fromName?: string | null;
   subject: string;

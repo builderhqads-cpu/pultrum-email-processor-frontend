@@ -348,7 +348,7 @@ const timelineStepLabels: Record<Locale, {
   },
   nl: {
     emailReceived: 'E-mail ontvangen',
-    aiProcessed: 'AI verwerkte bestelling',
+    aiProcessed: 'AI verwerkte opdracht',
     fieldsValidated: 'Velden gevalideerd',
     replyGenerated: 'Klantantwoord gegenereerd',
     replySent: 'Antwoord verzonden',

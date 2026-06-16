@@ -291,7 +291,8 @@
         "save": "Save changes",
         "send": "Send reply",
         "sent": "Reply sent",
-        "sentReadonly": "This reply has been sent. Editing is disabled.",
+        "sentReadonly": "This reply has already been sent. You can edit it and send again.",
+        "resend": "Resend",
         "unsaved": "You have unsaved changes",
         "saved": "All changes saved",
         "saving": "Saving draft…",
@@ -365,7 +366,22 @@
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "signIn": "Sign in",
-    "loginError": "Login failed"
+    "loginError": "Login failed",
+    "noAccount": "No account?",
+    "createAccountLink": "Create one",
+    "register": {
+      "title": "Create account",
+      "subtitle": "Set up your access to continue.",
+      "name": "Your name",
+      "namePlaceholder": "Jane Doe",
+      "code": "Registration code",
+      "codePlaceholder": "Code provided by your admin",
+      "submit": "Create account",
+      "error": "Could not create account",
+      "success": "Account created. Please sign in.",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    }
   },
   "languages": {
     "nl": "NL",

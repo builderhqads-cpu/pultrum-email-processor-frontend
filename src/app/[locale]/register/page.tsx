@@ -12,14 +12,16 @@ import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {BrandMark} from '@/components/ui/BrandMark';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const t = useTranslations();
   const locale = useLocale() as Locale;
   const router = useRouter();
-  const {login, status} = useAuth();
+  const {register, status} = useAuth();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -35,10 +37,17 @@ export default function LoginPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await login(email.trim(), password);
-      router.replace('/dashboard', {locale});
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        code: code.trim()
+      });
+      // Account created — no auto-login. Send the user to sign in.
+      toast.success(t('auth.register.success'));
+      router.replace('/login', {locale});
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('auth.loginError'));
+      setError(err instanceof Error ? err.message : t('auth.register.error'));
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +75,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Login form */}
+      {/* Register form */}
       <div className="flex items-center justify-center px-4 py-12">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-8">
@@ -75,9 +84,22 @@ export default function LoginPage() {
               <div className="text-xs font-semibold tracking-wide text-muted-foreground">
                 {t('auth.brand')}
               </div>
+              <div className="text-lg font-semibold text-foreground">
+                {t('auth.register.title')}
+              </div>
             </div>
 
             <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <div className="text-sm font-medium">{t('auth.register.name')}</div>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t('auth.register.namePlaceholder')}
+                  autoComplete="name"
+                />
+              </div>
+
               <div className="space-y-2">
                 <div className="text-sm font-medium">{t('auth.email')}</div>
                 <Input
@@ -90,22 +112,23 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">{t('auth.password')}</div>
-                  <button
-                    type="button"
-                    onClick={() => toast.info(t('auth.forgotPasswordHint'))}
-                    className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {t('auth.forgotPassword')}
-                  </button>
-                </div>
+                <div className="text-sm font-medium">{t('auth.password')}</div>
                 <Input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('auth.passwordPlaceholder')}
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-sm font-medium">{t('auth.register.code')}</div>
+                <Input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder={t('auth.register.codePlaceholder')}
+                  autoComplete="off"
                 />
               </div>
 
@@ -114,17 +137,17 @@ export default function LoginPage() {
               ) : null}
 
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? t('common.loading') : t('auth.signIn')}
+                {submitting ? t('common.loading') : t('auth.register.submit')}
               </Button>
             </form>
 
             <div className="mt-4 text-center text-xs text-muted-foreground">
-              {t('auth.noAccount')}{' '}
+              {t('auth.register.haveAccount')}{' '}
               <Link
-                href="/register"
+                href="/login"
                 className="font-medium text-foreground hover:underline"
               >
-                {t('auth.createAccountLink')}
+                {t('auth.register.signInLink')}
               </Link>
             </div>
           </CardContent>

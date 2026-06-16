@@ -294,7 +294,8 @@
         "save": "Salvar alterações",
         "send": "Enviar resposta",
         "sent": "Resposta enviada",
-        "sentReadonly": "Esta resposta já foi enviada. A edição está desabilitada.",
+        "sentReadonly": "Esta resposta já foi enviada. Você pode editá-la e reenviar.",
+        "resend": "Reenviar",
         "unsaved": "Você tem alterações não salvas",
         "saved": "Todas as alterações salvas",
         "saving": "Salvando rascunho…",
@@ -368,7 +369,22 @@
     "password": "Senha",
     "passwordPlaceholder": "••••••••",
     "signIn": "Entrar",
-    "loginError": "Falha no login"
+    "loginError": "Falha no login",
+    "noAccount": "Não tem conta?",
+    "createAccountLink": "Criar conta",
+    "register": {
+      "title": "Criar conta",
+      "subtitle": "Configure seu acesso para continuar.",
+      "name": "Seu nome",
+      "namePlaceholder": "João Silva",
+      "code": "Código de cadastro",
+      "codePlaceholder": "Código fornecido pelo administrador",
+      "submit": "Criar conta",
+      "error": "Não foi possível criar a conta",
+      "success": "Conta criada. Faça login para continuar.",
+      "haveAccount": "Já tem uma conta?",
+      "signInLink": "Entrar"
+    }
   },
   "languages": {
     "nl": "NL",

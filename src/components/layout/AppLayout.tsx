@@ -20,16 +20,19 @@ export function AppLayout({
   const {status} = useAuth();
   const t = useTranslations();
 
-  const isLoginRoute = useMemo(() => pathname === '/login', [pathname]);
+  const isPublicRoute = useMemo(
+    () => pathname === '/login' || pathname === '/register',
+    [pathname]
+  );
 
   useEffect(() => {
-    if (isLoginRoute) return;
+    if (isPublicRoute) return;
     if (status === 'unauthenticated') {
       router.replace('/login', {locale});
     }
-  }, [isLoginRoute, status, router, locale]);
+  }, [isPublicRoute, status, router, locale]);
 
-  if (!isLoginRoute && status === 'loading') {
+  if (!isPublicRoute && status === 'loading') {
     return (
       <div className="min-h-screen overflow-x-hidden bg-muted/40">
         <div className="mx-auto flex min-h-screen max-w-md items-center justify-center px-4">
@@ -41,11 +44,11 @@ export function AppLayout({
     );
   }
 
-  if (!isLoginRoute && status === 'unauthenticated') {
+  if (!isPublicRoute && status === 'unauthenticated') {
     return null;
   }
 
-  if (isLoginRoute) {
+  if (isPublicRoute) {
     return <div className="min-h-screen overflow-x-hidden bg-muted/40">{children}</div>;
   }
 

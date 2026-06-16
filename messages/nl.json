@@ -2,7 +2,7 @@
   "navigation": {
     "dashboard": "Dashboard",
     "emails": "E-mails",
-    "orders": "Bestellingen",
+    "orders": "Opdrachten",
     "settings": "Instellingen"
   },
   "dashboard": {
@@ -11,7 +11,7 @@
     "stubDetails": "Nog geen API gekoppeld. Voeg hier operationele widgets toe.",
     "cards": {
       "emailsReceived": "E-mails ontvangen",
-      "ordersProcessed": "Bestellingen verwerkt",
+      "ordersProcessed": "Opdrachten verwerkt",
       "missingInfo": "Ontbrekende info",
       "readyToXml": "Klaar voor XML",
       "waitingCustomer": "Wachten op klant",
@@ -21,8 +21,8 @@
       "emailsReceivedToday": "Vandaag ontvangen e-mails"
     },
     "latestOrders": {
-      "title": "Laatste bestellingen",
-      "empty": "Geen bestellingen gevonden",
+      "title": "Laatste opdrachten",
+      "empty": "Geen opdrachten gevonden",
       "columns": {
         "id": "ID",
         "customer": "Klant/e-mail",
@@ -35,7 +35,7 @@
     },
     "workQueue": {
       "title": "Werkvoorraad",
-      "empty": "Geen bestellingen gevonden",
+      "empty": "Geen opdrachten gevonden",
       "columns": {
         "id": "Korte ID",
         "customer": "Klant",
@@ -93,7 +93,7 @@
     "detail": {
       "title": "E-mail",
       "backToEmails": "Terug naar e-mails",
-      "openLinkedOrder": "Bestelling openen",
+      "openLinkedOrder": "Opdracht openen",
       "classification": {
         "reclassify": "Herclassificeren",
         "reclassifySuccess": "Herclassificatie gestart",
@@ -101,7 +101,7 @@
         "processAnyway": "Toch verwerken",
         "processAnywaySuccess": "Verwerking gestart",
         "processAnywayError": "Verwerken mislukt",
-        "notTransportTitle": "Geclassificeerd als geen transportorder"
+        "notTransportTitle": "Geclassificeerd als geen transportopdracht"
       },
       "attachments": "Bijlagen",
       "errorTitle": "Kon e-mail niet laden",
@@ -118,10 +118,10 @@
     }
   },
   "orders": {
-    "title": "Bestellingen",
+    "title": "Opdrachten",
     "queueSubtitle": "Operationele wachtrij met visuele prioriteit, e-mailcontext en snelle toegang tot de volgende actie.",
-    "detailTitle": "Bestelling",
-    "stubTitle": "Voorbeeldbestellingen",
+    "detailTitle": "Opdracht",
+    "stubTitle": "Voorbeeldopdrachten",
     "stubDetails": "Nog geen API gekoppeld. Dit is een placeholder."
     ,
     "quickFilters": {
@@ -146,11 +146,11 @@
       "showing": "Toont {count} van {total} (max {pageSize})"
     },
     "error": {
-      "title": "Kon bestellingen niet laden"
+      "title": "Kon opdrachten niet laden"
     },
-    "empty": "Geen bestellingen gevonden",
+    "empty": "Geen opdrachten gevonden",
     "table": {
-      "title": "Bestelwachtrij",
+      "title": "Opdrachtwachtrij",
       "selected": "geselecteerd",
       "selectAll": "Alle rijen selecteren",
       "selectRow": "Rij selecteren",
@@ -177,17 +177,17 @@
       "AI_REPLY_DRAFT_CREATED": "AI-antwoordconcept aangemaakt",
       "AI_REPLY_FAILED": "AI-antwoord mislukt",
       "CUSTOMER_REPLY_LINKED": "Klantantwoord gekoppeld",
-      "LINK_METHOD_USED": "Antwoord gekoppeld aan order",
+      "LINK_METHOD_USED": "Antwoord gekoppeld aan opdracht",
       "MODIFICATION_DETECTED": "Wijziging gedetecteerd",
       "ORDER_REPLY_SENT": "Antwoord naar klant verzonden",
-      "ORDER_REPROCESSED": "Order opnieuw verwerkt",
-      "ORDER_UPDATED_FROM_REPLY": "Order bijgewerkt via antwoord"
+      "ORDER_REPROCESSED": "Opdracht opnieuw verwerkt",
+      "ORDER_UPDATED_FROM_REPLY": "Opdracht bijgewerkt via antwoord"
     },
     "detail": {
-      "backToOrders": "Terug naar bestellingen",
+      "backToOrders": "Terug naar opdrachten",
       "openOriginalEmail": "Originele e-mail openen",
-      "errorTitle": "Kon bestelling niet laden",
-      "empty": "Bestelling niet gevonden",
+      "errorTitle": "Kon opdracht niet laden",
+      "empty": "Opdracht niet gevonden",
       "actions": {
         "reprocess": "Opnieuw verwerken",
         "processWithAi": "E-mail verwerken met AI",
@@ -195,17 +195,17 @@
         "sendXml": "XML sturen"
       },
       "confirm": {
-        "reprocessTitle": "Bestelling opnieuw verwerken?",
-        "reprocessDesc": "Dit voert de verwerkingspipeline opnieuw uit met dezelfde ordergegevens.",
+        "reprocessTitle": "Opdracht opnieuw verwerken?",
+        "reprocessDesc": "Dit voert de verwerkingspipeline opnieuw uit met dezelfde opdrachtgegevens.",
         "processAiTitle": "E-mail verwerken met AI?",
         "processAiDesc": "Dit voert AI-extractie uit op de e-mail en bijlagen en werkt de gedetecteerde velden bij.",
         "replyAiTitle": "Klantantwoord genereren?",
         "replyAiDesc": "Dit laat AI een bewerkbare conceptmail genereren om ontbrekende informatie op te vragen.",
-        "xmlTitle": "XML voor deze bestelling verzenden?",
+        "xmlTitle": "XML voor deze opdracht verzenden?",
         "xmlDesc": "Dit probeert de XML-payload te leveren aan Creative Gears."
       },
       "toast": {
-        "reprocessSuccess": "Bestelling opnieuw verwerkt",
+        "reprocessSuccess": "Opdracht opnieuw verwerkt",
         "reprocessError": "Opnieuw verwerken mislukt",
         "processWithAiSuccess": "E-mail verwerkt met AI",
         "processWithAiError": "E-mail verwerken met AI mislukt",
@@ -274,7 +274,7 @@
         "view": "XML weergeven",
         "preview": "XML bekijken",
         "previewTitle": "XML-voorbeeld",
-        "previewDescription": "Gegenereerd op basis van de huidige ordergegevens. Nog niet verzonden naar Creative Gears.",
+        "previewDescription": "Gegenereerd op basis van de huidige opdrachtgegevens. Nog niet verzonden naar Creative Gears.",
         "previewError": "XML-voorbeeld genereren mislukt"
       },
       "json": {
@@ -286,12 +286,13 @@
         "to": "Aan",
         "subject": "Onderwerp",
         "body": "E-mailtekst",
-        "noDraft": "Geen conceptantwoord gevonden voor deze order.",
+        "noDraft": "Geen conceptantwoord gevonden voor deze opdracht.",
         "generate": "Antwoord genereren met AI",
         "save": "Wijzigingen opslaan",
         "send": "Antwoord verzenden",
         "sent": "Antwoord verzonden",
-        "sentReadonly": "Dit antwoord is verzonden. Bewerken is uitgeschakeld.",
+        "sentReadonly": "Dit antwoord is al verzonden. Je kunt het bewerken en opnieuw versturen.",
+        "resend": "Opnieuw versturen",
         "unsaved": "Je hebt niet-opgeslagen wijzigingen",
         "saved": "Alle wijzigingen opgeslagen",
         "saving": "Concept opslaan…",
@@ -365,7 +366,22 @@
     "password": "Wachtwoord",
     "passwordPlaceholder": "••••••••",
     "signIn": "Inloggen",
-    "loginError": "Inloggen mislukt"
+    "loginError": "Inloggen mislukt",
+    "noAccount": "Geen account?",
+    "createAccountLink": "Account aanmaken",
+    "register": {
+      "title": "Account aanmaken",
+      "subtitle": "Stel je toegang in om door te gaan.",
+      "name": "Je naam",
+      "namePlaceholder": "Jan Jansen",
+      "code": "Registratiecode",
+      "codePlaceholder": "Code van je beheerder",
+      "submit": "Account aanmaken",
+      "error": "Account aanmaken mislukt",
+      "success": "Account aangemaakt. Log in om door te gaan.",
+      "haveAccount": "Heb je al een account?",
+      "signInLink": "Inloggen"
+    }
   },
   "languages": {
     "nl": "NL",
@@ -382,7 +398,7 @@
       "STUK_GOED": "Stukgoed"
     },
     "orderType": {
-      "NEW_ORDER": "Nieuwe bestelling",
+      "NEW_ORDER": "Nieuwe opdracht",
       "MODIFICATION": "Wijziging",
       "UNKNOWN": "Onbekend"
     },
@@ -396,7 +412,7 @@
       "EMAIL_RECEIVED": "E-mail ontvangen",
       "PROCESSING": "Verwerken",
       "AI_PROCESSING": "AI-verwerking",
-      "NEW_ORDER": "Nieuwe bestelling",
+      "NEW_ORDER": "Nieuwe opdracht",
       "MODIFICATION_DETECTED": "Wijziging gedetecteerd",
       "MISSING_INFORMATION": "Ontbrekende informatie",
       "WAITING_CUSTOMER_RESPONSE": "Wachten op klantreactie",
