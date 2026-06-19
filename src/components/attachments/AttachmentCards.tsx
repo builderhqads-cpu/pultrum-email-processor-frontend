@@ -1,7 +1,7 @@
 'use client';
 
 import {useState} from 'react';
-import {AlertTriangle, CheckCircle2, Download, Eye, FileText, LoaderCircle} from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Download, Eye, FileText, ImageIcon, LoaderCircle} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import type {Attachment, Locale} from '@/types';
@@ -176,9 +176,18 @@ function formatAttachmentSize(size?: number | null) {
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
+function isImageAttachment(attachment: Attachment) {
+  const mime = (attachment.mimeType || '').toLowerCase();
+  const name = (attachment.fileName || '').toLowerCase();
+  return mime.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/.test(name);
+}
+
 function getAttachmentExtractionStatus(attachment: Attachment) {
-  if (attachment.extractionStatus) return attachment.extractionStatus;
   if (attachment.extractedText?.trim()) return 'SUCCESS';
+  // Images are attached as-is but not text-extracted (computer vision is
+  // paused). Show a neutral state, never an extraction-failure error.
+  if (isImageAttachment(attachment)) return 'IMAGE';
+  if (attachment.extractionStatus) return attachment.extractionStatus;
   if (attachment.contentBase64) return 'PENDING';
   return 'FAILED';
 }
@@ -199,6 +208,11 @@ function getAttachmentExtractionTone(status: string) {
       return {
         badgeClassName: 'border-yellow-300 bg-yellow-50 text-yellow-700 dark:border-yellow-900/40 dark:bg-yellow-950/20 dark:text-yellow-300',
         icon: <FileText className="h-3.5 w-3.5" />
+      };
+    case 'IMAGE':
+      return {
+        badgeClassName: 'border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
+        icon: <ImageIcon className="h-3.5 w-3.5" />
       };
     default:
       return {
@@ -268,7 +282,8 @@ const attachmentLabels: Record<
       PENDING: 'Pendente',
       SUCCESS: 'Extraido',
       FAILED: 'Falhou',
-      OCR_REQUIRED: 'OCR necessario'
+      OCR_REQUIRED: 'OCR necessario',
+      IMAGE: 'Imagem anexada'
     }
   },
   en: {
@@ -285,7 +300,8 @@ const attachmentLabels: Record<
       PENDING: 'Pending',
       SUCCESS: 'Extracted',
       FAILED: 'Failed',
-      OCR_REQUIRED: 'OCR required'
+      OCR_REQUIRED: 'OCR required',
+      IMAGE: 'Image attached'
     }
   },
   nl: {
@@ -302,7 +318,8 @@ const attachmentLabels: Record<
       PENDING: 'In behandeling',
       SUCCESS: 'Geextraheerd',
       FAILED: 'Mislukt',
-      OCR_REQUIRED: 'OCR nodig'
+      OCR_REQUIRED: 'OCR nodig',
+      IMAGE: 'Afbeelding bijgevoegd'
     }
   }
 };
