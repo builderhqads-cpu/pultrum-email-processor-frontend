@@ -1,7 +1,7 @@
 'use client';
 
 import {useState} from 'react';
-import {AlertTriangle, CheckCircle2, Download, Eye, FileText, ImageIcon, LoaderCircle} from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileText, ImageIcon, LoaderCircle} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import type {Attachment, Locale} from '@/types';
@@ -47,6 +47,7 @@ export function AttachmentCards({
           const extractionTone = getAttachmentExtractionTone(extractionStatus);
           const canViewExtractedText = Boolean(attachment.extractedText?.trim());
           const canDownload = Boolean(attachment.downloadUrl || attachment.contentBase64);
+          const canViewFile = canDownload && isViewableAttachment(attachment);
 
           return (
             <div
@@ -95,17 +96,31 @@ export function AttachmentCards({
               ) : null}
 
               <div className="mt-4 flex flex-col gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full min-w-0 whitespace-normal break-words"
-                  onClick={() => setSelectedAttachmentId(attachment.id)}
-                  disabled={!canViewExtractedText}
-                >
-                  <Eye className="h-4 w-4" />
-                  {labels.viewExtractedText}
-                </Button>
+                {canViewFile ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full min-w-0 whitespace-normal break-words"
+                    onClick={() => viewAttachment(attachment)}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {labels.viewFile}
+                  </Button>
+                ) : null}
+
+                {canViewExtractedText ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full min-w-0 whitespace-normal break-words"
+                    onClick={() => setSelectedAttachmentId(attachment.id)}
+                  >
+                    <Eye className="h-4 w-4" />
+                    {labels.viewExtractedText}
+                  </Button>
+                ) : null}
 
                 {canDownload ? (
                   <Button
@@ -184,11 +199,14 @@ function isImageAttachment(attachment: Attachment) {
 
 function getAttachmentExtractionStatus(attachment: Attachment) {
   if (attachment.extractedText?.trim()) return 'SUCCESS';
-  // Images are attached as-is but not text-extracted (computer vision is
-  // paused). Show a neutral state, never an extraction-failure error.
+  if (attachment.extractionStatus === 'FAILED') return 'FAILED';
+  if (attachment.extractionStatus === 'OCR_REQUIRED') return 'OCR_REQUIRED';
+  // Images stay neutral (computer vision paused).
   if (isImageAttachment(attachment)) return 'IMAGE';
-  if (attachment.extractionStatus) return attachment.extractionStatus;
-  if (attachment.contentBase64) return 'PENDING';
+  // Any other attachment with no extracted text: we no longer extract it (the
+  // AI parses the .eml on its side). Show a neutral "attached" state instead of
+  // a spinning "pending", and never an extraction-failure error.
+  if (attachment.downloadUrl || attachment.contentBase64) return 'ATTACHED';
   return 'FAILED';
 }
 
@@ -214,12 +232,52 @@ function getAttachmentExtractionTone(status: string) {
         badgeClassName: 'border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
         icon: <ImageIcon className="h-3.5 w-3.5" />
       };
+    case 'ATTACHED':
+      return {
+        badgeClassName: 'border-slate-300 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
+        icon: <FileText className="h-3.5 w-3.5" />
+      };
     default:
       return {
         badgeClassName: 'border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/20 dark:text-sky-300',
         icon: <LoaderCircle className="h-3.5 w-3.5" />
       };
   }
+}
+
+function isViewableAttachment(attachment: Attachment) {
+  const mime = (attachment.mimeType || '').toLowerCase();
+  const name = (attachment.fileName || '').toLowerCase();
+  return (
+    mime === 'application/pdf' ||
+    mime.startsWith('image/') ||
+    /\.(pdf|jpe?g|png|webp|gif|bmp|tiff?)$/.test(name)
+  );
+}
+
+/** Open the attachment in a new tab (browser renders PDFs/images inline). */
+function viewAttachment(attachment: Attachment) {
+  if (typeof window === 'undefined') return;
+
+  if (attachment.downloadUrl) {
+    window.open(attachment.downloadUrl, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  if (!attachment.contentBase64) return;
+
+  const byteString = window.atob(attachment.contentBase64);
+  const bytes = new Uint8Array(byteString.length);
+  for (let index = 0; index < byteString.length; index += 1) {
+    bytes[index] = byteString.charCodeAt(index);
+  }
+  const blob = new Blob([bytes], {
+    type: attachment.mimeType || 'application/octet-stream'
+  });
+  const objectUrl = window.URL.createObjectURL(blob);
+  window.open(objectUrl, '_blank', 'noopener,noreferrer');
+  // Revoke later so the new tab has time to load the document.
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 60_000);
 }
 
 function downloadAttachment(attachment: Attachment) {
@@ -261,6 +319,7 @@ const attachmentLabels: Record<
     sizeLabel: string;
     extractionLabel: string;
     methodLabel: string;
+    viewFile: string;
     viewExtractedText: string;
     download: string;
     extractedTextTitle: string;
@@ -274,6 +333,7 @@ const attachmentLabels: Record<
     sizeLabel: 'Tamanho',
     extractionLabel: 'Status de extracao',
     methodLabel: 'Metodo',
+    viewFile: 'Visualizar anexo',
     viewExtractedText: 'Visualizar texto extraido',
     download: 'Baixar',
     extractedTextTitle: 'Texto extraido do anexo',
@@ -283,7 +343,8 @@ const attachmentLabels: Record<
       SUCCESS: 'Extraido',
       FAILED: 'Falhou',
       OCR_REQUIRED: 'OCR necessario',
-      IMAGE: 'Imagem anexada'
+      IMAGE: 'Imagem anexada',
+      ATTACHED: 'Anexado'
     }
   },
   en: {
@@ -292,6 +353,7 @@ const attachmentLabels: Record<
     sizeLabel: 'Size',
     extractionLabel: 'Extraction status',
     methodLabel: 'Method',
+    viewFile: 'View file',
     viewExtractedText: 'View extracted text',
     download: 'Download',
     extractedTextTitle: 'Extracted text from attachment',
@@ -301,7 +363,8 @@ const attachmentLabels: Record<
       SUCCESS: 'Extracted',
       FAILED: 'Failed',
       OCR_REQUIRED: 'OCR required',
-      IMAGE: 'Image attached'
+      IMAGE: 'Image attached',
+      ATTACHED: 'Attached'
     }
   },
   nl: {
@@ -310,6 +373,7 @@ const attachmentLabels: Record<
     sizeLabel: 'Grootte',
     extractionLabel: 'Extractiestatus',
     methodLabel: 'Methode',
+    viewFile: 'Bijlage bekijken',
     viewExtractedText: 'Geextraheerde tekst bekijken',
     download: 'Downloaden',
     extractedTextTitle: 'Geextraheerde tekst van bijlage',
@@ -319,7 +383,8 @@ const attachmentLabels: Record<
       SUCCESS: 'Geextraheerd',
       FAILED: 'Mislukt',
       OCR_REQUIRED: 'OCR nodig',
-      IMAGE: 'Afbeelding bijgevoegd'
+      IMAGE: 'Afbeelding bijgevoegd',
+      ATTACHED: 'Bijgevoegd'
     }
   }
 };

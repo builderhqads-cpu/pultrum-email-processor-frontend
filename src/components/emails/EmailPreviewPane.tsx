@@ -2,7 +2,6 @@
 
 import {
   AlertTriangle,
-  Bot,
   ExternalLink,
   Inbox,
   RefreshCw,
@@ -68,21 +67,6 @@ export function EmailPreviewPane({
             <ExternalLink className="h-4 w-4" />
             {t('openLinkedOrder')}
           </Link>
-          <Button
-            size="sm"
-            disabled={actions.processWithAi.loading}
-            onClick={() =>
-              runOrderAction({
-                fn: () => actions.processWithAi.mutateAsync(),
-                label: tOrder('actions.processWithAi'),
-                success: tOrder('toast.processWithAiSuccess'),
-                error: tOrder('toast.processWithAiError')
-              })
-            }
-          >
-            <Bot className="h-4 w-4" />
-            {tOrder('actions.processWithAi')}
-          </Button>
           <Button
             size="sm"
             variant="outline"

@@ -97,23 +97,6 @@ export async function sendOrderAiRequest(id: string) {
   return data;
 }
 
-export async function processOrderWithAi(id: string) {
-  const {data} = await apiClient.post<{
-    ok: boolean;
-    aiUsed?: boolean;
-    isComplete?: boolean;
-    missingFieldsCount?: number;
-    overallConfidence?: number;
-  }>(
-    `/orders/${id}/process-with-ai`,
-    undefined,
-    // This route may invoke LLM extraction and attachment parsing.
-    // It can take longer than the default 30s API client timeout.
-    {timeout: 120_000}
-  );
-  return data;
-}
-
 export async function generateOrderReplyDraft(id: string) {
   const {data} = await apiClient.post<EnqueuedResponse>(`/orders/${id}/generate-reply-draft`);
   return data;

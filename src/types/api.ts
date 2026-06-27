@@ -170,6 +170,25 @@ export type EmailMessage = {
     | "createdAt"
     | "updatedAt"
   > | null;
+  // Set when one email produced several orders (batch / weekly list).
+  batch?: BatchImportSummary | null;
+  orders?: BatchOrderItem[];
+};
+
+export type BatchImportSummary = {
+  id: string;
+  status: string;
+  totalDetected: number;
+  totalCreated: number;
+  totalFailed: number;
+  reason: string | null;
+};
+
+export type BatchOrderItem = {
+  id: string;
+  status: OrderStatus;
+  externalReference: string | null;
+  batchSequence: number | null;
 };
 
 // GET /orders
@@ -184,6 +203,9 @@ export type TransportOrderListItem = {
   updatedAt?: IsoDateTimeString;
   emailMessageId?: string;
   missingFieldsCount?: number;
+  batchImportId?: string | null;
+  batchSequence?: number | null;
+  externalReference?: string | null;
   lastAudit?: { action: string; createdAt: IsoDateTimeString } | null;
 };
 

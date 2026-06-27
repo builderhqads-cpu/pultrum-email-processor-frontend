@@ -150,32 +150,32 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
 const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; description: string; empty: string}>> = {
   pt: {
     pickup: {
-      title: 'Pickup',
+      title: 'Coleta',
       description: 'Dados de coleta e contatos de origem.',
-      empty: 'Nenhum dado de pickup encontrado.'
+      empty: 'Nenhum dado de coleta encontrado.'
     },
     delivery: {
-      title: 'Delivery',
+      title: 'Entrega',
       description: 'Dados de entrega e contatos de destino.',
-      empty: 'Nenhum dado de delivery encontrado.'
+      empty: 'Nenhum dado de entrega encontrado.'
     },
     cargo: {
-      title: 'Cargo',
+      title: 'Carga',
       description: 'Informacoes da carga, dimensoes e dados comerciais.',
       empty: 'Nenhum dado de carga encontrado.'
     },
     calculated: {
-      title: 'Calculated',
+      title: 'Calculado',
       description: 'Campos calculados automaticamente a partir dos dados detectados.',
       empty: 'Nenhum campo calculado encontrado.'
     },
     technical: {
-      title: 'Technical information',
+      title: 'Informacoes tecnicas',
       description: 'Campos de sistema e rastreamento tecnico.',
       empty: 'Nenhuma informacao tecnica encontrada.'
     },
     additional: {
-      title: 'Additional information',
+      title: 'Informacoes adicionais',
       description: 'Campos preenchidos que nao entram nas categorias principais.',
       empty: 'Nenhuma informacao adicional encontrada.'
     }
@@ -214,32 +214,32 @@ const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; descri
   },
   nl: {
     pickup: {
-      title: 'Pickup',
+      title: 'Laden',
       description: 'Laadgegevens en contactgegevens van de herkomst.',
-      empty: 'Geen pickup-velden gevonden.'
+      empty: 'Geen laadvelden gevonden.'
     },
     delivery: {
-      title: 'Delivery',
+      title: 'Lossen',
       description: 'Losgegevens en contactgegevens van de bestemming.',
-      empty: 'Geen delivery-velden gevonden.'
+      empty: 'Geen losvelden gevonden.'
     },
     cargo: {
-      title: 'Cargo',
+      title: 'Lading',
       description: 'Vrachtgegevens, afmetingen en commerciele data.',
-      empty: 'Geen cargo-velden gevonden.'
+      empty: 'Geen ladingvelden gevonden.'
     },
     calculated: {
-      title: 'Calculated',
+      title: 'Berekend',
       description: 'Automatisch berekende velden op basis van gedetecteerde data.',
       empty: 'Geen berekende velden gevonden.'
     },
     technical: {
-      title: 'Technical information',
+      title: 'Technische informatie',
       description: 'Systeem- en trackingvelden.',
       empty: 'Geen technische informatie gevonden.'
     },
     additional: {
-      title: 'Additional information',
+      title: 'Aanvullende informatie',
       description: 'Gevulde velden die niet in de hoofdcategorieen passen.',
       empty: 'Geen aanvullende informatie gevonden.'
     }

@@ -76,22 +76,6 @@ export function OrderActionsBar({
         {title ? <div className="text-sm font-semibold text-foreground">{title}</div> : null}
         <div className="grid grid-cols-1 gap-2">
           <ConfirmAction
-            title={t('confirm.processAiTitle')}
-            description={t('confirm.processAiDesc')}
-            actionLabel={t('actions.processWithAi')}
-            variant="default"
-            loading={actions.processWithAi.loading}
-            onConfirm={() =>
-              runAction({
-                label: t('actions.processWithAi'),
-                success: t('toast.processWithAiSuccess'),
-                errorFallback: t('toast.processWithAiError'),
-                fn: () => actions.processWithAi.mutateAsync()
-              })
-            }
-          />
-
-          <ConfirmAction
             title={t('confirm.replyAiTitle')}
             description={t('confirm.replyAiDesc')}
             actionLabel={t('actions.generateReply')}
@@ -164,7 +148,6 @@ export function OrderActionsBar({
           ) : null}
           {sendReply.error ? <div>{String(sendReply.error.message)}</div> : null}
           {actions.reprocess.error ? <div>{String(actions.reprocess.error.message)}</div> : null}
-          {actions.processWithAi.error ? <div>{String(actions.processWithAi.error.message)}</div> : null}
           {actions.generateAiReply.error ? <div>{String(actions.generateAiReply.error.message)}</div> : null}
           {actions.sendXml.error ? <div>{String(actions.sendXml.error.message)}</div> : null}
         </div>

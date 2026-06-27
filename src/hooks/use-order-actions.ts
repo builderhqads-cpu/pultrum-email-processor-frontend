@@ -5,7 +5,6 @@ import {
   ApiError,
   generateOrderAiReply,
   generateOrderReplyDraft,
-  processOrderWithAi,
   reprocessOrder,
   sendOrderXml
 } from '@/lib/api';
@@ -36,11 +35,6 @@ export function useOrderActions(orderId: string) {
     onSuccess: invalidate
   });
 
-  const processWithAi = useMutation<{ok: boolean}, ApiError, void>({
-    mutationFn: () => processOrderWithAi(orderId),
-    onSuccess: invalidate
-  });
-
   const sendXml = useMutation<EnqueuedResponse, ApiError, void>({
     mutationFn: () => sendOrderXml(orderId),
     onSuccess: invalidate
@@ -61,11 +55,6 @@ export function useOrderActions(orderId: string) {
       ...generateAiReply,
       loading: generateAiReply.isPending,
       error: generateAiReply.error
-    },
-    processWithAi: {
-      ...processWithAi,
-      loading: processWithAi.isPending,
-      error: processWithAi.error
     },
     sendXml: {
       ...sendXml,

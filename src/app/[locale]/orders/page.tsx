@@ -351,6 +351,21 @@ export default function OrdersPage() {
                       <div className="truncate text-xs text-muted-foreground">
                         {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
                       </div>
+                      {item.externalReference ? (
+                        <div className="mt-1 flex items-center gap-1.5">
+                          {item.batchImportId ? (
+                            <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                              Batch
+                            </span>
+                          ) : null}
+                          <span
+                            className="truncate font-mono text-[11px] text-muted-foreground"
+                            title={item.externalReference}
+                          >
+                            {item.externalReference}
+                          </span>
+                        </div>
+                      ) : null}
                     </TableCell>
                     <TableCell>
                       <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">

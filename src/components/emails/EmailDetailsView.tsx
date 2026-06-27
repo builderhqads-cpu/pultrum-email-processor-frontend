@@ -7,6 +7,7 @@ import type {Locale} from '@/i18n/routing';
 import {useEmail} from '@/hooks/use-email';
 import {PageHeader} from '@/components/layout/PageHeader';
 import {EmailDetailsCard} from '@/components/emails/EmailDetailsCard';
+import {BatchOrdersCard} from '@/components/emails/BatchOrdersCard';
 import {OrderActionsBar} from '@/components/orders/OrderActionsBar';
 import {Button, buttonVariants} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
@@ -79,6 +80,7 @@ export function EmailDetailsView({id}: {id: string}) {
   }
 
   const linkedOrder = email.data.order;
+  const batch = email.data.batch;
 
   return (
     <div className="space-y-6">
@@ -114,6 +116,14 @@ export function EmailDetailsView({id}: {id: string}) {
           orderId={linkedOrder.id}
           canSendXml={linkedOrder.status === 'READY_TO_XML'}
           onAfterAction={() => email.refetch()}
+        />
+      ) : null}
+
+      {batch && email.data.orders?.length ? (
+        <BatchOrdersCard
+          batch={batch}
+          orders={email.data.orders}
+          locale={locale}
         />
       ) : null}
 
