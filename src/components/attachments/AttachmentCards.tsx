@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileText, ImageIcon, LoaderCircle} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
@@ -30,10 +30,13 @@ export function AttachmentCards({
   const tCommon = useTranslations('common');
   const labels = attachmentLabels[locale] ?? attachmentLabels.en;
   const [selectedAttachmentId, setSelectedAttachmentId] = useState<string | null>(null);
+  const [previewAttachmentId, setPreviewAttachmentId] = useState<string | null>(null);
 
   const list = attachments ?? [];
   const selectedAttachment =
     list.find((attachment) => attachment.id === selectedAttachmentId) ?? null;
+  const previewAttachment =
+    list.find((attachment) => attachment.id === previewAttachmentId) ?? null;
 
   if (!list.length) {
     return <div className="text-sm text-muted-foreground">{emptyLabel ?? labels.noAttachments}</div>;
@@ -48,6 +51,9 @@ export function AttachmentCards({
           const canViewExtractedText = Boolean(attachment.extractedText?.trim());
           const canDownload = Boolean(attachment.downloadUrl || attachment.contentBase64);
           const canViewFile = canDownload && isViewableAttachment(attachment);
+          // DOCX/XLS can't render in a browser tab, so they open an in-app
+          // preview (DOCX -> HTML, XLS -> tables) instead.
+          const canPreviewOffice = canDownload && isOfficePreviewable(attachment);
 
           return (
             <div
@@ -109,6 +115,19 @@ export function AttachmentCards({
                   </Button>
                 ) : null}
 
+                {canPreviewOffice ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full min-w-0 whitespace-normal break-words"
+                    onClick={() => setPreviewAttachmentId(attachment.id)}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    {labels.viewFile}
+                  </Button>
+                ) : null}
+
                 {canViewExtractedText ? (
                   <Button
                     type="button"
@@ -156,7 +175,104 @@ export function AttachmentCards({
           <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
+
+      <OfficePreviewDialog
+        attachment={previewAttachment}
+        labels={labels}
+        onClose={() => setPreviewAttachmentId(null)}
+      />
     </>
+  );
+}
+
+/** In-app preview for DOCX (-> HTML) and XLS/XLSX (-> tables). The conversion
+ *  libraries are loaded on demand so they don't weigh on the main bundle. */
+function OfficePreviewDialog({
+  attachment,
+  labels,
+  onClose
+}: {
+  attachment: Attachment | null;
+  labels: AttachmentLabels;
+  onClose: () => void;
+}) {
+  const [state, setState] = useState<{
+    loading: boolean;
+    html?: string;
+    error?: boolean;
+  }>({loading: true});
+
+  useEffect(() => {
+    if (!attachment) return;
+    let cancelled = false;
+    setState({loading: true});
+
+    (async () => {
+      try {
+        const buffer = await getAttachmentArrayBuffer(attachment);
+        if (!buffer) throw new Error('no-content');
+        const kind = officeKind(attachment);
+        let html = '';
+
+        if (kind === 'docx') {
+          const mammoth = await import('mammoth');
+          const result = await mammoth.convertToHtml({arrayBuffer: buffer});
+          html = (result.value || '').trim();
+        } else if (kind === 'xls') {
+          const XLSX = await import('xlsx');
+          const workbook = XLSX.read(buffer, {type: 'array'});
+          html = workbook.SheetNames.map((name) => {
+            const sheet = workbook.Sheets[name];
+            const table = XLSX.utils.sheet_to_html(sheet);
+            return `<h3>${escapeHtml(name)}</h3>${table}`;
+          }).join('');
+        }
+
+        if (!cancelled) setState({loading: false, html});
+      } catch {
+        if (!cancelled) setState({loading: false, error: true});
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [attachment]);
+
+  return (
+    <Dialog open={Boolean(attachment)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{labels.previewTitle}</DialogTitle>
+          <DialogDescription>{attachment?.fileName ?? ''}</DialogDescription>
+        </DialogHeader>
+
+        {state.loading ? (
+          <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+            {labels.previewLoading}
+          </div>
+        ) : state.error ? (
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-3 text-sm text-destructive">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{labels.previewError}</span>
+          </div>
+        ) : state.html ? (
+          <div
+            className="max-h-[70vh] overflow-auto rounded-lg border bg-background p-4 text-sm leading-relaxed [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:font-semibold [&_p]:my-2 [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1"
+            // mammoth/SheetJS emit structured, script-free HTML built from the
+            // document model (no raw passthrough), so this is safe to render.
+            dangerouslySetInnerHTML={{__html: state.html}}
+          />
+        ) : (
+          <div className="py-16 text-center text-sm text-muted-foreground">
+            {labels.previewEmpty}
+          </div>
+        )}
+
+        <DialogFooter showCloseButton />
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -255,6 +371,65 @@ function isViewableAttachment(attachment: Attachment) {
   );
 }
 
+function officeKind(attachment: Attachment): 'docx' | 'xls' | null {
+  const mime = (attachment.mimeType || '').toLowerCase();
+  const name = (attachment.fileName || '').toLowerCase();
+  if (
+    mime ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    /\.docx$/.test(name)
+  ) {
+    return 'docx';
+  }
+  if (
+    mime === 'application/vnd.ms-excel' ||
+    mime ===
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    /\.(xlsx?|xlsm|csv)$/.test(name)
+  ) {
+    return 'xls';
+  }
+  return null;
+}
+
+function isOfficePreviewable(attachment: Attachment) {
+  return officeKind(attachment) !== null;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Get the raw bytes of an attachment (stored base64 first, else the URL). */
+async function getAttachmentArrayBuffer(
+  attachment: Attachment
+): Promise<ArrayBuffer | null> {
+  if (typeof window === 'undefined') return null;
+
+  if (attachment.contentBase64) {
+    const byteString = window.atob(attachment.contentBase64);
+    const bytes = new Uint8Array(byteString.length);
+    for (let index = 0; index < byteString.length; index += 1) {
+      bytes[index] = byteString.charCodeAt(index);
+    }
+    return bytes.buffer;
+  }
+
+  if (attachment.downloadUrl) {
+    const response = await fetch(attachment.downloadUrl, {
+      credentials: 'include'
+    });
+    if (!response.ok) return null;
+    return response.arrayBuffer();
+  }
+
+  return null;
+}
+
 /** Open the attachment in a new tab (browser renders PDFs/images inline). */
 function viewAttachment(attachment: Attachment) {
   if (typeof window === 'undefined') return;
@@ -311,22 +486,25 @@ function downloadAttachment(attachment: Attachment) {
   window.URL.revokeObjectURL(objectUrl);
 }
 
-const attachmentLabels: Record<
-  Locale,
-  {
-    noAttachments: string;
-    typeLabel: string;
-    sizeLabel: string;
-    extractionLabel: string;
-    methodLabel: string;
-    viewFile: string;
-    viewExtractedText: string;
-    download: string;
-    extractedTextTitle: string;
-    failedAlert: string;
-    statuses: Record<string, string>;
-  }
-> = {
+type AttachmentLabels = {
+  noAttachments: string;
+  typeLabel: string;
+  sizeLabel: string;
+  extractionLabel: string;
+  methodLabel: string;
+  viewFile: string;
+  viewExtractedText: string;
+  download: string;
+  extractedTextTitle: string;
+  failedAlert: string;
+  previewTitle: string;
+  previewLoading: string;
+  previewError: string;
+  previewEmpty: string;
+  statuses: Record<string, string>;
+};
+
+const attachmentLabels: Record<Locale, AttachmentLabels> = {
   pt: {
     noAttachments: 'Sem anexos',
     typeLabel: 'Tipo',
@@ -338,6 +516,10 @@ const attachmentLabels: Record<
     download: 'Baixar',
     extractedTextTitle: 'Texto extraido do anexo',
     failedAlert: 'Falha na extracao do texto deste anexo.',
+    previewTitle: 'Visualizacao do anexo',
+    previewLoading: 'Carregando visualizacao...',
+    previewError: 'Nao foi possivel visualizar este arquivo. Tente baixar.',
+    previewEmpty: 'Documento vazio.',
     statuses: {
       PENDING: 'Pendente',
       SUCCESS: 'Extraido',
@@ -358,6 +540,10 @@ const attachmentLabels: Record<
     download: 'Download',
     extractedTextTitle: 'Extracted text from attachment',
     failedAlert: 'Text extraction failed for this attachment.',
+    previewTitle: 'Attachment preview',
+    previewLoading: 'Loading preview...',
+    previewError: 'Could not preview this file. Try downloading it.',
+    previewEmpty: 'Empty document.',
     statuses: {
       PENDING: 'Pending',
       SUCCESS: 'Extracted',
@@ -378,6 +564,10 @@ const attachmentLabels: Record<
     download: 'Downloaden',
     extractedTextTitle: 'Geextraheerde tekst van bijlage',
     failedAlert: 'Tekstextractie is mislukt voor deze bijlage.',
+    previewTitle: 'Bijlage bekijken',
+    previewLoading: 'Voorbeeld laden...',
+    previewError: 'Kan dit bestand niet weergeven. Probeer te downloaden.',
+    previewEmpty: 'Leeg document.',
     statuses: {
       PENDING: 'In behandeling',
       SUCCESS: 'Geextraheerd',
