@@ -241,7 +241,7 @@ function OfficePreviewDialog({
 
   return (
     <Dialog open={Boolean(attachment)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[92vw]">
         <DialogHeader>
           <DialogTitle>{labels.previewTitle}</DialogTitle>
           <DialogDescription>{attachment?.fileName ?? ''}</DialogDescription>
@@ -259,7 +259,7 @@ function OfficePreviewDialog({
           </div>
         ) : state.html ? (
           <div
-            className="max-h-[70vh] overflow-auto rounded-lg border bg-background p-4 text-sm leading-relaxed [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:font-semibold [&_p]:my-2 [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1"
+            className="max-h-[82vh] min-h-[60vh] overflow-auto rounded-lg border bg-background p-4 text-sm leading-relaxed [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:font-semibold [&_p]:my-2 [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-border [&_th]:bg-muted [&_th]:px-2 [&_th]:py-1"
             // mammoth/SheetJS emit structured, script-free HTML built from the
             // document model (no raw passthrough), so this is safe to render.
             dangerouslySetInnerHTML={{__html: state.html}}
