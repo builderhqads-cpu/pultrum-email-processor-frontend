@@ -157,6 +157,7 @@
       "columns": {
         "id": "Short ID",
         "customer": "Customer",
+        "subject": "Subject",
         "subjectEmail": "Subject / email",
         "department": "Department",
         "status": "Status",

@@ -157,6 +157,7 @@
       "columns": {
         "id": "ID curto",
         "customer": "Cliente",
+        "subject": "Assunto",
         "subjectEmail": "Assunto / email",
         "department": "Departamento",
         "status": "Status",

@@ -248,6 +248,7 @@ export default function OrdersPage() {
                   />
                 </TableHead>
                 <TableHead className="min-w-[220px]">{t('table.columns.customer')}</TableHead>
+                <TableHead className="min-w-[200px]">{t('table.columns.subject')}</TableHead>
                 <TableHead className="w-[120px]">{t('table.columns.id')}</TableHead>
                 <TableHead className="w-[150px]">{t('table.columns.confidence')}</TableHead>
                 <TableHead className="w-[190px]">{t('table.columns.status')}</TableHead>
@@ -267,6 +268,7 @@ export default function OrdersPage() {
                     className="h-8"
                   />
                 </TableHead>
+                <TableHead className="py-1.5" />
                 <TableHead className="py-1.5" />
                 <TableHead className="py-1.5" />
                 <TableHead className="py-1.5">
@@ -324,6 +326,9 @@ export default function OrdersPage() {
               {sliced.map((item) => {
                 const updatedAt = getOrderLastUpdated(item);
                 const isSelected = selected.has(item.id);
+                const relatedEmail = item.emailMessageId
+                  ? emailsById.get(item.emailMessageId)
+                  : undefined;
 
                 return (
                   <TableRow
@@ -366,6 +371,14 @@ export default function OrdersPage() {
                           </span>
                         </div>
                       ) : null}
+                    </TableCell>
+                    <TableCell className="whitespace-normal">
+                      <div
+                        className="line-clamp-2 text-sm text-foreground"
+                        title={relatedEmail?.subject || tCommon('na')}
+                      >
+                        {relatedEmail?.subject || tCommon('na')}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
@@ -424,7 +437,7 @@ export default function OrdersPage() {
 
               {!isLoading && !hasError && sliced.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={8} className="py-10">
+                  <TableCell colSpan={9} className="py-10">
                     <EmptyState
                       icon={PackageSearch}
                       title={t('table.title')}
@@ -437,7 +450,7 @@ export default function OrdersPage() {
 
               {hasError ? (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={8} className="py-6">
+                  <TableCell colSpan={9} className="py-6">
                     <div className="space-y-3">
                       <div className="text-sm text-destructive">{String(orders.error?.message)}</div>
                       <Button onClick={() => orders.refetch()}>{tCommon('tryAgain')}</Button>
@@ -465,6 +478,7 @@ function OrdersTableSkeleton() {
               <Skeleton className="h-3 w-20" />
             </div>
           </TableCell>
+          <TableCell><Skeleton className="h-4 w-44" /></TableCell>
           <TableCell><Skeleton className="h-5 w-20" /></TableCell>
           <TableCell><Skeleton className="h-4 w-24" /></TableCell>
           <TableCell><Skeleton className="h-5 w-32" /></TableCell>

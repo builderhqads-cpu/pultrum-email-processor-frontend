@@ -157,6 +157,7 @@
       "columns": {
         "id": "ID",
         "customer": "Klant",
+        "subject": "Onderwerp",
         "subjectEmail": "Onderwerp / e-mail",
         "department": "Afdeling",
         "status": "Status",
