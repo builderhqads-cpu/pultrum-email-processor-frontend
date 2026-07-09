@@ -29,6 +29,15 @@ function hasValue(value: unknown) {
   return String(value).trim().length > 0;
 }
 
+function canManuallySendXml(status: string, missingFieldsCount: number) {
+  if (missingFieldsCount > 0) return false;
+  return (
+    status === 'READY_TO_XML' ||
+    status === 'CREATIVE_GEARS_REJECTED' ||
+    status === 'FAILED'
+  );
+}
+
 export function OrderDetailsView({id}: {id: string}) {
   const order = useOrder(id);
   const t = useTranslations('orders.detail');
@@ -68,6 +77,7 @@ export function OrderDetailsView({id}: {id: string}) {
   const data = order.data;
   const detectedCount = data.fields.filter((field) => hasValue(field.value)).length;
   const missingCount = data.missingFields.length + data.validationWarnings.length;
+  const canSendXml = canManuallySendXml(data.status, data.missingFields.length);
 
   return (
     <div className="space-y-6">
@@ -126,14 +136,12 @@ export function OrderDetailsView({id}: {id: string}) {
           <XmlDeliveriesCard
             xmlDeliveries={data.xmlDeliveries}
             orderId={id}
-            canPreview={
-              data.status === 'READY_TO_XML' && data.missingFields.length === 0
-            }
+            canPreview={canSendXml}
           />
           <CustomerReplyCard orderId={id} order={data} onAfterSend={() => order.refetch()} />
           <OrderActionsBar
             orderId={id}
-            canSendXml={data.missingFields.length === 0 && data.status === 'READY_TO_XML'}
+            canSendXml={canSendXml}
             onAfterAction={() => order.refetch()}
             sticky={false}
             title={labels.quickActions}

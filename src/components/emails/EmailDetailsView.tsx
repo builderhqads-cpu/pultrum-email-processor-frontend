@@ -19,6 +19,14 @@ function shortId(id: string) {
   return id.split('-')[0] ?? id.slice(0, 8);
 }
 
+function canManuallySendXml(status: string | null | undefined) {
+  return (
+    status === 'READY_TO_XML' ||
+    status === 'CREATIVE_GEARS_REJECTED' ||
+    status === 'FAILED'
+  );
+}
+
 export function EmailDetailsView({id}: {id: string}) {
   const t = useTranslations('emails.detail');
   const tCommon = useTranslations('common');
@@ -114,7 +122,7 @@ export function EmailDetailsView({id}: {id: string}) {
       {linkedOrder ? (
         <OrderActionsBar
           orderId={linkedOrder.id}
-          canSendXml={linkedOrder.status === 'READY_TO_XML'}
+          canSendXml={canManuallySendXml(linkedOrder.status)}
           onAfterAction={() => email.refetch()}
         />
       ) : null}
