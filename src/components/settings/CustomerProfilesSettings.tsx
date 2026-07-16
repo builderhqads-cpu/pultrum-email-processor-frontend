@@ -59,6 +59,7 @@ type RequirementKey = 'REQUIRED' | 'RECOMMENDED' | 'OPTIONAL';
 type FormState = {
   name: string;
   contactEmail: string;
+  additionalContactEmails: string;
   active: boolean;
   notes: string;
   fields: Record<string, string>;
@@ -74,6 +75,7 @@ const fieldGroupOrder: CustomerProfileFieldGroup[] = [
 const emptyFormState = (): FormState => ({
   name: '',
   contactEmail: '',
+  additionalContactEmails: '',
   active: true,
   notes: '',
   fields: {}
@@ -120,6 +122,7 @@ export function CustomerProfilesSettings() {
     setForm({
       name: profile.name,
       contactEmail: profile.contactEmail,
+      additionalContactEmails: profile.additionalContactEmails.join('\n'),
       active: profile.active,
       notes: profile.notes ?? '',
       fields: Object.fromEntries(
@@ -150,6 +153,7 @@ export function CustomerProfilesSettings() {
     return {
       name: form.name.trim(),
       contactEmail: form.contactEmail.trim(),
+      additionalContactEmails: parseEmailLines(form.additionalContactEmails),
       active: form.active,
       notes: form.notes.trim() || null,
       fields: Object.entries(form.fields)
@@ -253,6 +257,11 @@ export function CustomerProfilesSettings() {
                       <TableCell>
                         <div className="font-medium text-foreground">{profile.name}</div>
                         <div className="text-xs text-muted-foreground">{profile.contactEmail}</div>
+                        {profile.additionalContactEmails.length ? (
+                          <div className="text-xs text-muted-foreground">
+                            +{profile.additionalContactEmails.length} {labels.additionalEmailsCount}
+                          </div>
+                        ) : null}
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -338,6 +347,22 @@ export function CustomerProfilesSettings() {
                         placeholder={labels.form.contactEmailPlaceholder}
                         className="min-w-0"
                       />
+                    </div>
+                    <div className="min-w-0 space-y-1.5">
+                      <label className="text-sm font-medium text-foreground">
+                        {labels.form.additionalContactEmails}
+                      </label>
+                      <Textarea
+                        value={form.additionalContactEmails}
+                        onChange={(event) =>
+                          updateFieldValue('additionalContactEmails', event.target.value)
+                        }
+                        placeholder={labels.form.additionalContactEmailsPlaceholder}
+                        className="min-h-24 min-w-0"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        {labels.form.additionalContactEmailsHint}
+                      </p>
                     </div>
                   </div>
 
@@ -497,6 +522,15 @@ function normalizeGroup(group: string): CustomerProfileFieldGroup {
   return 'general';
 }
 
+function parseEmailLines(value: string) {
+  return [...new Set(
+    value
+      .split(/[\n,;]+/)
+      .map((entry) => entry.trim().toLowerCase())
+      .filter(Boolean)
+  )];
+}
+
 function normalizeRequirement(requirement: string): RequirementKey {
   const normalized = ((requirement || 'OPTIONAL').trim().toUpperCase() || 'OPTIONAL') as FieldRequirement;
 
@@ -530,6 +564,7 @@ const customerProfileLabels: Record<
     emptyDescription: string;
     active: string;
     inactive: string;
+    additionalEmailsCount: string;
     edit: string;
     delete: string;
     createTitle: string;
@@ -563,6 +598,9 @@ const customerProfileLabels: Record<
       namePlaceholder: string;
       contactEmail: string;
       contactEmailPlaceholder: string;
+      additionalContactEmails: string;
+      additionalContactEmailsPlaceholder: string;
+      additionalContactEmailsHint: string;
       status: string;
       notes: string;
       notesPlaceholder: string;
@@ -585,6 +623,7 @@ const customerProfileLabels: Record<
       'Crie um perfil para reaproveitar enderecos, contatos e informacoes fixas antes da IA.',
     active: 'Ativo',
     inactive: 'Inativo',
+    additionalEmailsCount: 'emails extras',
     edit: 'Editar',
     delete: 'Excluir',
     createTitle: 'Novo perfil de cliente',
@@ -620,6 +659,9 @@ const customerProfileLabels: Record<
       namePlaceholder: 'Ex.: ACME Logistics',
       contactEmail: 'Email de contato',
       contactEmailPlaceholder: 'cliente@empresa.com',
+      additionalContactEmails: 'Emails adicionais',
+      additionalContactEmailsPlaceholder: 'compras@empresa.com\nlogistica@empresa.com',
+      additionalContactEmailsHint: 'Um email por linha. Eles tambem serao reconhecidos para carregar este perfil.',
       status: 'Status',
       notes: 'Observacoes',
       notesPlaceholder: 'Notas internas sobre esse cliente.',
@@ -650,6 +692,7 @@ const customerProfileLabels: Record<
       'Create a profile to reuse addresses, contacts, and fixed data before AI extraction.',
     active: 'Active',
     inactive: 'Inactive',
+    additionalEmailsCount: 'additional emails',
     edit: 'Edit',
     delete: 'Delete',
     createTitle: 'New customer profile',
@@ -685,6 +728,9 @@ const customerProfileLabels: Record<
       namePlaceholder: 'Example: ACME Logistics',
       contactEmail: 'Contact email',
       contactEmailPlaceholder: 'customer@company.com',
+      additionalContactEmails: 'Additional emails',
+      additionalContactEmailsPlaceholder: 'purchasing@company.com\nlogistics@company.com',
+      additionalContactEmailsHint: 'One email per line. These addresses will also match this customer profile.',
       status: 'Status',
       notes: 'Notes',
       notesPlaceholder: 'Internal notes about this customer.',
@@ -715,6 +761,7 @@ const customerProfileLabels: Record<
       'Maak een profiel om adressen, contactpersonen en vaste gegevens vooraf te hergebruiken.',
     active: 'Actief',
     inactive: 'Inactief',
+    additionalEmailsCount: 'extra e-mails',
     edit: 'Bewerken',
     delete: 'Verwijderen',
     createTitle: 'Nieuw klantprofiel',
@@ -750,6 +797,9 @@ const customerProfileLabels: Record<
       namePlaceholder: 'Bijv. ACME Logistics',
       contactEmail: 'Contact e-mail',
       contactEmailPlaceholder: 'klant@bedrijf.com',
+      additionalContactEmails: 'Extra e-mails',
+      additionalContactEmailsPlaceholder: 'inkoop@bedrijf.com\nlogistiek@bedrijf.com',
+      additionalContactEmailsHint: 'Een e-mailadres per regel. Deze adressen worden ook herkend voor dit klantprofiel.',
       status: 'Status',
       notes: 'Notities',
       notesPlaceholder: 'Interne notities over deze klant.',

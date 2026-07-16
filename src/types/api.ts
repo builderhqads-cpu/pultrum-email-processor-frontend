@@ -127,6 +127,8 @@ export type CustomerProfile = {
   id: string;
   name: string;
   contactEmail: string;
+  contactEmails: string[];
+  additionalContactEmails: string[];
   active: boolean;
   notes: string | null;
   createdAt: IsoDateTimeString;
@@ -137,6 +139,7 @@ export type CustomerProfile = {
 export type CustomerProfileMutationInput = {
   name?: string;
   contactEmail?: string;
+  additionalContactEmails?: string[];
   active?: boolean;
   notes?: string | null;
   fields?: Array<{
