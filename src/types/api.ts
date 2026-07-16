@@ -95,6 +95,62 @@ export type DeleteMailboxResponse = {
   deletedOrdersCount: number;
 };
 
+export type CustomerProfileCatalogField = {
+  key: string;
+  label: string;
+  requirement: FieldRequirement;
+  group:
+    | "pickup"
+    | "delivery"
+    | "cargo"
+    | "general"
+    | (string & {});
+  conditional?: boolean;
+  aliases?: string[];
+};
+
+export type CustomerProfileField = {
+  id?: string;
+  key: string;
+  value: string;
+  label: string;
+  requirement: FieldRequirement;
+  group:
+    | "pickup"
+    | "delivery"
+    | "cargo"
+    | "general"
+    | (string & {});
+};
+
+export type CustomerProfile = {
+  id: string;
+  name: string;
+  contactEmail: string;
+  active: boolean;
+  notes: string | null;
+  createdAt: IsoDateTimeString;
+  updatedAt: IsoDateTimeString;
+  fields: CustomerProfileField[];
+};
+
+export type CustomerProfileMutationInput = {
+  name?: string;
+  contactEmail?: string;
+  active?: boolean;
+  notes?: string | null;
+  fields?: Array<{
+    key: string;
+    value: string;
+  }>;
+};
+
+export type DeleteCustomerProfileResponse = {
+  ok: boolean;
+  deletedCustomerProfileId: string;
+  deletedCustomerProfileEmail: string;
+};
+
 export type Attachment = {
   id: string;
   emailMessageId: string;

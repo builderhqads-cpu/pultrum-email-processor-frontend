@@ -84,6 +84,7 @@ import { cn } from "@/lib/utils";
 import type { Locale } from "@/i18n/routing";
 import type { Department, Mailbox as MailboxRecord } from "@/types";
 import { AutomationSettings } from "./AutomationSettings";
+import { CustomerProfilesSettings } from "./CustomerProfilesSettings";
 
 function Flag({ ok }: { ok: boolean }) {
   return <StatusBadge status={ok ? "CONFIGURED" : "NOT_CONFIGURED"} />;
@@ -115,7 +116,13 @@ function Row({
 
 const departmentOptions: Department[] = ["OPEN_TRANSPORT", "STUK_GOED"];
 
-type SettingsTab = "general" | "mailboxes" | "ai" | "automation" | "system";
+type SettingsTab =
+  | "general"
+  | "mailboxes"
+  | "customers"
+  | "ai"
+  | "automation"
+  | "system";
 
 function MailboxStatusPill({
   mailbox,
@@ -333,6 +340,7 @@ export function SettingsScreen() {
             [
               ["general", labels.tabs.general],
               ["mailboxes", labels.tabs.mailboxes],
+              ["customers", labels.tabs.customerProfiles],
               ["ai", labels.tabs.aiConfig],
               ["automation", labels.tabs.automation],
               ["system", labels.tabs.system],
@@ -753,6 +761,8 @@ export function SettingsScreen() {
             </div>
           ) : null}
 
+          {activeTab === "customers" ? <CustomerProfilesSettings /> : null}
+
           {activeTab === "ai" ? (
             <SettingsMetricCard
               icon={Bot}
@@ -959,6 +969,7 @@ const settingsLabels: Record<
     tabs: {
       general: string;
       mailboxes: string;
+      customerProfiles: string;
       aiConfig: string;
       microsoftGraph: string;
       automation: string;
@@ -1078,6 +1089,7 @@ const settingsLabels: Record<
     tabs: {
       general: "Geral",
       mailboxes: "Mailboxes",
+      customerProfiles: "Clientes",
       aiConfig: "Config. de IA",
       microsoftGraph: "Microsoft Graph",
       automation: "Automacao",
@@ -1196,6 +1208,7 @@ const settingsLabels: Record<
     tabs: {
       general: "General",
       mailboxes: "Mailboxes",
+      customerProfiles: "Customers",
       aiConfig: "AI Config",
       microsoftGraph: "Microsoft Graph",
       automation: "Automation",
@@ -1316,6 +1329,7 @@ const settingsLabels: Record<
     tabs: {
       general: "Algemeen",
       mailboxes: "Mailboxes",
+      customerProfiles: "Klanten",
       aiConfig: "AI-configuratie",
       microsoftGraph: "Microsoft Graph",
       automation: "Automatisering",

@@ -5,11 +5,12 @@ import type {
   ValidationWarning
 } from '@/types';
 
-export type FieldOrigin = 'email' | 'ai' | 'system' | 'calculated' | 'optional';
+export type FieldOrigin = 'email' | 'ai' | 'profile' | 'system' | 'calculated' | 'optional';
 export type FieldGroup = 'pickup' | 'delivery' | 'cargo' | 'calculated' | 'technical' | 'additional';
 
 export const PICKUP_FIELD_KEYS = [
   'pickup_date',
+  'pickup_date_till',
   'pickup_time',
   'pickup_time_till',
   'pickup_time_delivery',
@@ -106,6 +107,7 @@ export function getFieldOrigin(field: Pick<OrderField, 'key' | 'required' | 'sou
   const source = normalizeFieldSource(field.source);
 
   if (source === 'AI') return 'ai';
+  if (source === 'CUSTOMER_PROFILE') return 'profile';
   if (source === 'SYSTEM' || source === 'GENERATED') return 'system';
   if (source === 'CALCULATED') return 'calculated';
   if (source === 'EMAIL' || source === 'REGEX') return 'email';

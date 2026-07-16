@@ -9,7 +9,7 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {cn} from '@/lib/utils';
 import type {Locale} from '@/i18n/routing';
 import type {OrderField} from '@/types';
-import {getFieldGroup, type FieldGroup} from './order-field-classification';
+import {getFieldGroup, getFieldOrigin, type FieldGroup} from './order-field-classification';
 import {fieldLabel} from './field-labels';
 import {OrderCollapsibleSection} from './OrderCollapsibleSection';
 
@@ -116,6 +116,27 @@ export function OrderFieldsCard({
 function renderField(field: OrderField, naLabel: string, locale: Locale) {
   const confidence = typeof field.confidence === 'number' ? field.confidence : null;
   const lowConfidence = confidence != null && confidence < 0.8;
+  const origin = getFieldOrigin(field);
+  const originLabel =
+    origin === 'ai'
+      ? 'AI'
+      : origin === 'profile'
+        ? 'PROFILE'
+        : origin === 'calculated'
+          ? 'CALCULATED'
+          : origin === 'system'
+            ? 'SYSTEM'
+            : 'EMAIL';
+  const originClassName =
+    origin === 'ai'
+      ? 'border-violet-300/80 bg-violet-100 text-violet-950 dark:border-violet-900/40 dark:bg-violet-950/40 dark:text-violet-200'
+      : origin === 'profile'
+        ? 'border-sky-300/80 bg-sky-100 text-sky-950 dark:border-sky-900/40 dark:bg-sky-950/40 dark:text-sky-200'
+        : origin === 'calculated'
+          ? 'border-emerald-300/80 bg-emerald-100 text-emerald-950 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-200'
+          : origin === 'system'
+            ? 'border-border bg-muted text-foreground'
+            : 'border-blue-300/80 bg-blue-100 text-blue-950 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-200';
 
   return (
     <div
@@ -129,15 +150,25 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
         <div className="min-w-0 break-words text-xs font-medium text-muted-foreground">
           {fieldLabel(field.key, locale, field.label)}
         </div>
-        {confidence != null ? (
-          <span
-            className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-violet-600 dark:text-violet-400"
-            title={`AI ${confidence.toFixed(2)}`}
-          >
-            <Bot className="h-3.5 w-3.5" />
-            {confidence.toFixed(2)}
-          </span>
-        ) : null}
+        <div className="flex shrink-0 items-center gap-2">
+          <Badge variant="outline" className={cn('text-[11px]', originClassName)}>
+            {originLabel}
+          </Badge>
+          {confidence != null ? (
+            <span
+              className={cn(
+                'inline-flex shrink-0 items-center gap-1 text-[11px] font-medium',
+                origin === 'ai'
+                  ? 'text-violet-600 dark:text-violet-400'
+                  : 'text-muted-foreground'
+              )}
+              title={`${originLabel} ${confidence.toFixed(2)}`}
+            >
+              {origin === 'ai' ? <Bot className="h-3.5 w-3.5" /> : null}
+              {confidence.toFixed(2)}
+            </span>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground [overflow-wrap:anywhere]">
