@@ -52,6 +52,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import {cn} from '@/lib/utils';
+import {fieldLabel} from '@/components/orders/field-labels';
 
 type CustomerProfileFieldGroup = 'pickup' | 'delivery' | 'cargo' | 'general';
 type RequirementKey = 'REQUIRED' | 'RECOMMENDED' | 'OPTIONAL';
@@ -433,7 +434,7 @@ export function CustomerProfilesSettings() {
                                   <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
                                   <div className="min-w-0 flex-1">
                                     <div className="break-words text-sm font-medium text-foreground [overflow-wrap:anywhere]">
-                                      {field.label}
+                                      {fieldLabel(field.key, locale, field.label)}
                                     </div>
                                   </div>
                                     <Badge
