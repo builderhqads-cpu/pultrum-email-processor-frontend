@@ -113,6 +113,8 @@ export type CustomerProfileField = {
   id?: string;
   key: string;
   value: string;
+  /** How the AI should find this field in THIS customer's documents. */
+  instruction?: string;
   label: string;
   requirement: FieldRequirement;
   group:
@@ -145,6 +147,7 @@ export type CustomerProfileMutationInput = {
   fields?: Array<{
     key: string;
     value: string;
+    instruction?: string;
   }>;
 };
 
