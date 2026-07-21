@@ -693,9 +693,10 @@ const customerProfileLabels: Record<
       aiInstructionsHelp:
         'Explique como este cliente monta os documentos: onde fica cada dado e as regras dele. Enviado junto com o e-mail para a IA.',
       aiInstructionsPlaceholder: `Ex.:
-Laadreferentie: numero de 10 digitos que contem TR
-Losreferentie: o numero LT em azul
-Uma ordem por bloco TR (carga e descarga compartilham o mesmo LT)`
+Referencia de coleta: o numero que aparece no topo do documento, ao lado do titulo
+Data de entrega: sempre na segunda coluna da tabela
+Cada linha da planilha e uma ordem separada
+Ignorar os dados do rodape (assinatura e contatos)`
     },
     groups: {
       pickup: 'Pickup / Coleta',
@@ -769,9 +770,10 @@ Uma ordem por bloco TR (carga e descarga compartilham o mesmo LT)`
       aiInstructionsHelp:
         'Describe how this customer builds their documents: where each value lives and their rules. Sent to the AI along with the email.',
       aiInstructionsPlaceholder: `E.g.:
-Laadreferentie: 10-digit number containing TR
-Losreferentie: the LT number shown in blue
-One order per TR block (load and unload rows share the same LT)`
+Pickup reference: the number at the top of the document, next to the title
+Delivery date: always in the second column of the table
+Each row of the spreadsheet is a separate order
+Ignore the footer details (signature and contacts)`
     },
     groups: {
       pickup: 'Pickup',
@@ -845,9 +847,10 @@ One order per TR block (load and unload rows share the same LT)`
       aiInstructionsHelp:
         'Beschrijf hoe deze klant de documenten opbouwt: waar elk gegeven staat en welke regels gelden. Wordt met de e-mail naar de AI gestuurd.',
       aiInstructionsPlaceholder: `Bijv.:
-Laadreferentie: 10-cijferig nummer dat TR bevat
-Losreferentie: het LT nummer blauw weergegeven
-Een order per TR-blok (laad- en losregels delen hetzelfde LT)`
+Laadreferentie: het nummer bovenaan het document, naast de titel
+Losdatum: altijd in de tweede kolom van de tabel
+Elke regel van het overzicht is een aparte order
+Negeer de gegevens in de voettekst (handtekening en contacten)`
     },
     groups: {
       pickup: 'Laden',
