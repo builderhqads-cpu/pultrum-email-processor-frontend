@@ -113,8 +113,6 @@ export type CustomerProfileField = {
   id?: string;
   key: string;
   value: string;
-  /** How the AI should find this field in THIS customer's documents. */
-  instruction?: string;
   label: string;
   requirement: FieldRequirement;
   group:
@@ -133,6 +131,8 @@ export type CustomerProfile = {
   additionalContactEmails: string[];
   active: boolean;
   notes: string | null;
+  /** Free-text guidance sent to the AI about how this customer builds documents. */
+  aiInstructions?: string | null;
   createdAt: IsoDateTimeString;
   updatedAt: IsoDateTimeString;
   fields: CustomerProfileField[];
@@ -144,10 +144,10 @@ export type CustomerProfileMutationInput = {
   additionalContactEmails?: string[];
   active?: boolean;
   notes?: string | null;
+  aiInstructions?: string | null;
   fields?: Array<{
     key: string;
     value: string;
-    instruction?: string;
   }>;
 };
 

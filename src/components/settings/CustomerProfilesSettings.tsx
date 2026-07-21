@@ -64,8 +64,8 @@ type FormState = {
   active: boolean;
   notes: string;
   fields: Record<string, string>;
-  /** Per-field hints telling the AI how to find the value in this customer's documents. */
-  instructions: Record<string, string>;
+  /** Free-text guidance for the AI on how this customer builds their documents. */
+  aiInstructions: string;
 };
 
 const fieldGroupOrder: CustomerProfileFieldGroup[] = [
@@ -82,7 +82,7 @@ const emptyFormState = (): FormState => ({
   active: true,
   notes: '',
   fields: {},
-  instructions: {}
+  aiInstructions: ''
 });
 
 export function CustomerProfilesSettings() {
@@ -132,9 +132,7 @@ export function CustomerProfilesSettings() {
       fields: Object.fromEntries(
         (profile.fields ?? []).map((field) => [field.key, field.value ?? ''])
       ),
-      instructions: Object.fromEntries(
-        (profile.fields ?? []).map((field) => [field.key, field.instruction ?? ''])
-      )
+      aiInstructions: profile.aiInstructions ?? ''
     });
     setDialogOpen(true);
   }
@@ -156,38 +154,17 @@ export function CustomerProfilesSettings() {
     }));
   }
 
-  function updateProfileInstruction(key: string, instruction: string) {
-    setForm((current) => ({
-      ...current,
-      instructions: {
-        ...current.instructions,
-        [key]: instruction
-      }
-    }));
-  }
-
   function buildPayload(): CustomerProfileMutationInput {
-    // A field is worth saving when it has a fixed value OR an AI instruction:
-    // for many customers the value changes every email, but the way to find it
-    // in their document is always the same.
-    const keys = new Set([
-      ...Object.keys(form.fields),
-      ...Object.keys(form.instructions)
-    ]);
-
     return {
       name: form.name.trim(),
       contactEmail: form.contactEmail.trim(),
       additionalContactEmails: parseEmailLines(form.additionalContactEmails),
       active: form.active,
       notes: form.notes.trim() || null,
-      fields: [...keys]
-        .map((key) => ({
-          key,
-          value: (form.fields[key] ?? '').trim(),
-          instruction: (form.instructions[key] ?? '').trim()
-        }))
-        .filter((field) => field.value.length > 0 || field.instruction.length > 0)
+      aiInstructions: form.aiInstructions.trim() || null,
+      fields: Object.entries(form.fields)
+        .map(([key, value]) => ({ key, value: value.trim() }))
+        .filter((field) => field.value.length > 0)
     };
   }
 
@@ -423,6 +400,23 @@ export function CustomerProfilesSettings() {
                       className="min-h-32 min-w-0"
                     />
                   </div>
+
+                  <div className="min-w-0 space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {labels.form.aiInstructions}
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      {labels.form.aiInstructionsHelp}
+                    </p>
+                    <Textarea
+                      value={form.aiInstructions}
+                      onChange={(event) =>
+                        updateFieldValue('aiInstructions', event.target.value)
+                      }
+                      placeholder={labels.form.aiInstructionsPlaceholder}
+                      className="min-h-48 min-w-0"
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -474,15 +468,6 @@ export function CustomerProfilesSettings() {
                                     onChange={(event) => updateProfileField(field.key, event.target.value)}
                                     placeholder={labels.form.fieldPlaceholder}
                                     className="min-w-0"
-                                  />
-                                  <Textarea
-                                    value={form.instructions[field.key] ?? ''}
-                                    onChange={(event) =>
-                                      updateProfileInstruction(field.key, event.target.value)
-                                    }
-                                    placeholder={labels.form.instructionPlaceholder}
-                                    rows={2}
-                                    className="min-w-0 text-xs"
                                   />
                                 </div>
                               );
@@ -640,7 +625,9 @@ const customerProfileLabels: Record<
       notes: string;
       notesPlaceholder: string;
       fieldPlaceholder: string;
-      instructionPlaceholder: string;
+      aiInstructions: string;
+      aiInstructionsHelp: string;
+      aiInstructionsPlaceholder: string;
     };
     groups: Record<CustomerProfileFieldGroup, string>;
     requirements: Record<RequirementKey, string>;
@@ -702,8 +689,13 @@ const customerProfileLabels: Record<
       notes: 'Observacoes',
       notesPlaceholder: 'Notas internas sobre esse cliente.',
       fieldPlaceholder: 'Valor padrao',
-      instructionPlaceholder:
-        'Instrucao para a IA: como achar esse dado no documento deste cliente. Ex.: numero de 10 digitos que contem TR'
+      aiInstructions: 'Instrucoes para a IA',
+      aiInstructionsHelp:
+        'Explique como este cliente monta os documentos: onde fica cada dado e as regras dele. Enviado junto com o e-mail para a IA.',
+      aiInstructionsPlaceholder: `Ex.:
+Laadreferentie: numero de 10 digitos que contem TR
+Losreferentie: o numero LT em azul
+Uma ordem por bloco TR (carga e descarga compartilham o mesmo LT)`
     },
     groups: {
       pickup: 'Pickup / Coleta',
@@ -773,8 +765,13 @@ const customerProfileLabels: Record<
       notes: 'Notes',
       notesPlaceholder: 'Internal notes about this customer.',
       fieldPlaceholder: 'Default value',
-      instructionPlaceholder:
-        'AI instruction: how to find this value in this customer’s document. E.g. 10-digit number containing TR'
+      aiInstructions: 'AI instructions',
+      aiInstructionsHelp:
+        'Describe how this customer builds their documents: where each value lives and their rules. Sent to the AI along with the email.',
+      aiInstructionsPlaceholder: `E.g.:
+Laadreferentie: 10-digit number containing TR
+Losreferentie: the LT number shown in blue
+One order per TR block (load and unload rows share the same LT)`
     },
     groups: {
       pickup: 'Pickup',
@@ -844,8 +841,13 @@ const customerProfileLabels: Record<
       notes: 'Notities',
       notesPlaceholder: 'Interne notities over deze klant.',
       fieldPlaceholder: 'Standaardwaarde',
-      instructionPlaceholder:
-        'AI-instructie: hoe dit gegeven in het document van deze klant te vinden. Bijv. 10-cijferig nummer dat TR bevat'
+      aiInstructions: 'AI-instructies',
+      aiInstructionsHelp:
+        'Beschrijf hoe deze klant de documenten opbouwt: waar elk gegeven staat en welke regels gelden. Wordt met de e-mail naar de AI gestuurd.',
+      aiInstructionsPlaceholder: `Bijv.:
+Laadreferentie: 10-cijferig nummer dat TR bevat
+Losreferentie: het LT nummer blauw weergegeven
+Een order per TR-blok (laad- en losregels delen hetzelfde LT)`
     },
     groups: {
       pickup: 'Laden',
