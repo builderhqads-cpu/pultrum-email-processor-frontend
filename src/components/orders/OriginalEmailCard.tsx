@@ -107,6 +107,7 @@ export function OriginalEmailCard({emailMessageId}: {emailMessageId: string}) {
 
       <EmailOriginalDialog
         emailMessageId={emailMessageId}
+        attachments={email.data?.attachments}
         open={originalOpen}
         onOpenChange={setOriginalOpen}
       />

@@ -125,6 +125,7 @@ export function EmailPreviewPane({
 
       <EmailOriginalDialog
         emailMessageId={emailId}
+        attachments={email.data?.attachments}
         open={originalOpen}
         onOpenChange={setOriginalOpen}
       />

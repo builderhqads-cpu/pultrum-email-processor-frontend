@@ -4,8 +4,10 @@ import {useMemo, useState} from 'react';
 import {AlertTriangle, ImageOff, LoaderCircle} from 'lucide-react';
 import {useLocale} from 'next-intl';
 
+import type {Attachment} from '@/types';
 import type {Locale} from '@/i18n/routing';
 import {useEmailOriginal} from '@/hooks/use-email-original';
+import {AttachmentCards} from '@/components/attachments/AttachmentCards';
 import {Button} from '@/components/ui/button';
 import {
   Dialog,
@@ -37,10 +39,12 @@ function buildSrcDoc(html: string, allowRemoteImages: boolean) {
 
 export function EmailOriginalDialog({
   emailMessageId,
+  attachments,
   open,
   onOpenChange
 }: {
   emailMessageId: string;
+  attachments?: Attachment[] | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -101,8 +105,17 @@ export function EmailOriginalDialog({
               sandbox=""
               srcDoc={srcDoc}
               title={labels.title}
-              className="h-[70vh] w-full rounded-lg border bg-white"
+              className="h-[60vh] w-full rounded-lg border bg-white"
             />
+
+            {attachments && attachments.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-foreground">
+                  {labels.attachments} ({attachments.length})
+                </div>
+                <AttachmentCards attachments={attachments} />
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="py-16 text-center text-sm text-muted-foreground">
@@ -125,6 +138,7 @@ const dialogLabels: Record<
     empty: string;
     remoteBlocked: string;
     showImages: string;
+    attachments: string;
   }
 > = {
   pt: {
@@ -133,7 +147,8 @@ const dialogLabels: Record<
     loading: 'Carregando e-mail...',
     empty: 'Sem conteudo para exibir.',
     remoteBlocked: 'Imagens externas bloqueadas (podem rastrear a abertura).',
-    showImages: 'Exibir imagens'
+    showImages: 'Exibir imagens',
+    attachments: 'Anexos'
   },
   en: {
     title: 'Original email',
@@ -141,7 +156,8 @@ const dialogLabels: Record<
     loading: 'Loading email...',
     empty: 'Nothing to display.',
     remoteBlocked: 'External images blocked (they can track when it is opened).',
-    showImages: 'Show images'
+    showImages: 'Show images',
+    attachments: 'Attachments'
   },
   nl: {
     title: 'Originele e-mail',
@@ -149,6 +165,7 @@ const dialogLabels: Record<
     loading: 'E-mail laden...',
     empty: 'Niets om weer te geven.',
     remoteBlocked: 'Externe afbeeldingen geblokkeerd (kunnen openen volgen).',
-    showImages: 'Afbeeldingen tonen'
+    showImages: 'Afbeeldingen tonen',
+    attachments: 'Bijlagen'
   }
 };
