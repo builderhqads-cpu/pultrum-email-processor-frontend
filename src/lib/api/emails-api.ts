@@ -3,6 +3,7 @@ import type {
   DeleteEmailResponse,
   EmailMessage,
   EmailMessageListItem,
+  EmailOriginal,
   EnqueuedResponse,
 } from "@/types";
 
@@ -26,6 +27,17 @@ export async function getEmail(id: string) {
     });
   }
   return data as EmailMessage;
+}
+
+export async function getEmailOriginal(id: string) {
+  const { data } = await apiClient.get(`/emails/${id}/original`);
+  if (!data || typeof data !== "object") {
+    throw new ApiError({
+      message: "Unexpected response from GET /emails/:id/original (expected object)",
+      data,
+    });
+  }
+  return data as EmailOriginal;
 }
 
 export async function reclassifyEmail(id: string) {

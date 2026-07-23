@@ -237,6 +237,20 @@ export type EmailMessage = {
   orders?: BatchOrderItem[];
 };
 
+// GET /emails/:id/original
+export type EmailOriginal = {
+  id: string;
+  subject: string;
+  fromEmail: string;
+  fromName?: string | null;
+  receivedAt: IsoDateTimeString;
+  /** Self-contained HTML (cid: images inlined). May be a <pre> for text-only. */
+  html: string;
+  /** True when the body still references images loaded from the internet. */
+  hasRemoteImages: boolean;
+  source: "html" | "text" | "empty";
+};
+
 export type BatchImportSummary = {
   id: string;
   status: string;

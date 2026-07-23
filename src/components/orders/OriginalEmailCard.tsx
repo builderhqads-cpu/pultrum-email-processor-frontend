@@ -1,21 +1,26 @@
 'use client';
 
+import {useState} from 'react';
+import {Mail} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import {useEmail} from '@/hooks/use-email';
 import {StatusBadge} from '@/components/ui/StatusBadge';
 import {Badge} from '@/components/ui/badge';
+import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import type {Locale} from '@/i18n/routing';
 import {formatDateTime} from './order-detail-utils';
 import {OrderCollapsibleSection} from './OrderCollapsibleSection';
 import {AttachmentCards} from '@/components/attachments/AttachmentCards';
+import {EmailOriginalDialog} from '@/components/emails/EmailOriginalDialog';
 
 export function OriginalEmailCard({emailMessageId}: {emailMessageId: string}) {
   const t = useTranslations('orders.detail');
   const tCommon = useTranslations('common');
   const locale = useLocale() as Locale;
   const labels = emailSectionLabels[locale] ?? emailSectionLabels.en;
+  const [originalOpen, setOriginalOpen] = useState(false);
 
   const email = useEmail(emailMessageId);
 
@@ -28,7 +33,21 @@ export function OriginalEmailCard({emailMessageId}: {emailMessageId: string}) {
             {emailMessageId}
           </div>
         </div>
-        {email.data ? <StatusBadge status={email.data.status ?? tCommon('na')} /> : null}
+        <div className="flex shrink-0 items-center gap-2">
+          {email.data ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setOriginalOpen(true)}
+            >
+              <Mail className="h-4 w-4" />
+              {labels.viewOriginal}
+            </Button>
+          ) : null}
+          {email.data ? <StatusBadge status={email.data.status ?? tCommon('na')} /> : null}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {email.loading ? (
@@ -85,6 +104,12 @@ export function OriginalEmailCard({emailMessageId}: {emailMessageId: string}) {
           <div className="text-sm text-muted-foreground">{t('originalEmail.notLoaded')}</div>
         )}
       </CardContent>
+
+      <EmailOriginalDialog
+        emailMessageId={emailMessageId}
+        open={originalOpen}
+        onOpenChange={setOriginalOpen}
+      />
     </Card>
   );
 }
@@ -93,21 +118,25 @@ const emailSectionLabels: Record<Locale, {
   senderDetails: string;
   attachmentsDescription: string;
   bodyDescription: string;
+  viewOriginal: string;
 }> = {
   pt: {
     senderDetails: 'Dados do remetente',
     attachmentsDescription: 'Arquivos enviados junto com o email original.',
-    bodyDescription: 'Leia o conteudo completo sem perder a visao geral do pedido.'
+    bodyDescription: 'Leia o conteudo completo sem perder a visao geral do pedido.',
+    viewOriginal: 'Ver original'
   },
   en: {
     senderDetails: 'Sender details',
     attachmentsDescription: 'Files attached to the original email.',
-    bodyDescription: 'Read the full message without losing the order context.'
+    bodyDescription: 'Read the full message without losing the order context.',
+    viewOriginal: 'View original'
   },
   nl: {
     senderDetails: 'Afzendergegevens',
     attachmentsDescription: 'Bestanden die bij de originele e-mail zijn meegestuurd.',
-    bodyDescription: 'Lees het volledige bericht zonder het orderoverzicht te verliezen.'
+    bodyDescription: 'Lees het volledige bericht zonder het orderoverzicht te verliezen.',
+    viewOriginal: 'Origineel bekijken'
   }
 };
 

@@ -93,6 +93,7 @@
     "detail": {
       "title": "E-mail",
       "backToEmails": "Terug naar e-mails",
+      "viewOriginal": "Origineel bekijken",
       "openLinkedOrder": "Opdracht openen",
       "classification": {
         "reclassify": "Herclassificeren",

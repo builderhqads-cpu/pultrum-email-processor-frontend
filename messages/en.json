@@ -93,6 +93,7 @@
     "detail": {
       "title": "Email",
       "backToEmails": "Back to emails",
+      "viewOriginal": "View original",
       "openLinkedOrder": "Open order",
       "classification": {
         "reclassify": "Reclassify",
