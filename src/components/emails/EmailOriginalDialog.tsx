@@ -83,6 +83,15 @@ export function EmailOriginalDialog({
           </div>
         ) : data && data.source !== 'empty' ? (
           <div className="space-y-3">
+            {attachments && attachments.length > 0 ? (
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground">
+                  {labels.attachments} ({attachments.length})
+                </div>
+                <AttachmentCards attachments={attachments} variant="compact" />
+              </div>
+            ) : null}
+
             {data.hasRemoteImages && !showRemote ? (
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
                 <span className="flex items-center gap-2">
@@ -107,15 +116,6 @@ export function EmailOriginalDialog({
               title={labels.title}
               className="h-[60vh] w-full rounded-lg border bg-white"
             />
-
-            {attachments && attachments.length > 0 ? (
-              <div className="space-y-2">
-                <div className="text-sm font-medium text-foreground">
-                  {labels.attachments} ({attachments.length})
-                </div>
-                <AttachmentCards attachments={attachments} />
-              </div>
-            ) : null}
           </div>
         ) : (
           <div className="py-16 text-center text-sm text-muted-foreground">

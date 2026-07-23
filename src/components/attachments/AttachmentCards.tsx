@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileText, ImageIcon, LoaderCircle} from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileText, ImageIcon, LoaderCircle, Table} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import type {Attachment, Locale} from '@/types';
@@ -20,11 +20,14 @@ import {cn} from '@/lib/utils';
 type AttachmentCardsProps = {
   attachments?: Attachment[] | null;
   emptyLabel?: string;
+  /** 'compact' renders email-client-style chips (icon + name + size). */
+  variant?: 'full' | 'compact';
 };
 
 export function AttachmentCards({
   attachments,
-  emptyLabel
+  emptyLabel,
+  variant = 'full'
 }: AttachmentCardsProps) {
   const locale = useLocale() as Locale;
   const tCommon = useTranslations('common');
@@ -40,6 +43,74 @@ export function AttachmentCards({
 
   if (!list.length) {
     return <div className="text-sm text-muted-foreground">{emptyLabel ?? labels.noAttachments}</div>;
+  }
+
+  // Open the best action for a chip click: office -> in-app preview,
+  // pdf/image -> new tab, anything else -> download.
+  function openAttachment(attachment: Attachment) {
+    const canDownload = Boolean(attachment.downloadUrl || attachment.contentBase64);
+    if (!canDownload) return;
+    if (isOfficePreviewable(attachment)) setPreviewAttachmentId(attachment.id);
+    else if (isViewableAttachment(attachment)) viewAttachment(attachment);
+    else downloadAttachment(attachment);
+  }
+
+  if (variant === 'compact') {
+    return (
+      <>
+        <div className="flex w-full flex-wrap gap-2">
+          {list.map((attachment) => {
+            const canDownload = Boolean(
+              attachment.downloadUrl || attachment.contentBase64
+            );
+            return (
+              <div
+                key={attachment.id}
+                className="flex min-w-0 items-center gap-2 rounded-lg border bg-background py-1.5 pl-2 pr-1.5 shadow-sm sm:w-[280px]"
+              >
+                <button
+                  type="button"
+                  onClick={() => openAttachment(attachment)}
+                  disabled={!canDownload}
+                  className="flex min-w-0 flex-1 items-center gap-2 text-left disabled:cursor-default"
+                  title={attachment.fileName || tCommon('na')}
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+                    {attachmentIcon(attachment)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-foreground">
+                      {attachment.fileName || tCommon('na')}
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {formatAttachmentSize(attachment.size)}
+                    </span>
+                  </span>
+                </button>
+                {canDownload ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0"
+                    title={labels.download}
+                    onClick={() => downloadAttachment(attachment)}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+
+        <OfficePreviewDialog
+          attachment={previewAttachment}
+          labels={labels}
+          onClose={() => setPreviewAttachmentId(null)}
+        />
+      </>
+    );
   }
 
   return (
@@ -305,6 +376,14 @@ function formatAttachmentSize(size?: number | null) {
   }
 
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+/** File-type icon for the compact chip. */
+function attachmentIcon(attachment: Attachment) {
+  if (isImageAttachment(attachment)) return <ImageIcon className="h-5 w-5" />;
+  const kind = officeKind(attachment);
+  if (kind === 'xls') return <Table className="h-5 w-5" />;
+  return <FileText className="h-5 w-5" />;
 }
 
 function isImageAttachment(attachment: Attachment) {
