@@ -1,11 +1,9 @@
 'use client';
 
-import {useState} from 'react';
 import {
   AlertTriangle,
   ExternalLink,
   Inbox,
-  Mail,
   RefreshCw,
   SearchCheck,
   Trash2
@@ -18,7 +16,6 @@ import {useEmail} from '@/hooks/use-email';
 import {useOrderActions} from '@/hooks/use-order-actions';
 import {useEmailClassificationActions} from '@/hooks/use-email-classification';
 import {EmailDetailsCard} from '@/components/emails/EmailDetailsCard';
-import {EmailOriginalDialog} from '@/components/emails/EmailOriginalDialog';
 import {Button, buttonVariants} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
 import {Skeleton} from '@/components/ui/skeleton';
@@ -39,7 +36,6 @@ export function EmailPreviewPane({
   const tCommon = useTranslations('common');
   const email = useEmail(emailId);
   const order = email.data?.order ?? null;
-  const [originalOpen, setOriginalOpen] = useState(false);
   const actions = useOrderActions(order?.id ?? '');
   const classification = useEmailClassificationActions();
 
@@ -92,14 +88,6 @@ export function EmailPreviewPane({
       <Button
         size="sm"
         variant="outline"
-        onClick={() => setOriginalOpen(true)}
-      >
-        <Mail className="h-4 w-4" />
-        {t('viewOriginal')}
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
         disabled={classification.reclassify.isPending}
         onClick={() =>
           runOrderAction({
@@ -122,13 +110,6 @@ export function EmailPreviewPane({
         <Trash2 className="h-4 w-4" />
         {deleteLabel}
       </Button>
-
-      <EmailOriginalDialog
-        emailMessageId={emailId}
-        attachments={email.data?.attachments}
-        open={originalOpen}
-        onOpenChange={setOriginalOpen}
-      />
     </div>
   );
 

@@ -8,7 +8,7 @@ import {getMessageString, type Messages} from '@/i18n/message-utils';
 import type {Locale} from '@/i18n/routing';
 import {formatDateTime} from '@/components/orders/order-detail-utils';
 import type {EmailMessage} from '@/types';
-import {AttachmentCards} from '@/components/attachments/AttachmentCards';
+import {EmailOriginalView} from '@/components/emails/EmailOriginalView';
 
 export function EmailDetailsCard({email}: {email: EmailMessage}) {
   const t = useTranslations('emails.detail');
@@ -56,19 +56,13 @@ export function EmailDetailsCard({email}: {email: EmailMessage}) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="text-sm font-medium">{t('attachments')}</div>
-          <AttachmentCards attachments={email.attachments} />
-        </div>
-
-        {email.bodyText ? (
-          <div className="space-y-2">
-            <div className="text-sm font-medium">{t('labels.bodyText')}</div>
-            <pre className="max-h-80 overflow-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-lg border bg-background p-3 text-xs text-foreground/90 [overflow-wrap:anywhere]">
-              {email.bodyText}
-            </pre>
-          </div>
-        ) : null}
+        {/* The email as received (rendered HTML + attachment chips), which is
+            clearer and more faithful than the raw text + big attachment cards. */}
+        <EmailOriginalView
+          emailMessageId={email.id}
+          attachments={email.attachments}
+          heightClassName="h-[52vh]"
+        />
       </CardContent>
     </Card>
   );
