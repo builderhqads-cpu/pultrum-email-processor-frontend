@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -176,6 +177,26 @@ export default function EmailsPage() {
       })
       .sort((a, b) => b.latestTs - a.latestTs);
   }, [filtered]);
+
+  // The inbox list rendered every conversation, with no bound. Page it so the
+  // sidebar stays fast, while filtering/search keep running over the whole set.
+  const groupPageSize = 50;
+  const [groupPage, setGroupPage] = useState(1);
+
+  useEffect(() => {
+    setGroupPage(1);
+  }, [q, queueTab]);
+
+  const groupPageCount = Math.max(1, Math.ceil(groups.length / groupPageSize));
+  const currentGroupPage = Math.min(groupPage, groupPageCount);
+  const pagedGroups = useMemo(
+    () =>
+      groups.slice(
+        (currentGroupPage - 1) * groupPageSize,
+        currentGroupPage * groupPageSize,
+      ),
+    [groups, currentGroupPage],
+  );
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const toggleGroup = (key: string) =>
@@ -360,7 +381,7 @@ export default function EmailsPage() {
                 className="border-0 bg-transparent shadow-none"
               />
             ) : (
-              groups.map((group) => {
+              pagedGroups.map((group) => {
                 if (group.items.length === 1) {
                   return renderEmailRow(group.items[0], {});
                 }
@@ -427,6 +448,13 @@ export default function EmailsPage() {
               })
             )}
           </div>
+
+          <Pagination
+            page={currentGroupPage}
+            pageSize={groupPageSize}
+            total={groups.length}
+            onPageChange={setGroupPage}
+          />
         </Card>
 
         {/* Right: preview */}

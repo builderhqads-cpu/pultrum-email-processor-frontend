@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
 import {ExternalLink, MoreHorizontal, PackageSearch} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
@@ -19,6 +19,7 @@ import {Input} from '@/components/ui/input';
 import {StatusBadge} from '@/components/ui/StatusBadge';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import {Pagination} from '@/components/ui/pagination';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -171,7 +172,20 @@ export default function OrdersPage() {
   }, [baseFiltered, emailsById, queueTab]);
 
   const pageSize = 50;
-  const sliced = filtered.slice(0, pageSize);
+  const [page, setPage] = useState(1);
+
+  // Filtering/searching changes the result set, so an old page number could land
+  // on an empty view. Snap back to the first page whenever the set changes.
+  useEffect(() => {
+    setPage(1);
+  }, [q, department, queueTab]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const sliced = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   const isLoading = orders.loading;
   const hasError = Boolean(orders.error);
@@ -461,6 +475,15 @@ export default function OrdersPage() {
             </TableBody>
           </Table>
         </CardContent>
+
+        {!isLoading && !hasError ? (
+          <Pagination
+            page={currentPage}
+            pageSize={pageSize}
+            total={filtered.length}
+            onPageChange={setPage}
+          />
+        ) : null}
       </Card>
     </div>
   );
