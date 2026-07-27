@@ -23,14 +23,21 @@ function hasValue(value: unknown) {
 // are just not rendered here.
 const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'calculated'];
 
-// Duplicate measures shown twice (Niek: "verschil tussen laadmeter en goederen
-// laadmeter?"). The cargo_* variants are the ones shown; the goods_* mirrors
-// (kept for the XML mapping) are hidden here.
+// Internal fields that only exist to build the XML and mirror data already
+// shown elsewhere — the "dubbele dingen" Niek flagged in Additional info. Hidden
+// from the panel only; the values are still generated and sent in the XML.
+//  - goods_* : mirrors of the cargo_* measures (goederen laadmeter, etc.)
+//  - reference / shipment_reference / external_shipment_id : calculated copies
+//    of the BA (invoice) and TR (shipment) references shown in cargo/pickup.
 const hiddenFieldKeys = new Set([
   'goods_loading_meter',
   'goods_volume',
   'goods_weight',
-  'goods_unit_amount'
+  'goods_unit_amount',
+  'goods_unit_id',
+  'reference',
+  'shipment_reference',
+  'external_shipment_id'
 ]);
 
 export function OrderFieldsCard({
