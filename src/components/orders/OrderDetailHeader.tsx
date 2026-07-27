@@ -38,13 +38,21 @@ export function OrderDetailHeader({
               {order.customerEmail || tCommon('na')}
             </div>
             {order.batch ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="gap-1 border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/30 dark:text-sky-300">
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <Badge variant="outline" className="shrink-0 gap-1 border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/30 dark:text-sky-300">
                   <Layers className="h-3.5 w-3.5" />
                   {batch.indicator(order.batch.sequence, order.batch.total)}
                 </Badge>
+                {order.batch.subject ? (
+                  <span
+                    className="min-w-0 truncate text-xs font-medium text-foreground"
+                    title={order.batch.subject}
+                  >
+                    {order.batch.subject}
+                  </span>
+                ) : null}
                 {order.externalReference ? (
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="shrink-0 font-mono text-xs text-muted-foreground">
                     {order.externalReference}
                   </span>
                 ) : null}
@@ -75,15 +83,7 @@ const batchLabels: Record<
   Locale,
   {indicator: (seq: number | null, total: number) => string}
 > = {
-  pt: {
-    indicator: (seq, total) =>
-      `Ordem ${seq ?? '?'} de ${total} - mesma planilha`
-  },
-  en: {
-    indicator: (seq, total) => `Order ${seq ?? '?'} of ${total} - same sheet`
-  },
-  nl: {
-    indicator: (seq, total) =>
-      `Order ${seq ?? '?'} van ${total} - zelfde sheet`
-  }
+  pt: {indicator: (seq, total) => `Ordem ${seq ?? '?'} de ${total}`},
+  en: {indicator: (seq, total) => `Order ${seq ?? '?'} of ${total}`},
+  nl: {indicator: (seq, total) => `Order ${seq ?? '?'} van ${total}`}
 };
