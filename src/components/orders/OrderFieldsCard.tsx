@@ -18,7 +18,20 @@ function hasValue(value: unknown) {
   return String(value).trim().length > 0;
 }
 
-const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'calculated', 'technical'];
+// 'technical' is intentionally omitted: Pultrum doesn't want system/tracking
+// fields on this page (Niek's feedback). They still exist on the order, they
+// are just not rendered here.
+const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'calculated'];
+
+// Duplicate measures shown twice (Niek: "verschil tussen laadmeter en goederen
+// laadmeter?"). The cargo_* variants are the ones shown; the goods_* mirrors
+// (kept for the XML mapping) are hidden here.
+const hiddenFieldKeys = new Set([
+  'goods_loading_meter',
+  'goods_volume',
+  'goods_weight',
+  'goods_unit_amount'
+]);
 
 export function OrderFieldsCard({
   fields,
@@ -33,7 +46,10 @@ export function OrderFieldsCard({
   const labels = fieldGroupLabels[locale] ?? fieldGroupLabels.en;
 
   const populatedFields = useMemo(
-    () => fields.filter((field) => hasValue(field.value)),
+    () =>
+      fields.filter(
+        (field) => hasValue(field.value) && !hiddenFieldKeys.has(field.key)
+      ),
     [fields]
   );
 
@@ -172,10 +188,24 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
       </div>
 
       <div className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground [overflow-wrap:anywhere]">
-        {field.value ?? <span className="text-muted-foreground">{naLabel}</span>}
+        {field.value != null && field.value !== '' ? (
+          displayFieldValue(field)
+        ) : (
+          <span className="text-muted-foreground">{naLabel}</span>
+        )}
       </div>
     </div>
   );
+}
+
+/** Display-only touch-ups. The stored value (and the XML) are untouched — this
+ *  only capitalizes the cargo unit for the panel (Niek: "vracht" -> "Vracht"). */
+function displayFieldValue(field: OrderField): string {
+  const value = String(field.value);
+  if (field.key === 'cargo_unit_id' && value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+  return value;
 }
 
 const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; description: string; empty: string}>> = {
@@ -255,9 +285,9 @@ const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; descri
       empty: 'Geen losvelden gevonden.'
     },
     cargo: {
-      title: 'Lading',
+      title: 'Goederen',
       description: 'Vrachtgegevens, afmetingen en commerciele data.',
-      empty: 'Geen ladingvelden gevonden.'
+      empty: 'Geen goederenvelden gevonden.'
     },
     calculated: {
       title: 'Berekend',

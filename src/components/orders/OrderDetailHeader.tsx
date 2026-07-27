@@ -1,11 +1,14 @@
 'use client';
 
-import {useTranslations} from 'next-intl';
+import {Layers} from 'lucide-react';
+import {useLocale, useTranslations} from 'next-intl';
 
 import {Link} from '@/i18n/navigation';
 import {PageHeader} from '@/components/layout/PageHeader';
+import {Badge} from '@/components/ui/badge';
 import {buttonVariants} from '@/components/ui/button';
 import {StatusBadge} from '@/components/ui/StatusBadge';
+import type {Locale} from '@/i18n/routing';
 import type {TransportOrder} from '@/types';
 
 function shortId(id: string) {
@@ -21,6 +24,8 @@ export function OrderDetailHeader({
 }) {
   const tOrders = useTranslations('orders');
   const tCommon = useTranslations('common');
+  const locale = useLocale() as Locale;
+  const batch = batchLabels[locale] ?? batchLabels.en;
 
   return (
     <PageHeader
@@ -32,6 +37,19 @@ export function OrderDetailHeader({
             <div className="truncate" title={order.customerEmail || tCommon('na')}>
               {order.customerEmail || tCommon('na')}
             </div>
+            {order.batch ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="gap-1 border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/30 dark:text-sky-300">
+                  <Layers className="h-3.5 w-3.5" />
+                  {batch.indicator(order.batch.sequence, order.batch.total)}
+                </Badge>
+                {order.externalReference ? (
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {order.externalReference}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             <div className="break-all font-mono text-xs [overflow-wrap:anywhere]">{orderId}</div>
           </div>
         ) : (
@@ -52,3 +70,20 @@ export function OrderDetailHeader({
     />
   );
 }
+
+const batchLabels: Record<
+  Locale,
+  {indicator: (seq: number | null, total: number) => string}
+> = {
+  pt: {
+    indicator: (seq, total) =>
+      `Ordem ${seq ?? '?'} de ${total} - mesma planilha`
+  },
+  en: {
+    indicator: (seq, total) => `Order ${seq ?? '?'} of ${total} - same sheet`
+  },
+  nl: {
+    indicator: (seq, total) =>
+      `Order ${seq ?? '?'} van ${total} - zelfde sheet`
+  }
+};

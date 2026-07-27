@@ -361,6 +361,11 @@ export type TransportOrder = {
   customerName: string | null;
   originalOrderReference: string | null;
   overallConfidence: number | null;
+  externalReference?: string | null;
+  batchImportId?: string | null;
+  batchSequence?: number | null;
+  /** Present when the order came from a batch (weekly sheet): X of N. */
+  batch?: {sequence: number | null; total: number} | null;
   createdAt: IsoDateTimeString;
   updatedAt?: IsoDateTimeString;
   fields: OrderField[];
