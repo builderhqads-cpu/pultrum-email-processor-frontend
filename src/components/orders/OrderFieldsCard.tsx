@@ -21,7 +21,7 @@ function hasValue(value: unknown) {
 // 'technical' is intentionally omitted: Pultrum doesn't want system/tracking
 // fields on this page (Niek's feedback). They still exist on the order, they
 // are just not rendered here.
-const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'calculated'];
+const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'general', 'calculated'];
 
 // Internal fields that only exist to build the XML and mirror data already
 // shown elsewhere — the "dubbele dingen" Niek flagged in Additional info. Hidden
@@ -65,6 +65,7 @@ export function OrderFieldsCard({
       pickup: [],
       delivery: [],
       cargo: [],
+      general: [],
       calculated: [],
       technical: [],
       additional: []
@@ -205,13 +206,20 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
   );
 }
 
-/** Display-only touch-ups. The stored value (and the XML) are untouched — this
- *  only capitalizes the cargo unit for the panel (Niek: "vracht" -> "Vracht"). */
+const WEIGHT_DISPLAY_KEYS = new Set(['cargo_weight', 'goods_weight', 'weight']);
+const CM_DISPLAY_KEYS = new Set(['length', 'width', 'height']);
+
+/** Display-only touch-ups (Niek). The stored value and the XML stay unit-less;
+ *  we only add the unit and capitalize the cargo unit for the panel. */
 function displayFieldValue(field: OrderField): string {
   const value = String(field.value);
   if (field.key === 'cargo_unit_id' && value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
+  // Only append a unit when the value is numeric (never on free text).
+  const isNumeric = /^-?\d+(?:[.,]\d+)?$/.test(value.trim());
+  if (isNumeric && WEIGHT_DISPLAY_KEYS.has(field.key)) return `${value} kg`;
+  if (isNumeric && CM_DISPLAY_KEYS.has(field.key)) return `${value} cm`;
   return value;
 }
 
@@ -231,6 +239,11 @@ const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; descri
       title: 'Carga',
       description: 'Informacoes da carga, dimensoes e dados comerciais.',
       empty: 'Nenhum dado de carga encontrado.'
+    },
+    general: {
+      title: 'Geral',
+      description: 'Tipo de transporte, cliente e dados gerais da ordem.',
+      empty: 'Nenhum dado geral encontrado.'
     },
     calculated: {
       title: 'Calculado',
@@ -264,6 +277,11 @@ const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; descri
       description: 'Cargo details, dimensions, and commercial data.',
       empty: 'No cargo fields found.'
     },
+    general: {
+      title: 'General',
+      description: 'Transport type, principal and order-level data.',
+      empty: 'No general fields found.'
+    },
     calculated: {
       title: 'Calculated',
       description: 'Fields automatically calculated from detected data.',
@@ -295,6 +313,11 @@ const fieldGroupLabels: Record<Locale, Record<FieldGroup, {title: string; descri
       title: 'Goederen',
       description: 'Vrachtgegevens, afmetingen en commerciele data.',
       empty: 'Geen goederenvelden gevonden.'
+    },
+    general: {
+      title: 'Algemeen',
+      description: 'Transportsoort, opdrachtgever en algemene ordergegevens.',
+      empty: 'Geen algemene gegevens gevonden.'
     },
     calculated: {
       title: 'Berekend',

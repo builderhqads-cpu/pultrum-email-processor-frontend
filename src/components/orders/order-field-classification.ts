@@ -6,7 +6,7 @@ import type {
 } from '@/types';
 
 export type FieldOrigin = 'email' | 'ai' | 'profile' | 'system' | 'calculated' | 'optional';
-export type FieldGroup = 'pickup' | 'delivery' | 'cargo' | 'calculated' | 'technical' | 'additional';
+export type FieldGroup = 'pickup' | 'delivery' | 'cargo' | 'general' | 'calculated' | 'technical' | 'additional';
 
 export const PICKUP_FIELD_KEYS = [
   'pickup_date',
@@ -55,7 +55,10 @@ export const CARGO_FIELD_KEYS = [
   'length',
   'width',
   'height',
-  'transport_type',
+  // Niek: loading meter and volume belong in the Goederen box, not a separate
+  // "Berekend" block (they still carry the CALCULATED origin badge).
+  'cargo_loading_meter',
+  'cargo_volume',
   'invoice_reference',
   'price',
   'fixed_price',
@@ -65,9 +68,17 @@ export const CARGO_FIELD_KEYS = [
   'dangerous_goods'
 ] as const;
 
+// "Algemeen" box (Niek): order-level, not tied to a specific stop or the cargo
+// dimensions. transport_type moved here from cargo; opdrachtgever/principal are
+// ready for when the field is defined + the data arrives.
+export const GENERAL_FIELD_KEYS = [
+  'transport_type',
+  'opdrachtgever',
+  'principal'
+] as const;
+
 export const CALCULATED_FIELD_KEYS = [
-  'cargo_loading_meter',
-  'cargo_volume',
+  // The goods_* mirrors are hidden in the panel; kept here for the origin badge.
   'goods_loading_meter',
   'goods_volume'
 ] as const;
@@ -96,6 +107,7 @@ export const OPTIONAL_FIELD_KEYS = new Set([
 const pickupFieldSet = new Set<string>(PICKUP_FIELD_KEYS);
 const deliveryFieldSet = new Set<string>(DELIVERY_FIELD_KEYS);
 const cargoFieldSet = new Set<string>(CARGO_FIELD_KEYS);
+const generalFieldSet = new Set<string>(GENERAL_FIELD_KEYS);
 const calculatedFieldSet = new Set<string>(CALCULATED_FIELD_KEYS);
 const technicalFieldSet = new Set<string>(TECHNICAL_FIELD_KEYS);
 
@@ -138,6 +150,7 @@ export function getFieldGroup(field: Pick<OrderField, 'key'>): FieldGroup {
   if (pickupFieldSet.has(field.key)) return 'pickup';
   if (deliveryFieldSet.has(field.key)) return 'delivery';
   if (cargoFieldSet.has(field.key)) return 'cargo';
+  if (generalFieldSet.has(field.key)) return 'general';
   if (calculatedFieldSet.has(field.key)) return 'calculated';
   if (technicalFieldSet.has(field.key)) return 'technical';
   return 'additional';
