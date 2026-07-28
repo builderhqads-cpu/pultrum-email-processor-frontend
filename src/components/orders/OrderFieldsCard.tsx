@@ -208,6 +208,7 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
 
 const WEIGHT_DISPLAY_KEYS = new Set(['cargo_weight', 'goods_weight', 'weight']);
 const CM_DISPLAY_KEYS = new Set(['length', 'width', 'height']);
+const M3_DISPLAY_KEYS = new Set(['cargo_volume', 'goods_volume']);
 
 /** Display-only touch-ups (Niek). The stored value and the XML stay unit-less;
  *  we only add the unit and capitalize the cargo unit for the panel. */
@@ -220,6 +221,7 @@ function displayFieldValue(field: OrderField): string {
   const isNumeric = /^-?\d+(?:[.,]\d+)?$/.test(value.trim());
   if (isNumeric && WEIGHT_DISPLAY_KEYS.has(field.key)) return `${value} kg`;
   if (isNumeric && CM_DISPLAY_KEYS.has(field.key)) return `${value} cm`;
+  if (isNumeric && M3_DISPLAY_KEYS.has(field.key)) return `${value} m³`;
   return value;
 }
 
