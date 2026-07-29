@@ -21,7 +21,8 @@ function hasValue(value: unknown) {
 // 'technical' is intentionally omitted: Pultrum doesn't want system/tracking
 // fields on this page (Niek's feedback). They still exist on the order, they
 // are just not rendered here.
-const sectionOrder: FieldGroup[] = ['pickup', 'delivery', 'cargo', 'general', 'calculated'];
+// Niek: the Algemeen (general) box goes at the very top, above Laden (pickup).
+const sectionOrder: FieldGroup[] = ['general', 'pickup', 'delivery', 'cargo', 'calculated'];
 
 // Internal fields that only exist to build the XML and mirror data already
 // shown elsewhere — the "dubbele dingen" Niek flagged in Additional info. Hidden
@@ -197,7 +198,7 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
 
       <div className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground [overflow-wrap:anywhere]">
         {field.value != null && field.value !== '' ? (
-          displayFieldValue(field)
+          displayFieldValue(field, locale)
         ) : (
           <span className="text-muted-foreground">{naLabel}</span>
         )}
@@ -210,18 +211,22 @@ const WEIGHT_DISPLAY_KEYS = new Set(['cargo_weight', 'goods_weight', 'weight']);
 const CM_DISPLAY_KEYS = new Set(['length', 'width', 'height']);
 const M3_DISPLAY_KEYS = new Set(['cargo_volume', 'goods_volume']);
 
-/** Display-only touch-ups (Niek). The stored value and the XML stay unit-less;
- *  we only add the unit and capitalize the cargo unit for the panel. */
-function displayFieldValue(field: OrderField): string {
+/** Display-only touch-ups (Niek). The stored value and the XML stay a plain,
+ *  unit-less, dot-decimal number; here we only add the unit, use the locale's
+ *  decimal separator (NL/PT: comma) and capitalize the cargo unit. */
+function displayFieldValue(field: OrderField, locale: Locale): string {
   const value = String(field.value);
   if (field.key === 'cargo_unit_id' && value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
-  // Only append a unit when the value is numeric (never on free text).
+  // Only touch numeric measure values (never free text).
   const isNumeric = /^-?\d+(?:[.,]\d+)?$/.test(value.trim());
-  if (isNumeric && WEIGHT_DISPLAY_KEYS.has(field.key)) return `${value} kg`;
-  if (isNumeric && CM_DISPLAY_KEYS.has(field.key)) return `${value} cm`;
-  if (isNumeric && M3_DISPLAY_KEYS.has(field.key)) return `${value} m³`;
+  if (!isNumeric) return value;
+  // Dutch and Portuguese write decimals with a comma.
+  const n = locale === 'en' ? value : value.replace('.', ',');
+  if (WEIGHT_DISPLAY_KEYS.has(field.key)) return `${n} kg`;
+  if (CM_DISPLAY_KEYS.has(field.key)) return `${n} cm`;
+  if (M3_DISPLAY_KEYS.has(field.key)) return `${n} m³`;
   return value;
 }
 
