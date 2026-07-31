@@ -59,7 +59,6 @@ export const CARGO_FIELD_KEYS = [
   // "Berekend" block (they still carry the CALCULATED origin badge).
   'cargo_loading_meter',
   'cargo_volume',
-  'invoice_reference',
   'price',
   'fixed_price',
   'product_description',
@@ -74,7 +73,9 @@ export const CARGO_FIELD_KEYS = [
 export const GENERAL_FIELD_KEYS = [
   'transport_type',
   'opdrachtgever',
-  'principal'
+  'principal',
+  // Niek: invoice reference moved from Goederen to Algemeen, after opdrachtgever.
+  'invoice_reference'
 ] as const;
 
 export const CALCULATED_FIELD_KEYS = [
@@ -103,6 +104,25 @@ export const OPTIONAL_FIELD_KEYS = new Set([
   'permits',
   'escort_required'
 ]);
+
+// Canonical display order inside each group (so e.g. invoice_reference lands
+// right after opdrachtgever in Algemeen, regardless of API field order).
+const FIELD_DISPLAY_ORDER: string[] = [
+  ...PICKUP_FIELD_KEYS,
+  ...DELIVERY_FIELD_KEYS,
+  ...CARGO_FIELD_KEYS,
+  ...GENERAL_FIELD_KEYS,
+  ...CALCULATED_FIELD_KEYS,
+  ...TECHNICAL_FIELD_KEYS,
+];
+const fieldOrderIndex = new Map<string, number>(
+  FIELD_DISPLAY_ORDER.map((key, index) => [key, index]),
+);
+
+/** Sort key for a field within its group; unknown keys go last, stable. */
+export function fieldSortIndex(key: string): number {
+  return fieldOrderIndex.get(key) ?? Number.MAX_SAFE_INTEGER;
+}
 
 const pickupFieldSet = new Set<string>(PICKUP_FIELD_KEYS);
 const deliveryFieldSet = new Set<string>(DELIVERY_FIELD_KEYS);

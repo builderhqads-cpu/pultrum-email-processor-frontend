@@ -9,7 +9,7 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {cn} from '@/lib/utils';
 import type {Locale} from '@/i18n/routing';
 import type {OrderField} from '@/types';
-import {getFieldGroup, getFieldOrigin, type FieldGroup} from './order-field-classification';
+import {fieldSortIndex, getFieldGroup, getFieldOrigin, type FieldGroup} from './order-field-classification';
 import {fieldLabel} from './field-labels';
 import {OrderCollapsibleSection} from './OrderCollapsibleSection';
 
@@ -75,6 +75,11 @@ export function OrderFieldsCard({
     populatedFields.forEach((field) => {
       groups[getFieldGroup(field)].push(field);
     });
+
+    // Order fields within each group by the canonical order.
+    for (const group of Object.values(groups)) {
+      group.sort((a, b) => fieldSortIndex(a.key) - fieldSortIndex(b.key));
+    }
 
     return groups;
   }, [populatedFields]);
@@ -210,6 +215,7 @@ function renderField(field: OrderField, naLabel: string, locale: Locale) {
 const WEIGHT_DISPLAY_KEYS = new Set(['cargo_weight', 'goods_weight', 'weight']);
 const CM_DISPLAY_KEYS = new Set(['length', 'width', 'height']);
 const M3_DISPLAY_KEYS = new Set(['cargo_volume', 'goods_volume']);
+const LDM_DISPLAY_KEYS = new Set(['cargo_loading_meter', 'goods_loading_meter']);
 
 /** Display-only touch-ups (Niek). The stored value and the XML stay a plain,
  *  unit-less, dot-decimal number; here we only add the unit, use the locale's
@@ -227,6 +233,7 @@ function displayFieldValue(field: OrderField, locale: Locale): string {
   if (WEIGHT_DISPLAY_KEYS.has(field.key)) return `${n} kg`;
   if (CM_DISPLAY_KEYS.has(field.key)) return `${n} cm`;
   if (M3_DISPLAY_KEYS.has(field.key)) return `${n} m³`;
+  if (LDM_DISPLAY_KEYS.has(field.key)) return `${n} ldm`;
   return value;
 }
 
