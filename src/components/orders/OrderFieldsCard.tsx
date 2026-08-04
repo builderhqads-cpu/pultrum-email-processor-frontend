@@ -217,6 +217,21 @@ const CM_DISPLAY_KEYS = new Set(['length', 'width', 'height']);
 const M3_DISPLAY_KEYS = new Set(['cargo_volume', 'goods_volume']);
 const LDM_DISPLAY_KEYS = new Set(['cargo_loading_meter', 'goods_loading_meter']);
 
+// Date fields (loading + unloading). Niek wants them in Dutch order (DD-MM-YYYY).
+const DATE_DISPLAY_KEYS = new Set([
+  'pickup_date',
+  'pickup_date_till',
+  'delivery_date',
+  'delivery_date_till',
+]);
+
+/** ISO (YYYY-MM-DD) -> Dutch (DD-MM-YYYY); returns null if not a plain ISO date. */
+function toDutchDate(value: string): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  return `${match[3]}-${match[2]}-${match[1]}`;
+}
+
 /** Display-only touch-ups (Niek). The stored value and the XML stay a plain,
  *  unit-less, dot-decimal number; here we only add the unit, use the locale's
  *  decimal separator (NL/PT: comma) and capitalize the cargo unit. */
@@ -224,6 +239,9 @@ function displayFieldValue(field: OrderField, locale: Locale): string {
   const value = String(field.value);
   if (field.key === 'cargo_unit_id' && value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+  if (DATE_DISPLAY_KEYS.has(field.key)) {
+    return toDutchDate(value) ?? value;
   }
   // Only touch numeric measure values (never free text).
   const isNumeric = /^-?\d+(?:[.,]\d+)?$/.test(value.trim());

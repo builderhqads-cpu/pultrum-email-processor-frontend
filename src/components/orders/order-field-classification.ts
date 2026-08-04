@@ -68,14 +68,14 @@ export const CARGO_FIELD_KEYS = [
 ] as const;
 
 // "Algemeen" box (Niek): order-level, not tied to a specific stop or the cargo
-// dimensions. transport_type moved here from cargo; opdrachtgever/principal are
-// ready for when the field is defined + the data arrives.
+// dimensions. Niek's requested order (2026-08-04): Opdrachtgever, then
+// Factuurreferentie, then Transportsoort. principal is an opdrachtgever alias,
+// kept right after it.
 export const GENERAL_FIELD_KEYS = [
-  'transport_type',
   'opdrachtgever',
   'principal',
-  // Niek: invoice reference moved from Goederen to Algemeen, after opdrachtgever.
-  'invoice_reference'
+  'invoice_reference',
+  'transport_type'
 ] as const;
 
 export const CALCULATED_FIELD_KEYS = [
