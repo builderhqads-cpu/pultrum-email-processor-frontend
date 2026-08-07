@@ -701,7 +701,7 @@ Ignorar os dados do rodape (assinatura e contatos)`
     groups: {
       pickup: 'Pickup / Coleta',
       delivery: 'Delivery / Entrega',
-      cargo: 'Carga / Comercial',
+      cargo: 'Mercadoria',
       general: 'Geral'
     },
     requirements: {
@@ -778,7 +778,7 @@ Ignore the footer details (signature and contacts)`
     groups: {
       pickup: 'Pickup',
       delivery: 'Delivery',
-      cargo: 'Cargo / commercial',
+      cargo: 'Goods',
       general: 'General'
     },
     requirements: {
@@ -855,7 +855,7 @@ Negeer de gegevens in de voettekst (handtekening en contacten)`
     groups: {
       pickup: 'Laden',
       delivery: 'Lossen',
-      cargo: 'Lading / commercieel',
+      cargo: 'Goederen',
       general: 'Algemeen'
     },
     requirements: {

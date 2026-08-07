@@ -8,74 +8,89 @@ import type {
 export type FieldOrigin = 'email' | 'ai' | 'profile' | 'system' | 'calculated' | 'optional';
 export type FieldGroup = 'pickup' | 'delivery' | 'cargo' | 'general' | 'calculated' | 'technical' | 'additional';
 
+// Group membership + display order per Niek's spec (2026-08-07). Order within
+// each array is the display order inside its group.
 export const PICKUP_FIELD_KEYS = [
   'pickup_date',
   'pickup_date_till',
   'pickup_time',
   'pickup_time_till',
-  'pickup_time_delivery',
   'pickup_reference',
   'pickup_name',
   'pickup_address',
   'pickup_address2',
   'pickup_country',
   'pickup_zipcode',
-  'pickup_city',
-  'pickup_contact',
   'pickup_phone',
   'pickup_email',
+  'driver_pickup_info',
+  'pickup_time_delivery',
+  'pickup_city',
+  'pickup_remarks',
+  'pickup_contact',
   'neutral_pickup_address',
-  'driver_pickup_info'
+  'neutral_loading'
 ] as const;
 
 export const DELIVERY_FIELD_KEYS = [
   'delivery_date',
+  'delivery_date_till',
   'delivery_time',
   'delivery_time_till',
-  'delivery_time_delivery',
   'delivery_reference',
   'delivery_name',
   'delivery_address',
-  'delivery_address2',
   'delivery_country',
   'delivery_zipcode',
   'delivery_city',
+  'driver_delivery_info',
+  'delivery_time_delivery',
+  'delivery_address2',
+  'delivery_remarks',
   'delivery_contact',
   'delivery_phone',
   'delivery_email',
   'neutral_delivery_address',
-  'driver_delivery_info'
+  'neutral_unloading'
 ] as const;
 
 export const CARGO_FIELD_KEYS = [
   'cargo_unit_amount',
   'cargo_unit_id',
-  'product_id',
   'cargo_weight',
   'length',
   'width',
-  'height',
-  // Niek: loading meter and volume belong in the Goederen box, not a separate
-  // "Berekend" block (they still carry the CALCULATED origin badge).
   'cargo_loading_meter',
   'cargo_volume',
-  'price',
-  'fixed_price',
   'product_description',
+  'goods_unit_amount',
+  'product_id',
   'pallet_places',
+  'height',
   'adr_class',
-  'dangerous_goods'
+  'dangerous_goods',
+  'product_instructions',
+  'adr'
 ] as const;
 
-// "Algemeen" box (Niek): order-level, not tied to a specific stop or the cargo
-// dimensions. Niek's requested order (2026-08-04): Opdrachtgever, then
-// Factuurreferentie, then Transportsoort. principal is an opdrachtgever alias,
-// kept right after it.
+// "Algemeen" box. Niek's order (2026-08-07): Opdrachtgever, Klantnummer,
+// Factuurreferentie, Transportsoort, Vaste prijs, CMR-nummer, Afzender,
+// Kraanhoogte, Vergunningen, Begeleiding vereist, Prijs. principal is an
+// opdrachtgever alias, kept next to it.
 export const GENERAL_FIELD_KEYS = [
   'opdrachtgever',
   'principal',
+  'customer_id',
   'invoice_reference',
-  'transport_type'
+  'transport_type',
+  'planning_note',
+  'fixed_price',
+  'cmr_number',
+  'sender',
+  'crane_height',
+  'permits',
+  'escort_required',
+  'price'
 ] as const;
 
 export const CALCULATED_FIELD_KEYS = [
@@ -87,8 +102,7 @@ export const CALCULATED_FIELD_KEYS = [
 export const TECHNICAL_FIELD_KEYS = [
   'edireference',
   'shipment_edireference',
-  'barcode',
-  'customer_id'
+  'barcode'
 ] as const;
 
 export const OPTIONAL_FIELD_KEYS = new Set([
