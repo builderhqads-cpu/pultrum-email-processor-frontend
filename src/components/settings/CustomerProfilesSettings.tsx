@@ -76,6 +76,11 @@ const fieldGroupOrder: CustomerProfileFieldGroup[] = [
   'general'
 ];
 
+// Generic mirror keys that duplicate the cargo Aantal/Eenheid/Gewicht fields.
+// They only clutter the bottom of the Algemeen group, so keep them out of the
+// profile editor entirely.
+const HIDDEN_PROFILE_FIELD_KEYS = new Set<string>(['unit_amount', 'unit_id', 'weight']);
+
 const emptyFormState = (): FormState => ({
   name: '',
   contactEmail: '',
@@ -109,6 +114,10 @@ export function CustomerProfilesSettings() {
     };
 
     for (const field of fieldCatalog.data ?? []) {
+      // Generic mirror fields (unit_amount/unit_id/weight) duplicate the cargo
+      // Aantal/Eenheid/Gewicht and just float at the bottom of Algemeen. Hide
+      // them from the profile editor.
+      if (HIDDEN_PROFILE_FIELD_KEYS.has(field.key)) continue;
       const group = normalizeGroup(field.group);
       groups[group].push(field);
     }
