@@ -18,6 +18,7 @@ import type {
   FieldRequirement
 } from '@/types';
 import type {Locale} from '@/i18n/routing';
+import {fieldSortIndex} from '@/components/orders/order-field-classification';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
@@ -110,6 +111,12 @@ export function CustomerProfilesSettings() {
     for (const field of fieldCatalog.data ?? []) {
       const group = normalizeGroup(field.group);
       groups[group].push(field);
+    }
+
+    // Same display order as the order view (Niek: keep the grouping/order for
+    // both the order and the profile).
+    for (const list of Object.values(groups)) {
+      list.sort((a, b) => fieldSortIndex(a.key) - fieldSortIndex(b.key));
     }
 
     return groups;

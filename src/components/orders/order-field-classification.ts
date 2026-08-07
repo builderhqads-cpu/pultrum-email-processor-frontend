@@ -57,12 +57,14 @@ export const DELIVERY_FIELD_KEYS = [
 export const CARGO_FIELD_KEYS = [
   'cargo_unit_amount',
   'cargo_unit_id',
+  // Niek #2: productomschrijving right after eenheid (his explicit position
+  // callout, which overrides the position in his full group list).
+  'product_description',
   'cargo_weight',
   'length',
   'width',
   'cargo_loading_meter',
   'cargo_volume',
-  'product_description',
   'goods_unit_amount',
   'product_id',
   'pallet_places',
