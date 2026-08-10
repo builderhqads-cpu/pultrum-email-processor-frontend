@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {Pencil, Plus, Trash2, Users} from 'lucide-react';
 import {useLocale} from 'next-intl';
 import {toast} from 'sonner';
@@ -106,15 +106,10 @@ export function CustomerProfilesSettings() {
   const [deleteTarget, setDeleteTarget] = useState<CustomerProfile | null>(null);
   const [form, setForm] = useState<FormState>(emptyFormState);
 
-  // Grow the AI-instructions box to fit its content so the whole text is visible
-  // without an inner scrollbar (Niek: the field should stay "fixed", no scrolling).
-  const aiInstructionsRef = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => {
-    const el = aiInstructionsRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [form.aiInstructions, dialogOpen]);
+  // The AI instructions live in their own big editor modal (opened from a
+  // button) instead of a cramped inline box. `aiDraft` is the working copy.
+  const [aiEditorOpen, setAiEditorOpen] = useState(false);
+  const [aiDraft, setAiDraft] = useState('');
 
   const groupedCatalog = useMemo(() => {
     const groups: Record<CustomerProfileFieldGroup, CustomerProfileCatalogField[]> = {
@@ -436,6 +431,39 @@ export function CustomerProfilesSettings() {
                     </div>
                   </div>
 
+                  <div className="min-w-0 space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {labels.form.aiInstructions}
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      {labels.form.aiInstructionsHelp}
+                    </p>
+                    {form.aiInstructions.trim() ? (
+                      <div className="line-clamp-3 whitespace-pre-wrap rounded-lg border bg-muted/30 p-2 text-xs text-muted-foreground">
+                        {form.aiInstructions}
+                      </div>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        setAiDraft(form.aiInstructions);
+                        setAiEditorOpen(true);
+                      }}
+                    >
+                      {form.aiInstructions.trim() ? (
+                        <Pencil className="h-4 w-4" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                      {form.aiInstructions.trim()
+                        ? labels.form.aiInstructionsEdit
+                        : labels.form.aiInstructionsAdd}
+                    </Button>
+                  </div>
+
                 </CardContent>
               </Card>
             </div>
@@ -501,29 +529,6 @@ export function CustomerProfilesSettings() {
             </div>
           </div>
 
-          {/* AI instructions get the full modal width (Niek: the box was too
-              small in the narrow left column). Wide + auto-growing = the whole
-              text is readable at once, no wrapping or inner scrollbar. */}
-          <Card className="min-w-0 overflow-hidden">
-            <CardContent className="space-y-1.5 pt-6">
-              <label className="text-sm font-medium text-foreground">
-                {labels.form.aiInstructions}
-              </label>
-              <p className="text-xs text-muted-foreground">
-                {labels.form.aiInstructionsHelp}
-              </p>
-              <Textarea
-                ref={aiInstructionsRef}
-                value={form.aiInstructions}
-                onChange={(event) =>
-                  updateFieldValue('aiInstructions', event.target.value)
-                }
-                placeholder={labels.form.aiInstructionsPlaceholder}
-                className="min-h-48 min-w-0 resize-none overflow-hidden"
-              />
-            </CardContent>
-          </Card>
-
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>{labels.cancel}</DialogClose>
             <Button
@@ -540,6 +545,36 @@ export function CustomerProfilesSettings() {
                 : editingProfile
                   ? labels.save
                   : labels.create}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Big dedicated editor for the AI instructions — plenty of room to type,
+          opened from the compact button in the profile form. */}
+      <Dialog open={aiEditorOpen} onOpenChange={setAiEditorOpen}>
+        <DialogContent className="flex h-[85vh] !w-[92vw] !max-w-[1100px] flex-col overflow-hidden p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>{labels.form.aiInstructions}</DialogTitle>
+            <DialogDescription>{labels.form.aiInstructionsHelp}</DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={aiDraft}
+            onChange={(event) => setAiDraft(event.target.value)}
+            placeholder={labels.form.aiInstructionsPlaceholder}
+            className="min-h-0 min-w-0 flex-1 resize-none"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAiEditorOpen(false)}>
+              {labels.cancel}
+            </Button>
+            <Button
+              onClick={() => {
+                updateFieldValue('aiInstructions', aiDraft);
+                setAiEditorOpen(false);
+              }}
+            >
+              {labels.save}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -671,6 +706,8 @@ const customerProfileLabels: Record<
       aiInstructions: string;
       aiInstructionsHelp: string;
       aiInstructionsPlaceholder: string;
+      aiInstructionsAdd: string;
+      aiInstructionsEdit: string;
     };
     groups: Record<CustomerProfileFieldGroup, string>;
     requirements: Record<RequirementKey, string>;
@@ -740,7 +777,9 @@ const customerProfileLabels: Record<
 Referencia de coleta: o numero que aparece no topo do documento, ao lado do titulo
 Data de entrega: sempre na segunda coluna da tabela
 Cada linha da planilha e uma ordem separada
-Ignorar os dados do rodape (assinatura e contatos)`
+Ignorar os dados do rodape (assinatura e contatos)`,
+      aiInstructionsAdd: 'Adicionar instrucoes',
+      aiInstructionsEdit: 'Ver / editar instrucoes'
     },
     groups: {
       pickup: 'Pickup / Coleta',
@@ -818,7 +857,9 @@ Ignorar os dados do rodape (assinatura e contatos)`
 Pickup reference: the number at the top of the document, next to the title
 Delivery date: always in the second column of the table
 Each row of the spreadsheet is a separate order
-Ignore the footer details (signature and contacts)`
+Ignore the footer details (signature and contacts)`,
+      aiInstructionsAdd: 'Add instructions',
+      aiInstructionsEdit: 'View / edit instructions'
     },
     groups: {
       pickup: 'Pickup',
@@ -896,7 +937,9 @@ Ignore the footer details (signature and contacts)`
 Laadreferentie: het nummer bovenaan het document, naast de titel
 Losdatum: altijd in de tweede kolom van de tabel
 Elke regel van het overzicht is een aparte order
-Negeer de gegevens in de voettekst (handtekening en contacten)`
+Negeer de gegevens in de voettekst (handtekening en contacten)`,
+      aiInstructionsAdd: 'Instructies toevoegen',
+      aiInstructionsEdit: 'Instructies bekijken / bewerken'
     },
     groups: {
       pickup: 'Laden',
