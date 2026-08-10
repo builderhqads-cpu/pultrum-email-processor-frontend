@@ -436,23 +436,6 @@ export function CustomerProfilesSettings() {
                     </div>
                   </div>
 
-                  <div className="min-w-0 space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">
-                      {labels.form.aiInstructions}
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                      {labels.form.aiInstructionsHelp}
-                    </p>
-                    <Textarea
-                      ref={aiInstructionsRef}
-                      value={form.aiInstructions}
-                      onChange={(event) =>
-                        updateFieldValue('aiInstructions', event.target.value)
-                      }
-                      placeholder={labels.form.aiInstructionsPlaceholder}
-                      className="min-h-64 min-w-0 resize-none overflow-hidden"
-                    />
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -517,6 +500,29 @@ export function CustomerProfilesSettings() {
               )}
             </div>
           </div>
+
+          {/* AI instructions get the full modal width (Niek: the box was too
+              small in the narrow left column). Wide + auto-growing = the whole
+              text is readable at once, no wrapping or inner scrollbar. */}
+          <Card className="min-w-0 overflow-hidden">
+            <CardContent className="space-y-1.5 pt-6">
+              <label className="text-sm font-medium text-foreground">
+                {labels.form.aiInstructions}
+              </label>
+              <p className="text-xs text-muted-foreground">
+                {labels.form.aiInstructionsHelp}
+              </p>
+              <Textarea
+                ref={aiInstructionsRef}
+                value={form.aiInstructions}
+                onChange={(event) =>
+                  updateFieldValue('aiInstructions', event.target.value)
+                }
+                placeholder={labels.form.aiInstructionsPlaceholder}
+                className="min-h-48 min-w-0 resize-none overflow-hidden"
+              />
+            </CardContent>
+          </Card>
 
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>{labels.cancel}</DialogClose>
