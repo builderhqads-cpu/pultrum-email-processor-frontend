@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {Pencil, Plus, Trash2, Users} from 'lucide-react';
 import {useLocale} from 'next-intl';
 import {toast} from 'sonner';
@@ -104,6 +104,16 @@ export function CustomerProfilesSettings() {
   const [editingProfile, setEditingProfile] = useState<CustomerProfile | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CustomerProfile | null>(null);
   const [form, setForm] = useState<FormState>(emptyFormState);
+
+  // Grow the AI-instructions box to fit its content so the whole text is visible
+  // without an inner scrollbar (Niek: the field should stay "fixed", no scrolling).
+  const aiInstructionsRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const el = aiInstructionsRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [form.aiInstructions, dialogOpen]);
 
   const groupedCatalog = useMemo(() => {
     const groups: Record<CustomerProfileFieldGroup, CustomerProfileCatalogField[]> = {
@@ -408,16 +418,6 @@ export function CustomerProfilesSettings() {
                   </div>
 
                   <div className="min-w-0 space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">{labels.form.notes}</label>
-                    <Textarea
-                      value={form.notes}
-                      onChange={(event) => updateFieldValue('notes', event.target.value)}
-                      placeholder={labels.form.notesPlaceholder}
-                      className="min-h-32 min-w-0"
-                    />
-                  </div>
-
-                  <div className="min-w-0 space-y-1.5">
                     <label className="text-sm font-medium text-foreground">
                       {labels.form.aiInstructions}
                     </label>
@@ -425,12 +425,13 @@ export function CustomerProfilesSettings() {
                       {labels.form.aiInstructionsHelp}
                     </p>
                     <Textarea
+                      ref={aiInstructionsRef}
                       value={form.aiInstructions}
                       onChange={(event) =>
                         updateFieldValue('aiInstructions', event.target.value)
                       }
                       placeholder={labels.form.aiInstructionsPlaceholder}
-                      className="min-h-48 min-w-0"
+                      className="min-h-64 min-w-0 resize-none overflow-hidden"
                     />
                   </div>
                 </CardContent>
