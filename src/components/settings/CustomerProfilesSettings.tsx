@@ -69,11 +69,12 @@ type FormState = {
   aiInstructions: string;
 };
 
+// Same group order as the order view (Niek): Algemeen, Laden, Lossen, Goederen.
 const fieldGroupOrder: CustomerProfileFieldGroup[] = [
+  'general',
   'pickup',
   'delivery',
-  'cargo',
-  'general'
+  'cargo'
 ];
 
 // Generic mirror keys that duplicate the cargo Aantal/Eenheid/Gewicht fields.
@@ -140,6 +141,18 @@ export function CustomerProfilesSettings() {
 
     return groups;
   }, [fieldCatalog.data]);
+
+  // Total editable fields in the catalog (excluding the hidden mirror fields).
+  // "AI fields" = fields left for the AI to extract = catalog total minus the
+  // ones this profile pins to a default value (Niek: show both for a complete
+  // picture, next to the Standaardvelden count).
+  const catalogFieldCount = useMemo(
+    () =>
+      (fieldCatalog.data ?? []).filter(
+        (field) => !HIDDEN_PROFILE_FIELD_KEYS.has(field.key)
+      ).length,
+    [fieldCatalog.data]
+  );
 
   function openCreateDialog() {
     setEditingProfile(null);
@@ -276,6 +289,7 @@ export function CustomerProfilesSettings() {
                     <TableHead>{labels.columns.customer}</TableHead>
                     <TableHead>{labels.columns.status}</TableHead>
                     <TableHead>{labels.columns.defaults}</TableHead>
+                    <TableHead>{labels.columns.aiFields}</TableHead>
                     <TableHead>{labels.columns.updatedAt}</TableHead>
                     <TableHead className="text-right">{labels.columns.actions}</TableHead>
                   </TableRow>
@@ -305,6 +319,11 @@ export function CustomerProfilesSettings() {
                         </Badge>
                       </TableCell>
                       <TableCell>{profile.fields.length}</TableCell>
+                      <TableCell>
+                        {catalogFieldCount > 0
+                          ? Math.max(0, catalogFieldCount - profile.fields.length)
+                          : '—'}
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
                         {formatDateTime(profile.updatedAt, locale)}
                       </TableCell>
@@ -627,6 +646,7 @@ const customerProfileLabels: Record<
       customer: string;
       status: string;
       defaults: string;
+      aiFields: string;
       updatedAt: string;
       actions: string;
     };
@@ -691,6 +711,7 @@ const customerProfileLabels: Record<
       customer: 'Cliente',
       status: 'Status',
       defaults: 'Campos padrao',
+      aiFields: 'Campos IA',
       updatedAt: 'Atualizado em',
       actions: 'Acoes'
     },
@@ -768,6 +789,7 @@ Ignorar os dados do rodape (assinatura e contatos)`
       customer: 'Customer',
       status: 'Status',
       defaults: 'Default fields',
+      aiFields: 'AI fields',
       updatedAt: 'Updated at',
       actions: 'Actions'
     },
@@ -845,6 +867,7 @@ Ignore the footer details (signature and contacts)`
       customer: 'Klant',
       status: 'Status',
       defaults: 'Standaardvelden',
+      aiFields: 'AI-velden',
       updatedAt: 'Bijgewerkt op',
       actions: 'Acties'
     },

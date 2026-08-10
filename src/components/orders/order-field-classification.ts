@@ -40,12 +40,14 @@ export const DELIVERY_FIELD_KEYS = [
   'delivery_reference',
   'delivery_name',
   'delivery_address',
+  // Niek: Losadres 2 always right after Losadres (neater). Laadadres 2 already
+  // sits right after Laadadres in PICKUP_FIELD_KEYS.
+  'delivery_address2',
   'delivery_country',
   'delivery_zipcode',
   'delivery_city',
   'driver_delivery_info',
   'delivery_time_delivery',
-  'delivery_address2',
   'delivery_remarks',
   'delivery_contact',
   'delivery_phone',

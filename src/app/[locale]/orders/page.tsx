@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ExternalLink, MoreHorizontal, PackageSearch} from 'lucide-react';
+import {ExternalLink, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
 
 import type {Locale} from '@/i18n/routing';
@@ -135,6 +135,17 @@ export default function OrdersPage() {
     return new Map(list.map((email) => [email.id, email]));
   }, [emails.data]);
 
+  // How many orders each batch produced, so the list can show "12/20" (Niek).
+  const batchTotals = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of (orders.data ?? []) as TransportOrderListItem[]) {
+      if (item.batchImportId) {
+        map.set(item.batchImportId, (map.get(item.batchImportId) ?? 0) + 1);
+      }
+    }
+    return map;
+  }, [orders.data]);
+
   const baseFiltered = useMemo(() => {
     const list = (orders.data ?? []) as TransportOrderListItem[];
     const query = normalize(q);
@@ -240,8 +251,19 @@ export default function OrdersPage() {
 
       <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <CardHeader className="flex-row items-center justify-between gap-3 border-b">
-          <CardTitle className="text-base">{t('table.title')}</CardTitle>
-          <div className="text-xs text-muted-foreground">
+          <div className="flex min-w-0 items-center gap-3">
+            <CardTitle className="shrink-0 text-base">{t('table.title')}</CardTitle>
+            <div className="relative w-full max-w-xs">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(event) => setQ(event.target.value)}
+                placeholder={t('filters.searchPlaceholder')}
+                className="h-8 pl-8"
+              />
+            </div>
+          </div>
+          <div className="shrink-0 text-xs text-muted-foreground">
             {selected.size > 0
               ? `${selected.size} ${t('table.selected')}`
               : t('filters.showing', {count: sliced.length, total: filtered.length, pageSize})}
@@ -274,14 +296,7 @@ export default function OrdersPage() {
               {/* Inline column filters */}
               <TableRow className="hover:bg-transparent">
                 <TableHead className="py-1.5" />
-                <TableHead className="py-1.5">
-                  <Input
-                    value={q}
-                    onChange={(event) => setQ(event.target.value)}
-                    placeholder={t('filters.searchPlaceholder')}
-                    className="h-8"
-                  />
-                </TableHead>
+                <TableHead className="py-1.5" />
                 <TableHead className="py-1.5" />
                 <TableHead className="py-1.5" />
                 <TableHead className="py-1.5" />
@@ -374,7 +389,10 @@ export default function OrdersPage() {
                         <div className="mt-1 flex items-center gap-1.5">
                           {item.batchImportId ? (
                             <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                              Batch
+                              {item.batchSequence != null &&
+                              batchTotals.get(item.batchImportId)
+                                ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
+                                : 'Batch'}
                             </span>
                           ) : null}
                           <span
