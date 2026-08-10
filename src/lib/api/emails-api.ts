@@ -1,5 +1,6 @@
 import { apiClient, ApiError } from "./api-client";
 import type {
+  DeleteAllEmailsResponse,
   DeleteEmailResponse,
   EmailMessage,
   EmailMessageListItem,
@@ -63,4 +64,15 @@ export async function deleteEmail(id: string) {
     });
   }
   return data as DeleteEmailResponse;
+}
+
+export async function deleteAllEmails() {
+  const { data } = await apiClient.delete(`/emails`);
+  if (!data || typeof data !== "object") {
+    throw new ApiError({
+      message: "Unexpected response from DELETE /emails (expected object)",
+      data,
+    });
+  }
+  return data as DeleteAllEmailsResponse;
 }

@@ -411,6 +411,10 @@ export type DeleteEmailResponse = {
   deletedReplyEmailsCount: number;
 };
 
+export type DeleteAllEmailsResponse = {
+  deleted: number;
+};
+
 export type MicrosoftConnectionStatusResponse = {
   connected: boolean;
   email: string | null;

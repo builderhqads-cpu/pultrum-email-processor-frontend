@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight, Inbox, MailOpen, Paperclip } from "lucide-react";
+import { ChevronRight, Inbox, MailOpen, Paperclip, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import type { Locale } from "@/i18n/routing";
 import { useEmails } from "@/hooks/use-emails";
 import { useDeleteEmail } from "@/hooks/use-delete-email";
+import { useDeleteAllEmails } from "@/hooks/use-delete-all-emails";
 import { useMounted } from "@/hooks/use-mounted";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmailPreviewPane } from "@/components/emails/EmailPreviewPane";
@@ -105,6 +106,7 @@ export default function EmailsPage() {
 
   const emails = useEmails();
   const deleteEmail = useDeleteEmail();
+  const deleteAllEmails = useDeleteAllEmails();
 
   const [q, setQ] = useState("");
   const [queueTab, setQueueTab] = useState<EmailQueueTab>("all");
@@ -112,6 +114,7 @@ export default function EmailsPage() {
   const [deleteTarget, setDeleteTarget] = useState<EmailMessageListItem | null>(
     null,
   );
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
 
   const baseFiltered = useMemo(() => {
     const list = (emails.data ?? []) as EmailMessageListItem[];
@@ -303,23 +306,52 @@ export default function EmailsPage() {
     }
   }
 
+  async function confirmDeleteAllEmails() {
+    setConfirmDeleteAll(false);
+    const toastId = toast.loading(labels.deleteAllLoading);
+    try {
+      const result = await deleteAllEmails.mutateAsync();
+      toast.success(labels.deleteAllSuccess(result.deleted), { id: toastId });
+      setSelectedId(null);
+      await refetchAll();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : undefined;
+      toast.error(message ?? labels.deleteAllError, { id: toastId });
+    }
+  }
+
   const selectedListItem = selectedId
     ? filtered.find((item) => item.id === selectedId) ?? null
     : null;
+
+  const hasEmails = ((emails.data ?? []) as EmailMessageListItem[]).length > 0;
 
   return (
     <div className="mx-auto flex w-full min-w-0 flex-col gap-4 lg:h-[calc(100vh-7rem)]">
       <PageHeader
         title={labels.inboxTitle}
         actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refetchAll}
-            disabled={!mounted || isLoading}
-          >
-            {tCommon("refetch")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refetchAll}
+              disabled={!mounted || isLoading}
+            >
+              {tCommon("refetch")}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setConfirmDeleteAll(true)}
+              disabled={
+                !mounted || isLoading || !hasEmails || deleteAllEmails.isPending
+              }
+            >
+              <Trash2 className="mr-1.5 h-4 w-4" />
+              {labels.deleteAllAction}
+            </Button>
+          </div>
         }
       />
 
@@ -506,6 +538,29 @@ export default function EmailsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog
+        open={confirmDeleteAll}
+        onOpenChange={setConfirmDeleteAll}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{labels.deleteAllConfirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {labels.deleteAllConfirm}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDeleteAllEmails}
+            >
+              {labels.deleteAllAction}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -525,6 +580,12 @@ const emailPageLabels: Record<
     deleteError: string;
     deleteConfirmTitle: string;
     deleteConfirm: string;
+    deleteAllAction: string;
+    deleteAllLoading: string;
+    deleteAllSuccess: (count: number) => string;
+    deleteAllError: string;
+    deleteAllConfirmTitle: string;
+    deleteAllConfirm: string;
     notTransport: string;
     replies: (count: number) => string;
   }
@@ -549,6 +610,14 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Excluir este e-mail?",
     deleteConfirm:
       "Essa acao remove o e-mail do sistema. Se houver um pedido vinculado, ele e os replies tambem serao removidos.",
+    deleteAllAction: "Excluir todos",
+    deleteAllLoading: "Excluindo todos os e-mails...",
+    deleteAllSuccess: (n) =>
+      n === 1 ? "1 e-mail excluido" : `${n} e-mails excluidos`,
+    deleteAllError: "Falha ao excluir os e-mails",
+    deleteAllConfirmTitle: "Excluir TODOS os e-mails?",
+    deleteAllConfirm:
+      "Essa acao remove TODOS os e-mails, pedidos e respostas do sistema. Os perfis de cliente e a configuracao NAO sao afetados. Nao pode ser desfeito.",
     notTransport: "Nao e transporte",
     replies: (n) => (n === 1 ? "1 resposta" : `${n} respostas`),
   },
@@ -572,6 +641,14 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Delete this email?",
     deleteConfirm:
       "This removes the email from the system. If an order is linked, it and its replies are removed too.",
+    deleteAllAction: "Delete all",
+    deleteAllLoading: "Deleting all emails...",
+    deleteAllSuccess: (n) =>
+      n === 1 ? "1 email deleted" : `${n} emails deleted`,
+    deleteAllError: "Failed to delete emails",
+    deleteAllConfirmTitle: "Delete ALL emails?",
+    deleteAllConfirm:
+      "This removes ALL emails, orders and replies from the system. Customer profiles and configuration are NOT affected. This cannot be undone.",
     notTransport: "Not transport",
     replies: (n) => (n === 1 ? "1 reply" : `${n} replies`),
   },
@@ -595,6 +672,14 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Deze e-mail verwijderen?",
     deleteConfirm:
       "Hiermee wordt de e-mail uit het systeem verwijderd. Een gekoppelde opdracht en antwoorden worden ook verwijderd.",
+    deleteAllAction: "Alles verwijderen",
+    deleteAllLoading: "Alle e-mails verwijderen...",
+    deleteAllSuccess: (n) =>
+      n === 1 ? "1 e-mail verwijderd" : `${n} e-mails verwijderd`,
+    deleteAllError: "E-mails verwijderen mislukt",
+    deleteAllConfirmTitle: "ALLE e-mails verwijderen?",
+    deleteAllConfirm:
+      "Hiermee worden ALLE e-mails, opdrachten en antwoorden uit het systeem verwijderd. Klantprofielen en configuratie blijven ongewijzigd. Dit kan niet ongedaan worden gemaakt.",
     notTransport: "Geen transport",
     replies: (n) => (n === 1 ? "1 antwoord" : `${n} antwoorden`),
   },
