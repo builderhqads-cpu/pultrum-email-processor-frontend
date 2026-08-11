@@ -27,6 +27,10 @@ export function OrderDetailHeader({
   const locale = useLocale() as Locale;
   const batch = batchLabels[locale] ?? batchLabels.en;
 
+  // Niek: show the factuurreferentie as the order's reference (not the TR-number).
+  const invoiceReference =
+    order?.fields?.find((f) => f.key === 'invoice_reference')?.value || null;
+
   return (
     <PageHeader
       backLink={{href: '/orders', label: tOrders('detail.backToOrders')}}
@@ -37,6 +41,14 @@ export function OrderDetailHeader({
             <div className="truncate" title={order.customerEmail || tCommon('na')}>
               {order.customerEmail || tCommon('na')}
             </div>
+            {invoiceReference ? (
+              <div
+                className="truncate font-mono text-xs font-medium text-foreground"
+                title={invoiceReference}
+              >
+                {invoiceReference}
+              </div>
+            ) : null}
             {order.batch ? (
               <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <Badge variant="outline" className="shrink-0 gap-1 border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-900/40 dark:bg-sky-950/30 dark:text-sky-300">

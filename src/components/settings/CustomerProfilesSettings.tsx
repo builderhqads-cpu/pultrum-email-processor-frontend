@@ -77,10 +77,16 @@ const fieldGroupOrder: CustomerProfileFieldGroup[] = [
   'cargo'
 ];
 
-// Generic mirror keys that duplicate the cargo Aantal/Eenheid/Gewicht fields.
-// They only clutter the bottom of the Algemeen group, so keep them out of the
-// profile editor entirely.
-const HIDDEN_PROFILE_FIELD_KEYS = new Set<string>(['unit_amount', 'unit_id', 'weight']);
+// Fields kept out of the profile editor:
+// - unit_amount/unit_id/weight: generic mirrors of the cargo Aantal/Eenheid/Gewicht.
+// - opdrachtgever: redundant (Niek) — the klantnummer is leading and the customer
+//   is already named by the profile itself (klantnaam), so no default is needed.
+const HIDDEN_PROFILE_FIELD_KEYS = new Set<string>([
+  'unit_amount',
+  'unit_id',
+  'weight',
+  'opdrachtgever',
+]);
 
 const emptyFormState = (): FormState => ({
   name: '',

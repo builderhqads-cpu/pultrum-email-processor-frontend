@@ -282,6 +282,7 @@ export type TransportOrderListItem = {
   batchImportId?: string | null;
   batchSequence?: number | null;
   externalReference?: string | null;
+  invoiceReference?: string | null;
   lastAudit?: { action: string; createdAt: IsoDateTimeString } | null;
 };
 

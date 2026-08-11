@@ -1,8 +1,8 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {Fragment, useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ExternalLink, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
+import {ChevronRight, ExternalLink, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
 
 import type {Locale} from '@/i18n/routing';
@@ -156,7 +156,7 @@ export default function OrdersPage() {
 
         if (query) {
           const relatedEmail = item.emailMessageId ? emailsById.get(item.emailMessageId) : undefined;
-          const hay = `${item.customerEmail ?? ''} ${shortId(item.id)} ${relatedEmail?.subject ?? ''}`.toLowerCase();
+          const hay = `${item.customerEmail ?? ''} ${shortId(item.id)} ${item.invoiceReference ?? ''} ${item.externalReference ?? ''} ${relatedEmail?.subject ?? ''}`.toLowerCase();
           if (!hay.includes(query)) return false;
         }
 
@@ -182,7 +182,37 @@ export default function OrdersPage() {
     return baseFiltered.filter((item) => statuses.includes(item.status));
   }, [baseFiltered, emailsById, queueTab]);
 
-  const pageSize = 50;
+  // Batch orders bundle into one collapsible group (Niek); single orders stay
+  // standalone. A batch appears at the position of its most recent order (the
+  // list is already sorted newest-first).
+  const orderGroups = useMemo(() => {
+    const byBatch = new Map<string, TransportOrderListItem[]>();
+    const groups: Array<
+      | {kind: 'single'; key: string; item: TransportOrderListItem}
+      | {kind: 'batch'; key: string; items: TransportOrderListItem[]}
+    > = [];
+    for (const item of filtered) {
+      if (item.batchImportId) {
+        const existing = byBatch.get(item.batchImportId);
+        if (existing) existing.push(item);
+        else {
+          const created = [item];
+          byBatch.set(item.batchImportId, created);
+          groups.push({kind: 'batch', key: item.batchImportId, items: created});
+        }
+      } else {
+        groups.push({kind: 'single', key: item.id, item});
+      }
+    }
+    for (const group of groups) {
+      if (group.kind === 'batch') {
+        group.items.sort((a, b) => (a.batchSequence ?? 0) - (b.batchSequence ?? 0));
+      }
+    }
+    return groups;
+  }, [filtered]);
+
+  const groupPageSize = 50;
   const [page, setPage] = useState(1);
 
   // Filtering/searching changes the result set, so an old page number could land
@@ -191,27 +221,45 @@ export default function OrdersPage() {
     setPage(1);
   }, [q, department, queueTab]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageCount = Math.max(1, Math.ceil(orderGroups.length / groupPageSize));
   const currentPage = Math.min(page, pageCount);
-  const sliced = filtered.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
+  const pagedGroups = useMemo(
+    () =>
+      orderGroups.slice(
+        (currentPage - 1) * groupPageSize,
+        currentPage * groupPageSize,
+      ),
+    [orderGroups, currentPage],
   );
+  const visibleOrders = useMemo(
+    () => pagedGroups.flatMap((g) => (g.kind === 'batch' ? g.items : [g.item])),
+    [pagedGroups],
+  );
+
+  const [expandedBatches, setExpandedBatches] = useState<Set<string>>(new Set());
+  const toggleBatch = (key: string) =>
+    setExpandedBatches((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   const isLoading = orders.loading;
   const hasError = Boolean(orders.error);
 
-  const allVisibleSelected = sliced.length > 0 && sliced.every((item) => selected.has(item.id));
+  const allVisibleSelected =
+    visibleOrders.length > 0 && visibleOrders.every((item) => selected.has(item.id));
 
   function toggleAll() {
     setSelected((prev) => {
-      if (sliced.every((item) => prev.has(item.id))) {
+      if (visibleOrders.every((item) => prev.has(item.id))) {
         const next = new Set(prev);
-        sliced.forEach((item) => next.delete(item.id));
+        visibleOrders.forEach((item) => next.delete(item.id));
         return next;
       }
       const next = new Set(prev);
-      sliced.forEach((item) => next.add(item.id));
+      visibleOrders.forEach((item) => next.add(item.id));
       return next;
     });
   }
@@ -236,6 +284,150 @@ export default function OrdersPage() {
   function openOrder(id: string) {
     router.push(`/orders/${id}`);
   }
+
+  const renderOrderRow = (
+    item: TransportOrderListItem,
+    opts: {nested?: boolean} = {}
+  ) => {
+    const updatedAt = getOrderLastUpdated(item);
+    const isSelected = selected.has(item.id);
+    const relatedEmail = item.emailMessageId
+      ? emailsById.get(item.emailMessageId)
+      : undefined;
+
+    return (
+      <TableRow
+        key={item.id}
+        onClick={() => openOrder(item.id)}
+        className={cn(
+          'cursor-pointer',
+          getRowAccent(item.status),
+          opts.nested && 'bg-muted/10',
+          isSelected && 'bg-muted/60'
+        )}
+      >
+        <TableCell onClick={(event) => event.stopPropagation()}>
+          <input
+            type="checkbox"
+            aria-label={t('table.selectRow')}
+            checked={isSelected}
+            onChange={() => toggleOne(item.id)}
+            className="h-4 w-4 accent-primary"
+          />
+        </TableCell>
+        <TableCell className="whitespace-normal">
+          <div
+            className={cn(
+              'truncate text-sm text-foreground',
+              opts.nested && 'pl-4'
+            )}
+            title={item.customerEmail || tCommon('na')}
+          >
+            {item.customerEmail || tCommon('na')}
+          </div>
+          <div
+            className={cn(
+              'truncate text-xs text-muted-foreground',
+              opts.nested && 'pl-4'
+            )}
+          >
+            {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
+          </div>
+          {item.invoiceReference || item.externalReference ? (
+            <div
+              className={cn(
+                'mt-1 flex flex-wrap items-center gap-1.5',
+                opts.nested && 'pl-4'
+              )}
+            >
+              {item.batchImportId ? (
+                <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                  {item.batchSequence != null &&
+                  batchTotals.get(item.batchImportId)
+                    ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
+                    : 'Batch'}
+                </span>
+              ) : null}
+              {/* Niek: factuurreferentie is the primary reference. */}
+              {item.invoiceReference ? (
+                <span
+                  className="truncate font-mono text-[11px] font-medium text-foreground"
+                  title={item.invoiceReference}
+                >
+                  {item.invoiceReference}
+                </span>
+              ) : null}
+              {item.externalReference ? (
+                <span
+                  className="truncate font-mono text-[11px] text-muted-foreground"
+                  title={item.externalReference}
+                >
+                  {item.externalReference}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+        </TableCell>
+        <TableCell className="whitespace-normal">
+          <div
+            className="line-clamp-2 text-sm text-foreground"
+            title={relatedEmail?.subject || tCommon('na')}
+          >
+            {relatedEmail?.subject || tCommon('na')}
+          </div>
+        </TableCell>
+        <TableCell>
+          <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
+            {shortId(item.id)}
+          </span>
+        </TableCell>
+        <TableCell>
+          <ConfidenceCell value={item.overallConfidence} />
+        </TableCell>
+        <TableCell>
+          <StatusBadge status={item.status ?? tCommon('na')} />
+        </TableCell>
+        <TableCell className="text-xs text-muted-foreground">
+          {updatedAt ? formatDateTime(updatedAt, uiLocale) : tCommon('na')}
+        </TableCell>
+        <TableCell className="text-sm">
+          {item.lastAudit ? (
+            <div className="min-w-0">
+              <div
+                className="truncate text-foreground"
+                title={
+                  getMessageString(messages, `orders.auditActions.${item.lastAudit.action}`) ??
+                  humanizeAction(item.lastAudit.action)
+                }
+              >
+                {getMessageString(messages, `orders.auditActions.${item.lastAudit.action}`) ??
+                  humanizeAction(item.lastAudit.action)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {formatDateTime(item.lastAudit.createdAt, uiLocale)}
+              </div>
+            </div>
+          ) : (
+            <span className="text-muted-foreground">{tCommon('na')}</span>
+          )}
+        </TableCell>
+        <TableCell onClick={(event) => event.stopPropagation()} className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">{t('table.columns.actions')}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => openOrder(item.id)}>
+                <ExternalLink className="h-4 w-4" />
+                {tCommon('open')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+    );
+  };
 
   return (
     <div className="mx-auto flex w-full min-w-0 flex-col gap-4 lg:h-[calc(100vh-7rem)]">
@@ -266,7 +458,7 @@ export default function OrdersPage() {
           <div className="shrink-0 text-xs text-muted-foreground">
             {selected.size > 0
               ? `${selected.size} ${t('table.selected')}`
-              : t('filters.showing', {count: sliced.length, total: filtered.length, pageSize})}
+              : t('filters.showing', {count: visibleOrders.length, total: filtered.length, pageSize: groupPageSize})}
           </div>
         </CardHeader>
 
@@ -352,122 +544,58 @@ export default function OrdersPage() {
             </TableHeader>
 
             <TableBody>
-              {sliced.map((item) => {
-                const updatedAt = getOrderLastUpdated(item);
-                const isSelected = selected.has(item.id);
-                const relatedEmail = item.emailMessageId
-                  ? emailsById.get(item.emailMessageId)
+              {pagedGroups.map((group) => {
+                if (group.kind === 'single') return renderOrderRow(group.item);
+
+                const expanded = expandedBatches.has(group.key);
+                const first = group.items[0];
+                const relatedEmail = first.emailMessageId
+                  ? emailsById.get(first.emailMessageId)
                   : undefined;
 
                 return (
-                  <TableRow
-                    key={item.id}
-                    onClick={() => openOrder(item.id)}
-                    className={cn(
-                      'cursor-pointer',
-                      getRowAccent(item.status),
-                      isSelected && 'bg-muted/60'
-                    )}
-                  >
-                    <TableCell onClick={(event) => event.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        aria-label={t('table.selectRow')}
-                        checked={isSelected}
-                        onChange={() => toggleOne(item.id)}
-                        className="h-4 w-4 accent-primary"
-                      />
-                    </TableCell>
-                    <TableCell className="whitespace-normal">
-                      <div className="truncate text-sm text-foreground" title={item.customerEmail || tCommon('na')}>
-                        {item.customerEmail || tCommon('na')}
-                      </div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
-                      </div>
-                      {item.externalReference ? (
-                        <div className="mt-1 flex items-center gap-1.5">
-                          {item.batchImportId ? (
-                            <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                              {item.batchSequence != null &&
-                              batchTotals.get(item.batchImportId)
-                                ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
-                                : 'Batch'}
-                            </span>
-                          ) : null}
+                  <Fragment key={group.key}>
+                    <TableRow
+                      className="cursor-pointer bg-muted/30 hover:bg-muted/50"
+                      onClick={() => toggleBatch(group.key)}
+                    >
+                      <TableCell>
+                        <ChevronRight
+                          className={cn(
+                            'h-4 w-4 text-muted-foreground transition-transform',
+                            expanded && 'rotate-90'
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell colSpan={8}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                            Batch · {group.items.length}
+                          </span>
                           <span
-                            className="truncate font-mono text-[11px] text-muted-foreground"
-                            title={item.externalReference}
+                            className="truncate text-sm font-medium text-foreground"
+                            title={relatedEmail?.subject || tCommon('na')}
                           >
-                            {item.externalReference}
+                            {relatedEmail?.subject || tCommon('na')}
+                          </span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {first.customerEmail}
                           </span>
                         </div>
-                      ) : null}
-                    </TableCell>
-                    <TableCell className="whitespace-normal">
-                      <div
-                        className="line-clamp-2 text-sm text-foreground"
-                        title={relatedEmail?.subject || tCommon('na')}
-                      >
-                        {relatedEmail?.subject || tCommon('na')}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs font-semibold text-foreground">
-                        {shortId(item.id)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <ConfidenceCell value={item.overallConfidence} />
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={item.status ?? tCommon('na')} />
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {updatedAt ? formatDateTime(updatedAt, uiLocale) : tCommon('na')}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {item.lastAudit ? (
-                        <div className="min-w-0">
-                          <div
-                            className="truncate text-foreground"
-                            title={
-                              getMessageString(messages, `orders.auditActions.${item.lastAudit.action}`) ??
-                              humanizeAction(item.lastAudit.action)
-                            }
-                          >
-                            {getMessageString(messages, `orders.auditActions.${item.lastAudit.action}`) ??
-                              humanizeAction(item.lastAudit.action)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {formatDateTime(item.lastAudit.createdAt, uiLocale)}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">{tCommon('na')}</span>
-                      )}
-                    </TableCell>
-                    <TableCell onClick={(event) => event.stopPropagation()} className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">{t('table.columns.actions')}</span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openOrder(item.id)}>
-                            <ExternalLink className="h-4 w-4" />
-                            {tCommon('open')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                    </TableRow>
+                    {expanded
+                      ? group.items.map((item) =>
+                          renderOrderRow(item, {nested: true})
+                        )
+                      : null}
+                  </Fragment>
                 );
               })}
 
               {isLoading ? <OrdersTableSkeleton /> : null}
 
-              {!isLoading && !hasError && sliced.length === 0 ? (
+              {!isLoading && !hasError && orderGroups.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={9} className="py-10">
                     <EmptyState
@@ -497,8 +625,8 @@ export default function OrdersPage() {
         {!isLoading && !hasError ? (
           <Pagination
             page={currentPage}
-            pageSize={pageSize}
-            total={filtered.length}
+            pageSize={groupPageSize}
+            total={orderGroups.length}
             onPageChange={setPage}
           />
         ) : null}
