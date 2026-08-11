@@ -1,7 +1,7 @@
 'use client';
 
 import {useMemo, useState} from 'react';
-import {Pencil, Plus, Trash2, Users} from 'lucide-react';
+import {ChevronDown, Pencil, Plus, Trash2, Users} from 'lucide-react';
 import {useLocale} from 'next-intl';
 import {toast} from 'sonner';
 
@@ -116,6 +116,21 @@ export function CustomerProfilesSettings() {
   // button) instead of a cramped inline box. `aiDraft` is the working copy.
   const [aiEditorOpen, setAiEditorOpen] = useState(false);
   const [aiDraft, setAiDraft] = useState('');
+
+  // Each field section (Algemeen/Laden/Lossen/Goederen) is a collapsible
+  // accordion so the profile form isn't one long wall of fields. Algemeen opens
+  // by default (it holds the required Klantnummer/Factuurreferentie); the rest
+  // start collapsed and expand on click.
+  const [openGroups, setOpenGroups] = useState<
+    Record<CustomerProfileFieldGroup, boolean>
+  >({
+    general: true,
+    pickup: false,
+    delivery: false,
+    cargo: false
+  });
+  const toggleGroup = (group: CustomerProfileFieldGroup) =>
+    setOpenGroups((prev) => ({...prev, [group]: !prev[group]}));
 
   const groupedCatalog = useMemo(() => {
     const groups: Record<CustomerProfileFieldGroup, CustomerProfileCatalogField[]> = {
@@ -485,11 +500,32 @@ export function CustomerProfilesSettings() {
                     const items = groupedCatalog[group];
                     if (!items?.length) return null;
 
+                    const open = openGroups[group];
+
                     return (
                       <Card key={group} className="min-w-0 overflow-hidden">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-sm">{labels.groups[group]}</CardTitle>
+                        <CardHeader className="p-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleGroup(group)}
+                            aria-expanded={open}
+                            className="flex w-full items-center justify-between gap-2 px-6 py-3 text-left transition-colors hover:bg-muted/50"
+                          >
+                            <CardTitle className="flex items-center gap-2 text-sm">
+                              {labels.groups[group]}
+                              <span className="text-xs font-normal text-muted-foreground">
+                                ({items.length})
+                              </span>
+                            </CardTitle>
+                            <ChevronDown
+                              className={cn(
+                                'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
+                                open && 'rotate-180'
+                              )}
+                            />
+                          </button>
                         </CardHeader>
+                        {open && (
                         <CardContent>
                           <div className="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-3">
                             {items.map((field) => {
@@ -527,6 +563,7 @@ export function CustomerProfilesSettings() {
                             })}
                           </div>
                         </CardContent>
+                        )}
                       </Card>
                     );
                   })}
