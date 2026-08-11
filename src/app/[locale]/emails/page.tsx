@@ -33,7 +33,14 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { cn } from "@/lib/utils";
 import type { EmailMessageListItem } from "@/types";
 
-const emailQueueTabs = ["all", "unprocessed", "processed", "attachments"] as const;
+const emailQueueTabs = [
+  "all",
+  "orders",
+  "notOrders",
+  "unprocessed",
+  "processed",
+  "attachments",
+] as const;
 type EmailQueueTab = (typeof emailQueueTabs)[number];
 
 function normalize(text: string) {
@@ -83,6 +90,13 @@ function filterEmailsByQueue(
   queueTab: EmailQueueTab,
 ) {
   switch (queueTab) {
+    // Niek #9: keep the inbox clean by separating the emails that ARE transport
+    // orders from the ones that are other questions/replies. Uses the existing
+    // isTransportOrder classification (true = order, false = not, null = pending).
+    case "orders":
+      return items.filter((item) => item.isTransportOrder === true);
+    case "notOrders":
+      return items.filter((item) => item.isTransportOrder === false);
     case "unprocessed":
       return items.filter((item) => isUnprocessed(item.status));
     case "processed":
@@ -594,6 +608,8 @@ const emailPageLabels: Record<
     inboxTitle: "Caixa de triagem",
     quickTabs: {
       all: "Todos",
+      orders: "Pedidos",
+      notOrders: "Outros",
       unprocessed: "Nao processados",
       processed: "Processados",
       attachments: "Com anexos",
@@ -625,6 +641,8 @@ const emailPageLabels: Record<
     inboxTitle: "Triage Inbox",
     quickTabs: {
       all: "All",
+      orders: "Orders",
+      notOrders: "Other",
       unprocessed: "Unprocessed",
       processed: "Processed",
       attachments: "With attachments",
@@ -656,6 +674,8 @@ const emailPageLabels: Record<
     inboxTitle: "Triage-inbox",
     quickTabs: {
       all: "Alle",
+      orders: "Opdrachten",
+      notOrders: "Overige",
       unprocessed: "Niet verwerkt",
       processed: "Verwerkt",
       attachments: "Met bijlagen",
