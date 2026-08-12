@@ -71,6 +71,49 @@ function getRowAccent(status: string) {
   return 'border-l-2 border-l-transparent';
 }
 
+// --- Batch aggregates (Niek: a batch header should summarize its orders) ---
+type BatchRollup = {
+  ready: number;
+  waiting: number;
+  processing: number;
+  error: number;
+  other: number;
+};
+
+function getBatchRollup(items: {status: string}[]): BatchRollup {
+  const r: BatchRollup = {ready: 0, waiting: 0, processing: 0, error: 0, other: 0};
+  for (const it of items) {
+    const s = it.status;
+    if (s === 'READY_TO_XML' || s === 'CREATIVE_GEARS_ACCEPTED') r.ready += 1;
+    else if (s === 'WAITING_CUSTOMER_RESPONSE' || s === 'MISSING_INFORMATION')
+      r.waiting += 1;
+    else if (s === 'AI_PROCESSING' || s === 'PROCESSING') r.processing += 1;
+    else if (s === 'FAILED' || s === 'CREATIVE_GEARS_REJECTED') r.error += 1;
+    else r.other += 1;
+  }
+  return r;
+}
+
+// Left accent for a batch = its most attention-needing status (error first).
+function getBatchAccent(items: {status: string}[]): string {
+  const r = getBatchRollup(items);
+  if (r.error) return 'border-l-2 border-l-destructive/70';
+  if (r.waiting) return 'border-l-2 border-l-yellow-400';
+  if (r.processing) return 'border-l-2 border-l-sky-400';
+  if (r.ready) return 'border-l-2 border-l-emerald-400';
+  return 'border-l-2 border-l-transparent';
+}
+
+function avgCompleteness(
+  items: {completeness?: number | null}[]
+): number | null {
+  const vals = items
+    .map((i) => i.completeness)
+    .filter((v): v is number => v != null);
+  if (!vals.length) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
 function isToday(value?: string | null) {
   if (!value) return false;
   const date = new Date(value);
@@ -88,22 +131,71 @@ function humanizeAction(action: string) {
   return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
-function ConfidenceCell({value}: {value: number | null}) {
+// Niek: the list shows "Volledigheid" (completeness %) instead of the AI
+// confidence. 70% = all required fields present = ready for XML.
+function CompletenessCell({value}: {value: number | null | undefined}) {
   if (value == null) {
     return <span className="text-xs text-muted-foreground">—</span>;
   }
 
-  const ratio = Math.max(0, Math.min(1, value));
-  // Green for strong confidence (>= 0.80), amber below.
-  const barColor = value >= 0.8 ? 'bg-emerald-500' : 'bg-amber-500';
-  const textColor = value >= 0.8 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300';
+  const pct = Math.max(0, Math.min(100, value));
+  const ready = value >= 70;
+  const barColor = ready ? 'bg-emerald-500' : 'bg-amber-500';
+  const textColor = ready
+    ? 'text-emerald-700 dark:text-emerald-300'
+    : 'text-amber-700 dark:text-amber-300';
 
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-        <div className={cn('h-full rounded-full', barColor)} style={{width: `${ratio * 100}%`}} />
+      <div className="relative h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn('h-full rounded-full', barColor)}
+          style={{width: `${pct}%`}}
+        />
       </div>
-      <span className={cn('text-xs font-medium tabular-nums', textColor)}>{value.toFixed(2)}</span>
+      <span className={cn('text-xs font-medium tabular-nums', textColor)}>
+        {Math.round(value)}%
+      </span>
+    </div>
+  );
+}
+
+// Compact status breakdown for a batch header, e.g. "✓ 15  ⏳ 3  ✗ 2".
+function BatchStatusRollup({rollup}: {rollup: BatchRollup}) {
+  const chips = [
+    {
+      n: rollup.ready,
+      mark: '✓',
+      cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+    },
+    {
+      n: rollup.waiting,
+      mark: '⏳',
+      cls: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300',
+    },
+    {
+      n: rollup.processing,
+      mark: '•',
+      cls: 'bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300',
+    },
+    {n: rollup.error, mark: '✗', cls: 'bg-destructive/10 text-destructive'},
+  ].filter((c) => c.n > 0);
+
+  if (!chips.length) return <span className="text-xs text-muted-foreground">—</span>;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1">
+      {chips.map((c) => (
+        <span
+          key={c.mark}
+          className={cn(
+            'rounded px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
+            c.cls
+          )}
+        >
+          {c.mark} {c.n}
+        </span>
+      ))}
     </div>
   );
 }
@@ -123,6 +215,9 @@ export default function OrdersPage() {
 
   const [q, setQ] = useState('');
   const [department, setDepartment] = useState<'all' | Department>('all');
+  // Niek: batches and single orders were mixed in one list, which felt messy.
+  // This lets the planner narrow the queue to just batches or just single orders.
+  const [typeFilter, setTypeFilter] = useState<'all' | 'single' | 'batch'>('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const queueTab = useMemo<QueueTabKey>(() => {
@@ -185,7 +280,7 @@ export default function OrdersPage() {
   // Batch orders bundle into one collapsible group (Niek); single orders stay
   // standalone. A batch appears at the position of its most recent order (the
   // list is already sorted newest-first).
-  const orderGroups = useMemo(() => {
+  const allGroups = useMemo(() => {
     const byBatch = new Map<string, TransportOrderListItem[]>();
     const groups: Array<
       | {kind: 'single'; key: string; item: TransportOrderListItem}
@@ -212,6 +307,25 @@ export default function OrdersPage() {
     return groups;
   }, [filtered]);
 
+  // Counts for the summary line — always over the full set, so the numbers stay
+  // stable regardless of which Type filter is active.
+  const groupCounts = useMemo(() => {
+    let single = 0;
+    let batch = 0;
+    for (const group of allGroups) {
+      if (group.kind === 'batch') batch += 1;
+      else single += 1;
+    }
+    return {single, batch};
+  }, [allGroups]);
+
+  // Apply the Type filter (Niek: view batches and single orders separately).
+  const orderGroups = useMemo(() => {
+    if (typeFilter === 'all') return allGroups;
+    const wanted = typeFilter === 'batch' ? 'batch' : 'single';
+    return allGroups.filter((group) => group.kind === wanted);
+  }, [allGroups, typeFilter]);
+
   const groupPageSize = 50;
   const [page, setPage] = useState(1);
 
@@ -219,7 +333,7 @@ export default function OrdersPage() {
   // on an empty view. Snap back to the first page whenever the set changes.
   useEffect(() => {
     setPage(1);
-  }, [q, department, queueTab]);
+  }, [q, department, queueTab, typeFilter]);
 
   const pageCount = Math.max(1, Math.ceil(orderGroups.length / groupPageSize));
   const currentPage = Math.min(page, pageCount);
@@ -318,55 +432,51 @@ export default function OrdersPage() {
         <TableCell className="whitespace-normal">
           <div
             className={cn(
-              'truncate text-sm text-foreground',
-              opts.nested && 'pl-4'
-            )}
-            title={item.customerEmail || tCommon('na')}
-          >
-            {item.customerEmail || tCommon('na')}
-          </div>
-          <div
-            className={cn(
-              'truncate text-xs text-muted-foreground',
-              opts.nested && 'pl-4'
+              'space-y-0.5',
+              opts.nested &&
+                'ml-1 border-l border-l-sky-200 pl-3 dark:border-l-sky-900'
             )}
           >
-            {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
-          </div>
-          {item.invoiceReference || item.externalReference ? (
+            {/* Line 1 — primary: factuurreferentie (Niek), else customer email. */}
             <div
-              className={cn(
-                'mt-1 flex flex-wrap items-center gap-1.5',
-                opts.nested && 'pl-4'
-              )}
+              className="truncate text-sm font-medium text-foreground"
+              title={item.invoiceReference || item.customerEmail || tCommon('na')}
             >
-              {item.batchImportId ? (
-                <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                  {item.batchSequence != null &&
-                  batchTotals.get(item.batchImportId)
-                    ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
-                    : 'Batch'}
-                </span>
-              ) : null}
-              {/* Niek: factuurreferentie is the primary reference. */}
               {item.invoiceReference ? (
-                <span
-                  className="truncate font-mono text-[11px] font-medium text-foreground"
-                  title={item.invoiceReference}
-                >
-                  {item.invoiceReference}
-                </span>
-              ) : null}
-              {item.externalReference ? (
-                <span
-                  className="truncate font-mono text-[11px] text-muted-foreground"
-                  title={item.externalReference}
-                >
-                  {item.externalReference}
-                </span>
-              ) : null}
+                <span className="font-mono">{item.invoiceReference}</span>
+              ) : (
+                item.customerEmail || tCommon('na')
+              )}
             </div>
-          ) : null}
+            {/* Line 2 — customer email (when a ref took line 1) + order type. */}
+            <div className="truncate text-xs text-muted-foreground">
+              {item.invoiceReference && item.customerEmail
+                ? `${item.customerEmail} · `
+                : ''}
+              {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
+            </div>
+            {/* Line 3 — batch position + external (loading) reference. */}
+            {item.batchImportId || item.externalReference ? (
+              <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                {item.batchImportId ? (
+                  <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                    {item.batchSequence != null &&
+                    batchTotals.get(item.batchImportId)
+                      ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
+                      : 'Batch'}
+                  </span>
+                ) : null}
+                {item.externalReference ? (
+                  <span
+                    className="truncate font-mono text-[11px] text-muted-foreground"
+                    title={item.externalReference}
+                  >
+                    {item.externalReference}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </TableCell>
         <TableCell className="whitespace-normal">
           <div
@@ -382,7 +492,7 @@ export default function OrdersPage() {
           </span>
         </TableCell>
         <TableCell>
-          <ConfidenceCell value={item.overallConfidence} />
+          <CompletenessCell value={item.completeness} />
         </TableCell>
         <TableCell>
           <StatusBadge status={item.status ?? tCommon('na')} />
@@ -454,11 +564,32 @@ export default function OrdersPage() {
                 className="h-8 pl-8"
               />
             </div>
+            <Select
+              value={typeFilter}
+              onValueChange={(value) =>
+                setTypeFilter(value as 'all' | 'single' | 'batch')
+              }
+            >
+              <SelectTrigger className="h-8 w-[150px] shrink-0">
+                <SelectValue placeholder={t('filters.type')}>
+                  {typeFilter === 'all'
+                    ? t('filters.all')
+                    : typeFilter === 'single'
+                      ? t('filters.typeSingle')
+                      : t('filters.typeBatch')}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('filters.all')}</SelectItem>
+                <SelectItem value="single">{t('filters.typeSingle')}</SelectItem>
+                <SelectItem value="batch">{t('filters.typeBatch')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="shrink-0 text-xs text-muted-foreground">
             {selected.size > 0
               ? `${selected.size} ${t('table.selected')}`
-              : t('filters.showing', {count: visibleOrders.length, total: filtered.length, pageSize: groupPageSize})}
+              : `${t('filters.showing', {count: visibleOrders.length, total: filtered.length, pageSize: groupPageSize})} · ${t('filters.counts', {single: groupCounts.single, batch: groupCounts.batch})}`}
           </div>
         </CardHeader>
 
@@ -478,7 +609,7 @@ export default function OrdersPage() {
                 <TableHead className="min-w-[220px]">{t('table.columns.customer')}</TableHead>
                 <TableHead className="min-w-[200px]">{t('table.columns.subject')}</TableHead>
                 <TableHead className="w-[120px]">{t('table.columns.id')}</TableHead>
-                <TableHead className="w-[150px]">{t('table.columns.confidence')}</TableHead>
+                <TableHead className="w-[150px]">{t('table.columns.completeness')}</TableHead>
                 <TableHead className="w-[190px]">{t('table.columns.status')}</TableHead>
                 <TableHead className="w-[170px]">{t('table.columns.updatedAt')}</TableHead>
                 <TableHead className="min-w-[180px]">{t('table.columns.audit')}</TableHead>
@@ -552,11 +683,27 @@ export default function OrdersPage() {
                 const relatedEmail = first.emailMessageId
                   ? emailsById.get(first.emailMessageId)
                   : undefined;
+                // Most recent update across the batch's orders.
+                const batchLatest = group.items.reduce<string | null>(
+                  (latest, it) => {
+                    const u = getOrderLastUpdated(it);
+                    if (!u) return latest;
+                    if (!latest) return u;
+                    return new Date(u).getTime() > new Date(latest).getTime()
+                      ? u
+                      : latest;
+                  },
+                  null
+                );
 
                 return (
                   <Fragment key={group.key}>
+                    {/* Batch header: column-aligned summary of its orders (Niek) */}
                     <TableRow
-                      className="cursor-pointer bg-muted/30 hover:bg-muted/50"
+                      className={cn(
+                        'cursor-pointer bg-muted/40 hover:bg-muted/60',
+                        getBatchAccent(group.items)
+                      )}
                       onClick={() => toggleBatch(group.key)}
                     >
                       <TableCell>
@@ -567,22 +714,39 @@ export default function OrdersPage() {
                           )}
                         />
                       </TableCell>
-                      <TableCell colSpan={8}>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                            Batch · {group.items.length}
-                          </span>
-                          <span
-                            className="truncate text-sm font-medium text-foreground"
-                            title={relatedEmail?.subject || tCommon('na')}
-                          >
-                            {relatedEmail?.subject || tCommon('na')}
-                          </span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {first.customerEmail}
-                          </span>
+                      <TableCell className="whitespace-normal">
+                        <span className="inline-flex items-center rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                          Batch · {group.items.length}
+                        </span>
+                        <div
+                          className="mt-0.5 truncate text-xs text-muted-foreground"
+                          title={first.customerEmail || tCommon('na')}
+                        >
+                          {first.customerEmail || tCommon('na')}
                         </div>
                       </TableCell>
+                      <TableCell className="whitespace-normal">
+                        <div
+                          className="line-clamp-2 text-sm font-medium text-foreground"
+                          title={relatedEmail?.subject || tCommon('na')}
+                        >
+                          {relatedEmail?.subject || tCommon('na')}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">—</TableCell>
+                      <TableCell>
+                        <CompletenessCell value={avgCompleteness(group.items)} />
+                      </TableCell>
+                      <TableCell>
+                        <BatchStatusRollup rollup={getBatchRollup(group.items)} />
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {batchLatest
+                          ? formatDateTime(batchLatest, uiLocale)
+                          : tCommon('na')}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">—</TableCell>
+                      <TableCell />
                     </TableRow>
                     {expanded
                       ? group.items.map((item) =>

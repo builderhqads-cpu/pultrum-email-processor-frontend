@@ -123,8 +123,7 @@
     "queueSubtitle": "Fila operacional com prioridade visual, contexto do email e acesso rápido ao próximo passo.",
     "detailTitle": "Pedido",
     "stubTitle": "Pedidos (exemplo)",
-    "stubDetails": "Ainda sem API conectada. Isso é um placeholder."
-    ,
+    "stubDetails": "Ainda sem API conectada. Isso é um placeholder.",
     "quickFilters": {
       "title": "Filas rápidas",
       "description": "Troque entre as filas principais para priorizar o trabalho do operador.",
@@ -144,7 +143,10 @@
       "department": "Departamento",
       "type": "Tipo",
       "all": "Todos",
-      "showing": "Mostrando {count} de {total} (máx {pageSize})"
+      "showing": "Mostrando {count} de {total} (máx {pageSize})",
+      "typeSingle": "Pedidos avulsos",
+      "typeBatch": "Lotes",
+      "counts": "{single} avulsos · {batch} lotes"
     },
     "error": {
       "title": "Falha ao carregar pedidos"
@@ -166,7 +168,8 @@
         "missingFields": "Campos faltando",
         "updatedAt": "Última atualização",
         "actions": "Ações",
-        "audit": "Auditoria"
+        "audit": "Auditoria",
+        "completeness": "Completude"
       }
     },
     "auditActions": {

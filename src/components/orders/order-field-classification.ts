@@ -194,3 +194,54 @@ export function getFieldGroup(field: Pick<OrderField, 'key'>): FieldGroup {
   if (technicalFieldSet.has(field.key)) return 'technical';
   return 'additional';
 }
+
+export type CompletenessResult = {
+  percent: number;
+  requiredDone: number;
+  requiredTotal: number;
+  recommendedDone: number;
+  recommendedTotal: number;
+  allRequiredPresent: boolean;
+};
+
+/**
+ * "Volledigheid" (completeness) score, weighted per Niek: when ALL required
+ * fields are present the order is 70% complete (and ready for XML); the
+ * recommended fields fill the remaining 30% up to 100%. Optional fields don't
+ * count. Every catalog field is stored on the order with its requirement and a
+ * `missing` flag, so this can be derived entirely from the order's fields.
+ */
+export function computeCompleteness(
+  fields: Array<{requirement: FieldRequirement; missing: boolean}>
+): CompletenessResult {
+  let requiredTotal = 0;
+  let requiredDone = 0;
+  let recommendedTotal = 0;
+  let recommendedDone = 0;
+  for (const f of fields) {
+    if (f.requirement === 'REQUIRED') {
+      requiredTotal += 1;
+      if (!f.missing) requiredDone += 1;
+    } else if (f.requirement === 'RECOMMENDED') {
+      recommendedTotal += 1;
+      if (!f.missing) recommendedDone += 1;
+    }
+  }
+  const requiredRatio = requiredTotal ? requiredDone / requiredTotal : 1;
+  const recommendedRatio = recommendedTotal ? recommendedDone / recommendedTotal : 1;
+  // Gated (Niek): required fields fill the 0–70% band; only once ALL required
+  // are present does the score cross 70% ("ready for XML") and the recommended
+  // fields fill the remaining 30%. So >= 70% iff every required field is in.
+  const percent =
+    requiredRatio < 1
+      ? Math.round(requiredRatio * 70)
+      : Math.round(70 + recommendedRatio * 30);
+  return {
+    percent,
+    requiredDone,
+    requiredTotal,
+    recommendedDone,
+    recommendedTotal,
+    allRequiredPresent: requiredTotal === 0 || requiredDone === requiredTotal
+  };
+}

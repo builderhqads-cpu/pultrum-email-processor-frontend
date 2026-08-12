@@ -94,7 +94,7 @@ export function OrderDetailsView({id}: {id: string}) {
 
         {/* Center: detected data with tabs */}
         <div className="min-w-0 space-y-6">
-          <RequiredMissingSummary missingFields={data.missingFields} />
+          <RequiredMissingSummary missingFields={data.missingFields} fields={data.fields} />
           <Card className="min-w-0 overflow-hidden">
             <div className="flex flex-wrap gap-1 border-b px-3">
               <TabButton active={dataTab === 'detected'} onClick={() => setDataTab('detected')}>

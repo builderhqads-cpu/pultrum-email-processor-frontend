@@ -123,8 +123,7 @@
     "queueSubtitle": "Operationele wachtrij met visuele prioriteit, e-mailcontext en snelle toegang tot de volgende actie.",
     "detailTitle": "Opdracht",
     "stubTitle": "Voorbeeldopdrachten",
-    "stubDetails": "Nog geen API gekoppeld. Dit is een placeholder."
-    ,
+    "stubDetails": "Nog geen API gekoppeld. Dit is een placeholder.",
     "quickFilters": {
       "title": "Snelle wachtrijen",
       "description": "Schakel tussen de hoofdwachtrijen om het dagelijkse werk van de operator te prioriteren.",
@@ -144,7 +143,10 @@
       "department": "Afdeling",
       "type": "Type",
       "all": "Alles",
-      "showing": "Toont {count} van {total} (max {pageSize})"
+      "showing": "Toont {count} van {total} (max {pageSize})",
+      "typeSingle": "Losse opdrachten",
+      "typeBatch": "Batches",
+      "counts": "{single} los · {batch} batches"
     },
     "error": {
       "title": "Kon opdrachten niet laden"
@@ -166,7 +168,8 @@
         "missingFields": "Ontbrekende velden",
         "updatedAt": "Laatst bijgewerkt",
         "actions": "Acties",
-        "audit": "Audit"
+        "audit": "Audit",
+        "completeness": "Volledigheid"
       }
     },
     "auditActions": {

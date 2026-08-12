@@ -275,6 +275,9 @@ export type TransportOrderListItem = {
   type: OrderType;
   customerEmail: string;
   overallConfidence: number | null;
+  // Niek: "Volledigheid" — weighted completeness % (70% required / 30%
+  // recommended), shown in the list in place of the confidence score.
+  completeness?: number | null;
   createdAt: IsoDateTimeString;
   updatedAt?: IsoDateTimeString;
   emailMessageId?: string;

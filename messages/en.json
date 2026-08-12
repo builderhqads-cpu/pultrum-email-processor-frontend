@@ -123,8 +123,7 @@
     "queueSubtitle": "Operational queue with visual priority, email context, and fast access to the next action.",
     "detailTitle": "Order",
     "stubTitle": "Stub orders",
-    "stubDetails": "No API connected yet. This is a placeholder."
-    ,
+    "stubDetails": "No API connected yet. This is a placeholder.",
     "quickFilters": {
       "title": "Quick queues",
       "description": "Switch between the main queues to prioritize the operator's daily work.",
@@ -144,7 +143,10 @@
       "department": "Department",
       "type": "Type",
       "all": "All",
-      "showing": "Showing {count} of {total} (max {pageSize})"
+      "showing": "Showing {count} of {total} (max {pageSize})",
+      "typeSingle": "Single orders",
+      "typeBatch": "Batches",
+      "counts": "{single} single · {batch} batches"
     },
     "error": {
       "title": "Failed to load orders"
@@ -166,7 +168,8 @@
         "missingFields": "Missing fields",
         "updatedAt": "Last update",
         "actions": "Actions",
-        "audit": "Audit"
+        "audit": "Audit",
+        "completeness": "Completeness"
       }
     },
     "auditActions": {
