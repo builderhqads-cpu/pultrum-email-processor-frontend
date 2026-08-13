@@ -2,10 +2,13 @@
 
 import {Fragment, useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ChevronRight, ExternalLink, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
+import {ChevronRight, ExternalLink, FileCheck2, FileOutput, FileX2, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {toast} from 'sonner';
 
 import type {Locale} from '@/i18n/routing';
+import {sendBatchXml} from '@/lib/api/orders-api';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useOrders} from '@/hooks/use-orders';
 import {useEmails} from '@/hooks/use-emails';
@@ -114,6 +117,15 @@ function avgCompleteness(
   return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
+// Statuses where an order can (re)send its XML — mirrors the backend guard.
+function isSendableStatus(status?: string | null) {
+  return (
+    status === 'READY_TO_XML' ||
+    status === 'CREATIVE_GEARS_REJECTED' ||
+    status === 'FAILED'
+  );
+}
+
 function isToday(value?: string | null) {
   if (!value) return false;
   const date = new Date(value);
@@ -212,6 +224,17 @@ export default function OrdersPage() {
   const orders = useOrders();
   const emails = useEmails();
   const mounted = useMounted();
+
+  // Niek: send the XML for a whole batch at once (from the batch header row).
+  const queryClient = useQueryClient();
+  const sendBatch = useMutation({
+    mutationFn: (batchImportId: string) => sendBatchXml(batchImportId),
+    onSuccess: (r) => {
+      toast.success(t('batch.sent', {enqueued: r.enqueued, skipped: r.skipped}));
+      queryClient.invalidateQueries({queryKey: ['orders']});
+    },
+    onError: () => toast.error(t('batch.error')),
+  });
 
   const [q, setQ] = useState('');
   const [department, setDepartment] = useState<'all' | Department>('all');
@@ -495,7 +518,19 @@ export default function OrdersPage() {
           <CompletenessCell value={item.completeness} />
         </TableCell>
         <TableCell>
-          <StatusBadge status={item.status ?? tCommon('na')} />
+          <div className="space-y-1">
+            <StatusBadge status={item.status ?? tCommon('na')} />
+            {/* Niek: clearly see whether the XML was sent, on the overview. */}
+            {item.status === 'CREATIVE_GEARS_ACCEPTED' ? (
+              <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                <FileCheck2 className="h-3 w-3" /> {t('xml.sent')}
+              </span>
+            ) : item.status === 'CREATIVE_GEARS_REJECTED' ? (
+              <span className="flex items-center gap-1 text-[11px] font-medium text-destructive">
+                <FileX2 className="h-3 w-3" /> {t('xml.rejected')}
+              </span>
+            ) : null}
+          </div>
         </TableCell>
         <TableCell className="text-xs text-muted-foreground">
           {updatedAt ? formatDateTime(updatedAt, uiLocale) : tCommon('na')}
@@ -746,7 +781,22 @@ export default function OrdersPage() {
                           : tCommon('na')}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">—</TableCell>
-                      <TableCell />
+                      <TableCell
+                        onClick={(event) => event.stopPropagation()}
+                        className="text-right"
+                      >
+                        {group.items.some((i) => isSendableStatus(i.status)) ? (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            title={t('batch.sendXml')}
+                            disabled={sendBatch.isPending}
+                            onClick={() => sendBatch.mutate(group.key)}
+                          >
+                            <FileOutput className="h-4 w-4" />
+                          </Button>
+                        ) : null}
+                      </TableCell>
                     </TableRow>
                     {expanded
                       ? group.items.map((item) =>

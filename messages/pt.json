@@ -315,6 +315,15 @@
         "confirmTitle": "Enviar esta resposta ao cliente?",
         "confirmDesc": "O cliente receberá este e-mail imediatamente. Esta ação não pode ser desfeita."
       }
+    },
+    "xml": {
+      "sent": "XML enviado",
+      "rejected": "XML rejeitado"
+    },
+    "batch": {
+      "sendXml": "Enviar XML do lote",
+      "sent": "{enqueued} pedido(s) na fila de XML, {skipped} pulado(s)",
+      "error": "Falha ao enviar XML do lote"
     }
   },
   "settings": {

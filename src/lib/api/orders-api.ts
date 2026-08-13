@@ -116,6 +116,16 @@ export async function sendOrderXml(id: string) {
   return data;
 }
 
+export type BatchXmlResponse = {enqueued: number; skipped: number; total: number};
+
+// Niek: send the XML for a whole batch at once.
+export async function sendBatchXml(batchImportId: string) {
+  const {data} = await apiClient.post<BatchXmlResponse>(
+    `/orders/batch/${batchImportId}/send-xml`,
+  );
+  return data;
+}
+
 export async function getOrderReplyDraft(id: string) {
   const {data} = await apiClient.get<CustomerReplyDraft>(`/orders/${id}/reply-draft`);
   return data;

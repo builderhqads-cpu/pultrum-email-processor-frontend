@@ -312,6 +312,15 @@
         "confirmTitle": "Send this reply to the customer?",
         "confirmDesc": "The customer will receive this email immediately. This action can't be undone."
       }
+    },
+    "xml": {
+      "sent": "XML sent",
+      "rejected": "XML rejected"
+    },
+    "batch": {
+      "sendXml": "Send batch XML",
+      "sent": "{enqueued} order(s) queued for XML, {skipped} skipped",
+      "error": "Failed to send batch XML"
     }
   },
   "settings": {

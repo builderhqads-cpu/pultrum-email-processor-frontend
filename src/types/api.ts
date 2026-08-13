@@ -176,6 +176,8 @@ export type Attachment = {
     | null;
   downloadUrl?: string | null;
   createdAt?: IsoDateTimeString;
+  /** Niek: whether this attachment is embedded in the Creative Gears XML. */
+  includedInXml?: boolean;
 };
 
 // GET /emails

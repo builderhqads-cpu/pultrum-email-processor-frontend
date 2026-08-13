@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileText, ImageIcon, LoaderCircle, Table} from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileCheck2, FileText, ImageIcon, LoaderCircle, Table} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import type {Attachment, Locale} from '@/types';
@@ -146,10 +146,22 @@ export function AttachmentCards({
                     {attachment.mimeType || tCommon('na')}
                   </div>
                 </div>
-                <Badge className={cn('shrink-0', extractionTone.badgeClassName)} variant="outline">
-                  {extractionTone.icon}
-                  <span>{labels.statuses[extractionStatus] ?? extractionStatus}</span>
-                </Badge>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  {/* Niek: mark the attachments embedded in the Creative Gears XML. */}
+                  {attachment.includedInXml ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                    >
+                      <FileCheck2 className="h-3.5 w-3.5" />
+                      <span>{labels.inXml}</span>
+                    </Badge>
+                  ) : null}
+                  <Badge className={cn(extractionTone.badgeClassName)} variant="outline">
+                    {extractionTone.icon}
+                    <span>{labels.statuses[extractionStatus] ?? extractionStatus}</span>
+                  </Badge>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-1 gap-3 text-sm xl:grid-cols-2">
@@ -567,6 +579,7 @@ function downloadAttachment(attachment: Attachment) {
 
 type AttachmentLabels = {
   noAttachments: string;
+  inXml: string;
   typeLabel: string;
   sizeLabel: string;
   extractionLabel: string;
@@ -586,6 +599,7 @@ type AttachmentLabels = {
 const attachmentLabels: Record<Locale, AttachmentLabels> = {
   pt: {
     noAttachments: 'Sem anexos',
+    inXml: 'No XML',
     typeLabel: 'Tipo',
     sizeLabel: 'Tamanho',
     extractionLabel: 'Status de extracao',
@@ -610,6 +624,7 @@ const attachmentLabels: Record<Locale, AttachmentLabels> = {
   },
   en: {
     noAttachments: 'No attachments',
+    inXml: 'In XML',
     typeLabel: 'Type',
     sizeLabel: 'Size',
     extractionLabel: 'Extraction status',
@@ -634,6 +649,7 @@ const attachmentLabels: Record<Locale, AttachmentLabels> = {
   },
   nl: {
     noAttachments: 'Geen bijlagen',
+    inXml: 'In XML',
     typeLabel: 'Type',
     sizeLabel: 'Grootte',
     extractionLabel: 'Extractiestatus',
