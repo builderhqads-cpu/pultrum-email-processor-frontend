@@ -322,6 +322,8 @@
     },
     "batch": {
       "sendXml": "Enviar XML do lote",
+      "allSent": "XML enviado",
+      "sentCount": "XML enviado · {sent}/{total}",
       "sent": "{enqueued} pedido(s) na fila de XML, {skipped} pulado(s)",
       "error": "Falha ao enviar XML do lote"
     }

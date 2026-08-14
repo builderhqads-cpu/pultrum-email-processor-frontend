@@ -319,6 +319,8 @@
     },
     "batch": {
       "sendXml": "Send batch XML",
+      "allSent": "XML sent",
+      "sentCount": "XML sent · {sent}/{total}",
       "sent": "{enqueued} order(s) queued for XML, {skipped} skipped",
       "error": "Failed to send batch XML"
     }

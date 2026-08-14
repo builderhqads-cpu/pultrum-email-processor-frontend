@@ -319,6 +319,8 @@
     },
     "batch": {
       "sendXml": "Batch XML verzenden",
+      "allSent": "XML verzonden",
+      "sentCount": "XML verzonden · {sent}/{total}",
       "sent": "{enqueued} opdracht(en) in wachtrij voor XML, {skipped} overgeslagen",
       "error": "Batch XML verzenden mislukt"
     }

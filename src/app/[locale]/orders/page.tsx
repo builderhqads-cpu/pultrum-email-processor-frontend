@@ -97,6 +97,18 @@ function getBatchRollup(items: {status: string}[]): BatchRollup {
   return r;
 }
 
+// Niek: batch-level XML delivery summary, so the header can show whether the
+// whole batch has been sent (accepted) — not just "ready".
+function getBatchXmlSummary(items: {status: string}[]) {
+  let accepted = 0;
+  let rejected = 0;
+  for (const it of items) {
+    if (it.status === 'CREATIVE_GEARS_ACCEPTED') accepted += 1;
+    else if (it.status === 'CREATIVE_GEARS_REJECTED') rejected += 1;
+  }
+  return {accepted, rejected, total: items.length};
+}
+
 // Left accent for a batch = its most attention-needing status (error first).
 function getBatchAccent(items: {status: string}[]): string {
   const r = getBatchRollup(items);
@@ -730,6 +742,7 @@ export default function OrdersPage() {
                   },
                   null
                 );
+                const batchXml = getBatchXmlSummary(group.items);
 
                 return (
                   <Fragment key={group.key}>
@@ -773,7 +786,28 @@ export default function OrdersPage() {
                         <CompletenessCell value={avgCompleteness(group.items)} />
                       </TableCell>
                       <TableCell>
-                        <BatchStatusRollup rollup={getBatchRollup(group.items)} />
+                        <div className="space-y-1">
+                          <BatchStatusRollup rollup={getBatchRollup(group.items)} />
+                          {/* Niek: show whether the batch's XML was sent. */}
+                          {batchXml.accepted > 0 ? (
+                            <span
+                              className={cn(
+                                'flex items-center gap-1 text-[11px] font-medium',
+                                batchXml.accepted === batchXml.total
+                                  ? 'text-emerald-700 dark:text-emerald-300'
+                                  : 'text-muted-foreground'
+                              )}
+                            >
+                              <FileCheck2 className="h-3 w-3" />
+                              {batchXml.accepted === batchXml.total
+                                ? t('batch.allSent')
+                                : t('batch.sentCount', {
+                                    sent: batchXml.accepted,
+                                    total: batchXml.total
+                                  })}
+                            </span>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {batchLatest
