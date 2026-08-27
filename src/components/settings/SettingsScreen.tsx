@@ -224,12 +224,21 @@ export function SettingsScreen() {
   const [deleteTarget, setDeleteTarget] = useState<MailboxRecord | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<MailboxRecord | null>(null);
 
-  // Microsoft OAuth is a full-page BROWSER redirect, so the link must be a
-  // browser-reachable, same-origin path — NOT NEXT_PUBLIC_API_URL, which is the
-  // internal Docker host (http://api:3000) and unreachable from the browser
-  // (DNS_PROBE_FINISHED_NXDOMAIN). nginx routes /auth straight to the backend,
-  // so the OAuth start and the /auth/callback both reach it on the same origin.
-  const microsoftConnectBaseUrl = "/auth/microsoft/mailboxes";
+  // Microsoft OAuth is a full-page BROWSER redirect, so the link must be
+  // browser-reachable. Two deployment topologies:
+  //  - Single-origin (nginx routes /auth -> backend, e.g. Pultrum VM): leave
+  //    NEXT_PUBLIC_OAUTH_BASE_URL unset and use the same-origin relative path.
+  //  - Separate origins (frontend and backend on different hosts, e.g.
+  //    EasyPanel): set NEXT_PUBLIC_OAUTH_BASE_URL to the backend's PUBLIC url so
+  //    the browser goes straight there — the relative path would 404 on the
+  //    frontend. NEXT_PUBLIC_API_URL is NOT reused: it may be an internal host
+  //    (http://api:3000) unreachable from the browser (DNS_PROBE_FINISHED_NXDOMAIN).
+  const oauthBase = (process.env.NEXT_PUBLIC_OAUTH_BASE_URL || "")
+    .trim()
+    .replace(/\/+$/, "");
+  const microsoftConnectBaseUrl = oauthBase
+    ? `${oauthBase}/auth/microsoft/mailboxes`
+    : "/auth/microsoft/mailboxes";
   const cgEndpointConfigured = Boolean(
     health.data?.config?.creativeGears?.endpointConfigured,
   );
