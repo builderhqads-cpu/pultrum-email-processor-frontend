@@ -374,7 +374,12 @@ export default function EmailsPage() {
         <Card className="flex h-[60vh] min-h-0 flex-col overflow-hidden lg:h-auto">
           <div className="space-y-3 border-b p-3">
             <div className="flex flex-wrap gap-1.5">
-              {emailQueueTabs.map((key) => {
+              {/* AI BOB intake: the planner curates the folder, so every email is
+                  an order. The classification tabs ("Other"/"Unprocessed") are
+                  hidden — filtering/type/labels stay intact for easy revert. */}
+              {emailQueueTabs
+                .filter((key) => key !== "notOrders" && key !== "unprocessed")
+                .map((key) => {
                 const active = queueTab === key;
                 return (
                   <button
