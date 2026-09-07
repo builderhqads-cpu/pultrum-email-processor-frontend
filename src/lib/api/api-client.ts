@@ -91,7 +91,9 @@ function createApiClient(): AxiosInstance {
 
   const client = axios.create({
     baseURL,
-    timeout: 30_000,
+    // A batch email/order detail can be heavier than a single one; 30s was too
+    // tight and timed out on large batches. 60s gives margin without hanging UI.
+    timeout: 60_000,
     headers: {
       'Content-Type': 'application/json'
     }
