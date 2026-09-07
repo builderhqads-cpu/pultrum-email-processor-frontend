@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {memo, useCallback, useMemo, useState} from 'react';
 import {ChevronDown, Pencil, Plus, Trash2, Users} from 'lucide-react';
 import {useLocale} from 'next-intl';
 import {toast} from 'sonner';
@@ -113,9 +113,10 @@ export function CustomerProfilesSettings() {
   const [form, setForm] = useState<FormState>(emptyFormState);
 
   // The AI instructions live in their own big editor modal (opened from a
-  // button) instead of a cramped inline box. `aiDraft` is the working copy.
+  // button) instead of a cramped inline box. Its draft state lives INSIDE the
+  // AiInstructionsEditorDialog so typing the (long) instructions never
+  // re-renders this whole settings screen (Niek #2: typing was laggy).
   const [aiEditorOpen, setAiEditorOpen] = useState(false);
-  const [aiDraft, setAiDraft] = useState('');
 
   // Each field section (Algemeen/Laden/Lossen/Goederen) is a collapsible
   // accordion so the profile form isn't one long wall of fields. Algemeen opens
@@ -192,14 +193,16 @@ export function CustomerProfilesSettings() {
     setDialogOpen(true);
   }
 
-  function updateFieldValue(key: keyof Omit<FormState, 'fields'>, value: string | boolean) {
-    setForm((current) => ({
-      ...current,
-      [key]: value
-    }));
-  }
+  const updateFieldValue = useCallback(
+    (key: keyof Omit<FormState, 'fields'>, value: string | boolean) => {
+      setForm((current) => ({...current, [key]: value}));
+    },
+    []
+  );
 
-  function updateProfileField(key: string, value: string) {
+  // Stable identity so the memoized per-field inputs don't re-render when an
+  // unrelated field changes (Niek #2).
+  const updateProfileField = useCallback((key: string, value: string) => {
     setForm((current) => ({
       ...current,
       fields: {
@@ -207,7 +210,7 @@ export function CustomerProfilesSettings() {
         [key]: value
       }
     }));
-  }
+  }, []);
 
   function buildPayload(): CustomerProfileMutationInput {
     return {
@@ -469,10 +472,7 @@ export function CustomerProfilesSettings() {
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => {
-                        setAiDraft(form.aiInstructions);
-                        setAiEditorOpen(true);
-                      }}
+                      onClick={() => setAiEditorOpen(true)}
                     >
                       {form.aiInstructions.trim() ? (
                         <Pencil className="h-4 w-4" />
@@ -552,11 +552,11 @@ export function CustomerProfilesSettings() {
                                       {labels.requirements[requirement]}
                                     </Badge>
                                   </div>
-                                  <Input
+                                  <ProfileFieldInput
+                                    fieldKey={field.key}
                                     value={form.fields[field.key] ?? ''}
-                                    onChange={(event) => updateProfileField(field.key, event.target.value)}
                                     placeholder={labels.form.fieldPlaceholder}
-                                    className="min-w-0"
+                                    onChange={updateProfileField}
                                   />
                                 </div>
                               );
@@ -593,35 +593,24 @@ export function CustomerProfilesSettings() {
         </DialogContent>
       </Dialog>
 
-      {/* Big dedicated editor for the AI instructions — plenty of room to type,
-          opened from the compact button in the profile form. */}
-      <Dialog open={aiEditorOpen} onOpenChange={setAiEditorOpen}>
-        <DialogContent className="flex h-[85vh] !w-[92vw] !max-w-[1100px] flex-col overflow-hidden p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>{labels.form.aiInstructions}</DialogTitle>
-            <DialogDescription>{labels.form.aiInstructionsHelp}</DialogDescription>
-          </DialogHeader>
-          <Textarea
-            value={aiDraft}
-            onChange={(event) => setAiDraft(event.target.value)}
-            placeholder={labels.form.aiInstructionsPlaceholder}
-            className="min-h-0 min-w-0 flex-1 resize-none"
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAiEditorOpen(false)}>
-              {labels.cancel}
-            </Button>
-            <Button
-              onClick={() => {
-                updateFieldValue('aiInstructions', aiDraft);
-                setAiEditorOpen(false);
-              }}
-            >
-              {labels.save}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Big dedicated editor for the AI instructions — its draft state is LOCAL
+          to the dialog, so typing never re-renders this settings screen. */}
+      <AiInstructionsEditorDialog
+        open={aiEditorOpen}
+        onOpenChange={setAiEditorOpen}
+        initialValue={form.aiInstructions}
+        onSave={(value) => {
+          updateFieldValue('aiInstructions', value);
+          setAiEditorOpen(false);
+        }}
+        labels={{
+          title: labels.form.aiInstructions,
+          help: labels.form.aiInstructionsHelp,
+          placeholder: labels.form.aiInstructionsPlaceholder,
+          cancel: labels.cancel,
+          save: labels.save
+        }}
+      />
 
       <AlertDialog
         open={Boolean(deleteTarget)}
@@ -654,6 +643,109 @@ export function CustomerProfilesSettings() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+// One profile field input, memoized so typing in a field only re-renders THAT
+// input — not every other field input in the open groups (Niek #2). Relies on a
+// stable `onChange` (useCallback in the parent) and per-key props.
+const ProfileFieldInput = memo(function ProfileFieldInput({
+  fieldKey,
+  value,
+  placeholder,
+  onChange
+}: {
+  fieldKey: string;
+  value: string;
+  placeholder: string;
+  onChange: (key: string, value: string) => void;
+}) {
+  return (
+    <Input
+      value={value}
+      onChange={(event) => onChange(fieldKey, event.target.value)}
+      placeholder={placeholder}
+      className="min-w-0"
+    />
+  );
+});
+
+// Dedicated AI-instructions editor. The draft lives in the INNER body component,
+// which mounts fresh each time the dialog opens (so it re-seeds from the profile
+// without an effect). Typing only re-renders the body — never the parent
+// settings screen (Niek #2). The parent learns the new value only on Save.
+const AiInstructionsEditorDialog = memo(function AiInstructionsEditorDialog({
+  open,
+  onOpenChange,
+  initialValue,
+  onSave,
+  labels
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initialValue: string;
+  onSave: (value: string) => void;
+  labels: {
+    title: string;
+    help: string;
+    placeholder: string;
+    cancel: string;
+    save: string;
+  };
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="flex h-[85vh] !w-[92vw] !max-w-[1100px] flex-col overflow-hidden p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle>{labels.title}</DialogTitle>
+          <DialogDescription>{labels.help}</DialogDescription>
+        </DialogHeader>
+        {open ? (
+          <AiInstructionsEditorBody
+            initialValue={initialValue}
+            placeholder={labels.placeholder}
+            cancelLabel={labels.cancel}
+            saveLabel={labels.save}
+            onCancel={() => onOpenChange(false)}
+            onSave={onSave}
+          />
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+});
+
+function AiInstructionsEditorBody({
+  initialValue,
+  placeholder,
+  cancelLabel,
+  saveLabel,
+  onCancel,
+  onSave
+}: {
+  initialValue: string;
+  placeholder: string;
+  cancelLabel: string;
+  saveLabel: string;
+  onCancel: () => void;
+  onSave: (value: string) => void;
+}) {
+  const [draft, setDraft] = useState(initialValue);
+  return (
+    <>
+      <Textarea
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        placeholder={placeholder}
+        className="min-h-0 min-w-0 flex-1 resize-none"
+      />
+      <DialogFooter>
+        <Button variant="outline" onClick={onCancel}>
+          {cancelLabel}
+        </Button>
+        <Button onClick={() => onSave(draft)}>{saveLabel}</Button>
+      </DialogFooter>
+    </>
   );
 }
 
