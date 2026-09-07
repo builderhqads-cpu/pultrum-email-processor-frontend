@@ -323,6 +323,13 @@
       "sentCount": "XML verzonden · {sent}/{total}",
       "sent": "{enqueued} opdracht(en) in wachtrij voor XML, {skipped} overgeslagen",
       "error": "Batch XML verzenden mislukt"
+    },
+    "bulk": {
+      "send": "XML verzenden ({count})",
+      "sent": "{count} opdracht(en) in wachtrij voor XML",
+      "sentPartial": "{ok} in wachtrij, {failed} mislukt",
+      "clear": "Wissen",
+      "error": "XML verzenden mislukt"
     }
   },
   "settings": {

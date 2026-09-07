@@ -323,6 +323,13 @@
       "sentCount": "XML sent · {sent}/{total}",
       "sent": "{enqueued} order(s) queued for XML, {skipped} skipped",
       "error": "Failed to send batch XML"
+    },
+    "bulk": {
+      "send": "Send XML ({count})",
+      "sent": "{count} order(s) queued for XML",
+      "sentPartial": "{ok} queued, {failed} failed",
+      "clear": "Clear",
+      "error": "Failed to send XML"
     }
   },
   "settings": {

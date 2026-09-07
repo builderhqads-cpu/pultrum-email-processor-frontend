@@ -8,7 +8,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 
 import type {Locale} from '@/i18n/routing';
-import {sendBatchXml} from '@/lib/api/orders-api';
+import {sendBatchXml, sendOrderXml} from '@/lib/api/orders-api';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useOrders} from '@/hooks/use-orders';
 import {useEmails} from '@/hooks/use-emails';
@@ -248,6 +248,24 @@ export default function OrdersPage() {
     onError: () => toast.error(t('batch.error')),
   });
 
+  // Niek #6: send the XML for hand-picked individual orders (not a whole batch).
+  // The backend has a per-order endpoint, so we fan out one call per selected
+  // order that is in a sendable status and report how many were queued.
+  const sendSelected = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const results = await Promise.allSettled(ids.map((id) => sendOrderXml(id)));
+      const ok = results.filter((r) => r.status === 'fulfilled').length;
+      return {ok, failed: results.length - ok};
+    },
+    onSuccess: ({ok, failed}) => {
+      if (failed > 0) toast.warning(t('bulk.sentPartial', {ok, failed}));
+      else toast.success(t('bulk.sent', {count: ok}));
+      setSelected(new Set());
+      queryClient.invalidateQueries({queryKey: ['orders']});
+    },
+    onError: () => toast.error(t('bulk.error')),
+  });
+
   const [q, setQ] = useState('');
   const [department, setDepartment] = useState<'all' | Department>('all');
   // Niek: batches and single orders were mixed in one list, which felt messy.
@@ -264,6 +282,11 @@ export default function OrdersPage() {
     const list = (emails.data ?? []) as EmailMessageListItem[];
     return new Map(list.map((email) => [email.id, email]));
   }, [emails.data]);
+
+  const orderById = useMemo(() => {
+    const list = (orders.data ?? []) as TransportOrderListItem[];
+    return new Map(list.map((order) => [order.id, order]));
+  }, [orders.data]);
 
   // How many orders each batch produced, so the list can show "12/20" (Niek).
   const batchTotals = useMemo(() => {
@@ -399,6 +422,12 @@ export default function OrdersPage() {
 
   const allVisibleSelected =
     visibleOrders.length > 0 && visibleOrders.every((item) => selected.has(item.id));
+
+  // Niek #6: only the sendable-status selected orders can actually go out; a
+  // WAITING/PROCESSING order would be rejected by the backend, so we skip it.
+  const selectedSendableIds = [...selected].filter((id) =>
+    isSendableStatus(orderById.get(id)?.status)
+  );
 
   function toggleAll() {
     setSelected((prev) => {
@@ -633,11 +662,35 @@ export default function OrdersPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="shrink-0 text-xs text-muted-foreground">
-            {selected.size > 0
-              ? `${selected.size} ${t('table.selected')}`
-              : `${t('filters.showing', {count: visibleOrders.length, total: filtered.length, pageSize: groupPageSize})} · ${t('filters.counts', {single: groupCounts.single, batch: groupCounts.batch})}`}
-          </div>
+          {selected.size > 0 ? (
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {selected.size} {t('table.selected')}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={
+                  selectedSendableIds.length === 0 || sendSelected.isPending
+                }
+                onClick={() => sendSelected.mutate(selectedSendableIds)}
+              >
+                <FileOutput className="h-4 w-4" />
+                {t('bulk.send', {count: selectedSendableIds.length})}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSelected(new Set())}
+              >
+                {t('bulk.clear')}
+              </Button>
+            </div>
+          ) : (
+            <div className="shrink-0 text-xs text-muted-foreground">
+              {`${t('filters.showing', {count: visibleOrders.length, total: filtered.length, pageSize: groupPageSize})} · ${t('filters.counts', {single: groupCounts.single, batch: groupCounts.batch})}`}
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="min-h-0 flex-1 overflow-auto p-0">

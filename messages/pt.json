@@ -326,6 +326,13 @@
       "sentCount": "XML enviado · {sent}/{total}",
       "sent": "{enqueued} pedido(s) na fila de XML, {skipped} pulado(s)",
       "error": "Falha ao enviar XML do lote"
+    },
+    "bulk": {
+      "send": "Enviar XML ({count})",
+      "sent": "{count} pedido(s) na fila de XML",
+      "sentPartial": "{ok} na fila, {failed} falharam",
+      "clear": "Limpar",
+      "error": "Falha ao enviar XML"
     }
   },
   "settings": {
