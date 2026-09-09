@@ -11,7 +11,7 @@ export default async function OrderDetailsPage(
   if (!id) notFound();
 
   return (
-    <div className="mx-auto min-w-0 w-full max-w-[1500px] space-y-6">
+    <div className="w-full min-w-0 space-y-6">
       <OrderDetailsView id={id} />
     </div>
   );

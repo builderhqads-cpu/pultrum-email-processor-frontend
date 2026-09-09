@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {AlertTriangle, ImageOff, LoaderCircle} from 'lucide-react';
 import {useLocale} from 'next-intl';
 
@@ -47,10 +47,9 @@ export function EmailOriginalView({
   const original = useEmailOriginal(emailMessageId, enabled);
   const data = original.data;
 
-  const srcDoc = useMemo(
-    () => (data?.html ? buildSrcDoc(data.html, showRemote) : ''),
-    [data?.html, showRemote]
-  );
+  // Recomputed inline (cheap string): identical output when inputs don't change,
+  // so React skips the iframe's srcDoc update by value equality — no reload.
+  const srcDoc = data?.html ? buildSrcDoc(data.html, showRemote) : '';
 
   if (original.isLoading) {
     return (

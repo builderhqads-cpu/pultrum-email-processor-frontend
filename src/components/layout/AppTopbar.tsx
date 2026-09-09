@@ -1,14 +1,15 @@
 'use client';
 
-import {LogOut, Menu, RefreshCw} from 'lucide-react';
+import {Menu, RefreshCw} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {useMemo, useState} from 'react';
 import {toast} from 'sonner';
 
 import type {Locale} from '@/i18n/routing';
-import {useRouter} from '@/i18n/navigation';
 import {LanguageSwitcher} from '@/components/layout/LanguageSwitcher';
+import {ThemeToggle} from '@/components/layout/ThemeToggle';
 import {AppSidebarContent} from '@/components/layout/AppSidebar';
+import {usePageTitle} from '@/components/layout/page-title';
 import {Button} from '@/components/ui/button';
 import {
   Dialog,
@@ -29,12 +30,9 @@ import {Separator} from '@/components/ui/separator';
 import {Sheet, SheetContent, SheetTrigger} from '@/components/ui/sheet';
 import {useSyncMailbox} from '@/hooks/use-sync-mailbox';
 import {useMailboxes} from '@/hooks/use-mailboxes';
-import {useAuth} from '@/hooks/use-auth';
 
 export function AppTopbar({locale}: {locale: Locale}) {
-  const t = useTranslations();
-  const router = useRouter();
-  const {logout, status} = useAuth();
+  const pageTitle = usePageTitle()?.title;
 
   return (
     <header className="sticky top-0 z-20 flex min-w-0 flex-wrap items-center gap-3 border-b bg-background/80 px-4 py-2 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -53,32 +51,18 @@ export function AppTopbar({locale}: {locale: Locale}) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-foreground">
-          {t('topbar.systemTitle')}
-        </div>
+        {pageTitle ? (
+          <h1 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            {pageTitle}
+          </h1>
+        ) : null}
       </div>
 
       <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
         <SyncMailboxButton />
         <Separator orientation="vertical" className="h-6" />
+        <ThemeToggle />
         <LanguageSwitcher />
-        {status === 'authenticated' ? (
-          <>
-            <Separator orientation="vertical" className="h-6" />
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => {
-                logout();
-                router.replace('/login', {locale});
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              {t('topbar.logout')}
-            </Button>
-          </>
-        ) : null}
       </div>
     </header>
   );

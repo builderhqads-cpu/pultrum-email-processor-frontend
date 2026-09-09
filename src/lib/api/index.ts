@@ -4,5 +4,7 @@ export * from "./emails-api";
 export * from "./orders-api";
 export * from "./mailbox-api";
 export * from "./health-api";
+export * from "./ai-status-api";
+export * from "./cg-status-api";
 export * from "./automation-api";
 export * from "./customer-profiles-api";

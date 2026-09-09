@@ -3,6 +3,9 @@
     "dashboard": "Dashboard",
     "emails": "Emails",
     "orders": "Orders",
+    "customers": "Customers",
+    "aiStatus": "AI Status",
+    "integrations": "Integrations",
     "settings": "Settings"
   },
   "dashboard": {
@@ -334,6 +337,25 @@
   },
   "settings": {
     "title": "Settings",
+    "aiStatus": {
+      "title": "AI service",
+      "description": "Status and incident history of the AI pipeline, from the recorded AI calls.",
+      "statusOperational": "Operational",
+      "statusIncident": "Incident",
+      "statusNotConfigured": "Not configured",
+      "statusUnavailable": "Unavailable",
+      "uptime7": "7 days",
+      "uptime30": "30 days",
+      "uptime90": "90 days",
+      "recentEvents": "Recent events",
+      "incident": "Incident",
+      "recovery": "Recovered",
+      "noEvents": "No incidents recorded in this window.",
+      "ongoingSince": "Ongoing incident since {since}.",
+      "windowNote": "Based on the last {days} days of AI calls.",
+      "lastRequest": "last call {when}",
+      "loading": "Loading AI status…"
+    },
     "backend": {
       "title": "Backend",
       "apiUrl": "API URL",
@@ -356,12 +378,34 @@
     },
     "creativeGears": {
       "title": "Creative Gears",
+      "description": "Availability of the XML delivery integration.",
       "configStatus": "Configured",
-      "endpointConfigured": "Endpoint configured"
+      "endpointConfigured": "Endpoint configured",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Not set"
+    },
+    "cgStatus": {
+      "title": "XML delivery (Creative Gears)",
+      "description": "Status and delivery log of the XML integration with Transpas.",
+      "statusOperational": "Operational",
+      "statusIncident": "Incident",
+      "statusNotConfigured": "Not configured",
+      "statusUnavailable": "Unavailable",
+      "uptime7": "7 days",
+      "uptime30": "30 days",
+      "uptime90": "90 days",
+      "recentDeliveries": "Recent deliveries",
+      "noDeliveries": "No XML deliveries in this window.",
+      "windowNote": "Based on the last {days} days of XML deliveries.",
+      "lastDelivery": "last delivery {when}",
+      "loading": "Loading delivery status…"
     },
     "ai": {
       "title": "AI",
-      "configStatus": "API configured"
+      "description": "Overall state of the artificial intelligence configuration.",
+      "configStatus": "API configured",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Not set"
     }
   },
   "topbar": {
@@ -375,7 +419,8 @@
     "toast": {
       "syncSuccess": "Mailbox synced",
       "syncError": "Mailbox sync failed"
-    }
+    },
+    "toggleTheme": "Toggle theme"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -385,7 +430,7 @@
     "forgotPassword": "Forgot password?",
     "forgotPasswordHint": "Contact your administrator to reset your password.",
     "email": "Your email",
-    "emailPlaceholder": "admin@renovoia.local",
+    "emailPlaceholder": "you@example.com",
     "password": "Password",
     "passwordPlaceholder": "••••••••",
     "signIn": "Sign in",
@@ -412,7 +457,8 @@
       "submit": "Reset password",
       "success": "Password updated. Please sign in.",
       "error": "Could not reset password"
-    }
+    },
+    "footer": "© {year} Renovo IA"
   },
   "languages": {
     "nl": "NL",
@@ -477,6 +523,6 @@
     "tryAgain": "Try again"
   },
   "app": {
-    "name": "Pultrum AI"
+    "name": "Pultrum | Orderintaker"
   }
 }

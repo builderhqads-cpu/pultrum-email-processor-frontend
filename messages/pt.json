@@ -3,6 +3,9 @@
     "dashboard": "Dashboard",
     "emails": "E-mails",
     "orders": "Pedidos",
+    "customers": "Clientes",
+    "aiStatus": "AI Status",
+    "integrations": "Integrações",
     "settings": "Configurações"
   },
   "dashboard": {
@@ -337,6 +340,25 @@
   },
   "settings": {
     "title": "Configurações",
+    "aiStatus": {
+      "title": "Serviço de IA",
+      "description": "Status e histórico de incidentes do pipeline de IA, a partir das chamadas registradas.",
+      "statusOperational": "Operacional",
+      "statusIncident": "Incidente",
+      "statusNotConfigured": "Não configurado",
+      "statusUnavailable": "Indisponível",
+      "uptime7": "7 dias",
+      "uptime30": "30 dias",
+      "uptime90": "90 dias",
+      "recentEvents": "Eventos recentes",
+      "incident": "Incidente",
+      "recovery": "Recuperado",
+      "noEvents": "Nenhum incidente registrado nesse período.",
+      "ongoingSince": "Incidente em andamento desde {since}.",
+      "windowNote": "Baseado nos últimos {days} dias de chamadas de IA.",
+      "lastRequest": "última chamada {when}",
+      "loading": "Carregando status da IA…"
+    },
     "backend": {
       "title": "Backend",
       "apiUrl": "API URL",
@@ -359,12 +381,34 @@
     },
     "creativeGears": {
       "title": "Creative Gears",
+      "description": "Disponibilidade da integração de envio de XML.",
       "configStatus": "Status",
-      "endpointConfigured": "Endpoint configurado"
+      "endpointConfigured": "Endpoint configurado",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Não definido"
+    },
+    "cgStatus": {
+      "title": "Envio de XML (Creative Gears)",
+      "description": "Status e registro de envios da integração de XML com o Transpas.",
+      "statusOperational": "Operacional",
+      "statusIncident": "Incidente",
+      "statusNotConfigured": "Não configurado",
+      "statusUnavailable": "Indisponível",
+      "uptime7": "7 dias",
+      "uptime30": "30 dias",
+      "uptime90": "90 dias",
+      "recentDeliveries": "Envios recentes",
+      "noDeliveries": "Nenhum envio de XML nesse período.",
+      "windowNote": "Baseado nos últimos {days} dias de envios de XML.",
+      "lastDelivery": "último envio {when}",
+      "loading": "Carregando status de envio…"
     },
     "ai": {
       "title": "IA",
-      "configStatus": "API configurada"
+      "description": "Estado geral da configuração de inteligência artificial.",
+      "configStatus": "API configurada",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Não definido"
     }
   },
   "topbar": {
@@ -378,7 +422,8 @@
     "toast": {
       "syncSuccess": "Mailbox sincronizada",
       "syncError": "Falha ao sincronizar mailbox"
-    }
+    },
+    "toggleTheme": "Alternar tema"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -388,7 +433,7 @@
     "forgotPassword": "Esqueceu a senha?",
     "forgotPasswordHint": "Contate o administrador para redefinir sua senha.",
     "email": "Seu e-mail",
-    "emailPlaceholder": "admin@renovoia.local",
+    "emailPlaceholder": "voce@exemplo.com",
     "password": "Senha",
     "passwordPlaceholder": "••••••••",
     "signIn": "Entrar",
@@ -415,7 +460,8 @@
       "submit": "Redefinir senha",
       "success": "Senha atualizada. Faça login para continuar.",
       "error": "Não foi possível redefinir a senha"
-    }
+    },
+    "footer": "© {year} Renovo IA"
   },
   "languages": {
     "nl": "NL",
@@ -480,6 +526,6 @@
     "tryAgain": "Tentar novamente"
   },
   "app": {
-    "name": "Pultrum AI"
+    "name": "Pultrum | Orderintaker"
   }
 }

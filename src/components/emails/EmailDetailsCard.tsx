@@ -45,10 +45,6 @@ export function EmailDetailsCard({email}: {email: EmailMessage}) {
             <div>{formatDateTime(email.receivedAt, locale)}</div>
           </div>
           <div>
-            <div className="text-xs text-muted-foreground">{t('labels.hasAttachments')}</div>
-            <div>{email.hasAttachments ? t('yes') : t('no')}</div>
-          </div>
-          <div>
             <div className="text-xs text-muted-foreground">{t('labels.conversation')}</div>
             <div className="break-all font-mono text-xs [overflow-wrap:anywhere]">
               {email.conversationId ?? tCommon('na')}

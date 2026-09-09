@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   Bot,
-  Boxes,
   CheckCircle2,
-  HardDrive,
   Info,
   MoreHorizontal,
   Plus,
@@ -18,7 +16,6 @@ import { useLocale, useMessages, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { useHealth } from "@/hooks/use-health";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +33,7 @@ import {
   useUpdateMailbox,
 } from "@/hooks/use-manage-mailboxes";
 import { useMailboxes } from "@/hooks/use-mailboxes";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -84,7 +81,6 @@ import { cn } from "@/lib/utils";
 import type { Locale } from "@/i18n/routing";
 import type { Department, Mailbox as MailboxRecord } from "@/types";
 import { AutomationSettings } from "./AutomationSettings";
-import { CustomerProfilesSettings } from "./CustomerProfilesSettings";
 
 function Flag({ ok }: { ok: boolean }) {
   return <StatusBadge status={ok ? "CONFIGURED" : "NOT_CONFIGURED"} />;
@@ -116,13 +112,7 @@ function Row({
 
 const departmentOptions: Department[] = ["OPEN_TRANSPORT", "STUK_GOED"];
 
-type SettingsTab =
-  | "general"
-  | "mailboxes"
-  | "customers"
-  | "ai"
-  | "automation"
-  | "system";
+type SettingsTab = "general" | "mailboxes" | "automation";
 
 function MailboxStatusPill({
   mailbox,
@@ -205,13 +195,11 @@ function GraphStatusPill({
 }
 
 export function SettingsScreen() {
-  const t = useTranslations("settings");
   const tCommon = useTranslations("common");
   const messages = useMessages() as Messages;
   const locale = useLocale() as Locale;
   const searchParams = useSearchParams();
   const labels = settingsLabels[locale] ?? settingsLabels.en;
-  const health = useHealth();
   const mailboxes = useMailboxes();
   const createMailbox = useCreateMailbox();
   const deleteMailbox = useDeleteMailbox();
@@ -233,10 +221,6 @@ export function SettingsScreen() {
   // so the proxy stripping cookies is harmless. MS_REDIRECT_URI must be set to
   // <this-origin>/api/auth/callback and registered in the Azure app.
   const microsoftConnectBaseUrl = "/api/auth/microsoft/mailboxes";
-  const cgEndpointConfigured = Boolean(
-    health.data?.config?.creativeGears?.endpointConfigured,
-  );
-  const aiConfigured = Boolean(health.data?.config?.ai?.apiConfigured);
 
   const mailboxList = mailboxes.data ?? [];
   const activeMailboxes = mailboxList.filter((mailbox) => mailbox.active);
@@ -345,10 +329,7 @@ export function SettingsScreen() {
             [
               ["general", labels.tabs.general],
               ["mailboxes", labels.tabs.mailboxes],
-              ["customers", labels.tabs.customerProfiles],
-              ["ai", labels.tabs.aiConfig],
               ["automation", labels.tabs.automation],
-              ["system", labels.tabs.system],
             ] as Array<[SettingsTab, string]>
           ).map(([key, label]) => (
             <button
@@ -766,48 +747,10 @@ export function SettingsScreen() {
             </div>
           ) : null}
 
-          {activeTab === "customers" ? <CustomerProfilesSettings /> : null}
 
-          {activeTab === "ai" ? (
-            <SettingsMetricCard
-              icon={Bot}
-          title={labels.ai.title}
-          description={labels.ai.description}
-          tone={aiConfigured ? "success" : "warning"}
-          badge={<Flag ok={aiConfigured} />}
-        >
-          <div className="grid grid-cols-1 gap-3">
-            <Row
-              label={t("ai.configStatus")}
-              value={<Flag ok={aiConfigured} />}
-            />
-            <Row label={labels.ai.source} value={labels.ai.backendManaged} />
-          </div>
-            </SettingsMetricCard>
-          ) : null}
 
           {activeTab === "automation" ? <AutomationSettings /> : null}
 
-          {activeTab === "system" ? (
-            <SettingsMetricCard
-          icon={Boxes}
-          title={labels.creativeGears.title}
-          description={labels.creativeGears.description}
-          tone={cgEndpointConfigured ? "success" : "warning"}
-          badge={<Flag ok={cgEndpointConfigured} />}
-        >
-          <div className="grid grid-cols-1 gap-3">
-            <Row
-              label={t("creativeGears.configStatus")}
-              value={<Flag ok={cgEndpointConfigured} />}
-            />
-            <Row
-              label={t("creativeGears.endpointConfigured")}
-              value={<Flag ok={cgEndpointConfigured} />}
-            />
-          </div>
-        </SettingsMetricCard>
-          ) : null}
         </CardContent>
       </Card>
     </div>
@@ -824,56 +767,6 @@ function formatDateTime(value: string | null | undefined, locale: Locale) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
-}
-
-function SettingsMetricCard({
-  icon: Icon,
-  title,
-  description,
-  badge,
-  children,
-  tone,
-  action,
-}: {
-  icon: typeof HardDrive;
-  title: string;
-  description: string;
-  badge?: React.ReactNode;
-  children: React.ReactNode;
-  tone: "info" | "success" | "warning" | "danger" | "neutral";
-  action?: React.ReactNode;
-}) {
-  // All settings cards use the default (white) card surface — no tinted tones.
-  const toneClassName = {
-    info: "",
-    success: "",
-    warning: "",
-    danger: "",
-    neutral: "",
-  }[tone];
-
-  return (
-    <Card className={cn("min-w-0 overflow-hidden", toneClassName)}>
-      <CardHeader className="gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            <div className="rounded-xl border bg-background p-2.5 text-muted-foreground shadow-sm">
-              <Icon className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <CardTitle className="text-base">{title}</CardTitle>
-              <div className="mt-1 text-sm text-muted-foreground">
-                {description}
-              </div>
-            </div>
-          </div>
-          {badge ? <div className="shrink-0">{badge}</div> : null}
-        </div>
-        {action ? <div>{action}</div> : null}
-      </CardHeader>
-      <CardContent className="space-y-4">{children}</CardContent>
-    </Card>
-  );
 }
 
 const settingsLabels: Record<
@@ -936,6 +829,8 @@ const settingsLabels: Record<
       description: string;
       source: string;
       backendManaged: string;
+      endpoint: string;
+      endpointUnset: string;
     };
     microsoft: {
       title: string;
@@ -974,7 +869,6 @@ const settingsLabels: Record<
     tabs: {
       general: string;
       mailboxes: string;
-      customerProfiles: string;
       aiConfig: string;
       microsoftGraph: string;
       automation: string;
@@ -1054,6 +948,8 @@ const settingsLabels: Record<
       description: "Estado geral da configuracao de inteligencia artificial.",
       source: "Origem",
       backendManaged: "Gerenciado pelo backend",
+      endpoint: "Endpoint",
+      endpointUnset: "Não definido",
     },
     microsoft: {
       title: "Microsoft Graph",
@@ -1094,7 +990,6 @@ const settingsLabels: Record<
     tabs: {
       general: "Geral",
       mailboxes: "Mailboxes",
-      customerProfiles: "Clientes",
       aiConfig: "Config. de IA",
       microsoftGraph: "Microsoft Graph",
       automation: "Automacao",
@@ -1174,6 +1069,8 @@ const settingsLabels: Record<
         "Overall state of the artificial intelligence configuration.",
       source: "Source",
       backendManaged: "Managed by the backend",
+      endpoint: "Endpoint",
+      endpointUnset: "Not set",
     },
     microsoft: {
       title: "Microsoft Graph",
@@ -1213,7 +1110,6 @@ const settingsLabels: Record<
     tabs: {
       general: "General",
       mailboxes: "Mailboxes",
-      customerProfiles: "Customers",
       aiConfig: "AI Config",
       microsoftGraph: "Microsoft Graph",
       automation: "Automation",
@@ -1293,6 +1189,8 @@ const settingsLabels: Record<
       description: "Algemene status van de AI-configuratie.",
       source: "Bron",
       backendManaged: "Beheerd door de backend",
+      endpoint: "Endpoint",
+      endpointUnset: "Niet ingesteld",
     },
     microsoft: {
       title: "Microsoft Graph",
@@ -1334,7 +1232,6 @@ const settingsLabels: Record<
     tabs: {
       general: "Algemeen",
       mailboxes: "Mailboxes",
-      customerProfiles: "Klanten",
       aiConfig: "AI-configuratie",
       microsoftGraph: "Microsoft Graph",
       automation: "Automatisering",

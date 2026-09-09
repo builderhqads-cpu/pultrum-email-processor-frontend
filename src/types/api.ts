@@ -46,6 +46,49 @@ export type XmlDeliveryStatus =
 
 export type IsoDateTimeString = string;
 
+export type AiStatusEvent = {
+  type: 'incident' | 'recovery';
+  at: IsoDateTimeString;
+  message?: string;
+  durationMs?: number;
+};
+
+export type AiServiceStatus = {
+  configured: boolean;
+  status: 'operational' | 'incident' | 'not_configured';
+  ongoingSince: IsoDateTimeString | null;
+  uptime: {d7: number; d30: number; d90: number};
+  counts: {succeeded: number; failed: number; empty: number; total: number};
+  lastRequestAt: IsoDateTimeString | null;
+  windowDays: number;
+  events: AiStatusEvent[];
+};
+
+export type CgDeliveryLog = {
+  id: string;
+  status: string;
+  at: IsoDateTimeString;
+  reference: string | null;
+  errorMessage?: string | null;
+};
+
+export type CreativeGearsStatus = {
+  configured: boolean;
+  status: 'operational' | 'incident' | 'not_configured';
+  uptime: {d7: number; d30: number; d90: number};
+  counts: {
+    accepted: number;
+    rejected: number;
+    failed: number;
+    pending: number;
+    sent: number;
+    total: number;
+  };
+  lastDeliveryAt: IsoDateTimeString | null;
+  windowDays: number;
+  deliveries: CgDeliveryLog[];
+};
+
 export type CustomerReplyDraftStatus =
   | "DRAFT"
   | "SENT"
@@ -133,10 +176,22 @@ export type CustomerProfile = {
   notes: string | null;
   /** Free-text guidance sent to the AI about how this customer builds documents. */
   aiInstructions?: string | null;
+  /**
+   * Sander/Niek (2026-09-09): per-file-type Transpas documenttype pins for this
+   * customer, overriding the AI. Keyed by coarse category. Absent categories use
+   * the AI mapping. e.g. { excel: '87', pdf: '91', image: '92' }.
+   */
+  documentTypeRules?: DocumentTypeRules | null;
   createdAt: IsoDateTimeString;
   updatedAt: IsoDateTimeString;
   fields: CustomerProfileField[];
 };
+
+export type DocumentTypeRuleCategory = 'pdf' | 'word' | 'excel' | 'image';
+
+export type DocumentTypeRules = Partial<
+  Record<DocumentTypeRuleCategory, string>
+>;
 
 export type CustomerProfileMutationInput = {
   name?: string;
@@ -145,6 +200,7 @@ export type CustomerProfileMutationInput = {
   active?: boolean;
   notes?: string | null;
   aiInstructions?: string | null;
+  documentTypeRules?: DocumentTypeRules | null;
   fields?: Array<{
     key: string;
     value: string;
@@ -371,7 +427,16 @@ export type TransportOrder = {
   batchImportId?: string | null;
   batchSequence?: number | null;
   /** Present when the order came from a batch (weekly sheet): X of N + subject. */
-  batch?: {sequence: number | null; total: number; subject?: string | null} | null;
+  batch?: {
+    sequence: number | null;
+    total: number;
+    subject?: string | null;
+    orders?: Array<{
+      id: string;
+      sequence: number | null;
+      reference: string | null;
+    }>;
+  } | null;
   createdAt: IsoDateTimeString;
   updatedAt?: IsoDateTimeString;
   fields: OrderField[];
@@ -441,9 +506,13 @@ export type HealthResponse = {
     };
     creativeGears?: {
       endpointConfigured: boolean;
+      /** Host of the Creative Gears endpoint (identifier only, no credentials). */
+      endpoint?: string | null;
     };
     ai?: {
       apiConfigured: boolean;
+      /** Host of the AI router endpoint (identifier only, no key/path). */
+      endpoint?: string | null;
     };
   };
 };

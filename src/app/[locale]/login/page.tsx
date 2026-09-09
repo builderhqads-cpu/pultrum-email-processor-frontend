@@ -9,7 +9,6 @@ import {useAuth} from '@/hooks/use-auth';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
-import {BrandMark} from '@/components/ui/BrandMark';
 
 export default function LoginPage() {
   const t = useTranslations();
@@ -45,18 +44,17 @@ export default function LoginPage() {
 
   const wordmark = (
     <div className="flex items-center gap-2">
-      <BrandMark className="h-7 w-7" />
       <span className="text-xl font-bold tracking-tight">{t('app.name')}</span>
     </div>
   );
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
+    <div className="flex min-h-screen flex-col">
+      <div className="grid flex-1 lg:grid-cols-2">
       {/* Branding panel */}
       <div className="hidden items-center justify-center bg-muted/40 px-12 lg:flex">
         <div className="flex max-w-md flex-col gap-6">
           <div className="flex items-center gap-3">
-            <BrandMark className="h-12 w-12" />
             <span className="text-4xl font-bold tracking-tight">{t('app.name')}</span>
           </div>
           <p className="text-lg leading-relaxed text-muted-foreground">
@@ -128,6 +126,11 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       </div>
+      </div>
+
+      <footer className="py-4 text-center text-xs text-muted-foreground">
+        {t('auth.footer', {year: 2026})}
+      </footer>
     </div>
   );
 }

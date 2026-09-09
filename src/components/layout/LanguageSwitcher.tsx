@@ -1,6 +1,5 @@
 'use client';
 
-import {Languages} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 import {usePathname} from 'next/navigation';
 
@@ -12,10 +11,9 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {FlagIcon} from '@/components/layout/flag-icon';
 import {cn} from '@/lib/utils';
 
 export function LanguageSwitcher() {
@@ -45,19 +43,21 @@ export function LanguageSwitcher() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={cn(buttonVariants({variant: 'outline', size: 'sm'}), 'gap-2')}>
-        <Languages className="h-4 w-4" />
-        <span className="font-mono text-xs">{t(`languages.${locale}`)}</span>
+      <DropdownMenuTrigger
+        className={cn(buttonVariants({variant: 'outline', size: 'icon-sm'}))}
+        aria-label={t(`languages.${locale}`)}
+      >
+        <FlagIcon code={locale} className="h-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>{t('topbar.language')}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           {routing.locales.map((nextLocale) => (
             <DropdownMenuItem
               key={nextLocale}
               onClick={() => changeLocale(nextLocale)}
+              className="gap-2"
             >
+              <FlagIcon code={nextLocale} />
               {t(`languages.${nextLocale}`)}
             </DropdownMenuItem>
           ))}

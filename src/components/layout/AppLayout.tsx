@@ -1,6 +1,7 @@
 'use client';
 
 import {AppSidebar} from './AppSidebar';
+import {PageTitleProvider} from './page-title';
 import {AppTopbar} from './AppTopbar';
 import type {Locale} from '@/i18n/routing';
 import {usePathname, useRouter} from '@/i18n/navigation';
@@ -56,14 +57,19 @@ export function AppLayout({
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-muted/40">
-      <div className="flex min-h-screen min-w-0">
+    // Fixed shell: the sidebar and topbar stay put; ONLY <main> scrolls. The
+    // app is locked to the viewport height (h-screen + overflow-hidden) and the
+    // content area gets its own vertical scroll (Renato 2026-09-09).
+    <PageTitleProvider>
+      <div className="flex h-screen overflow-hidden bg-muted/40">
         <AppSidebar locale={locale} />
         <div className="flex min-w-0 flex-1 flex-col">
           <AppTopbar locale={locale} />
-          <main className="min-w-0 overflow-x-hidden flex-1 p-4 sm:p-6">{children}</main>
+          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
+            {children}
+          </main>
         </div>
       </div>
-    </div>
+    </PageTitleProvider>
   );
 }

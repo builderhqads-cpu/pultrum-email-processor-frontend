@@ -1,8 +1,12 @@
+'use client';
+
+import {useEffect} from 'react';
 import {ArrowLeft} from 'lucide-react';
 
 import {Link} from '@/i18n/navigation';
 import {cn} from '@/lib/utils';
 import {buttonVariants} from '@/components/ui/button';
+import {usePageTitle} from './page-title';
 
 export function PageHeader({
   title,
@@ -26,6 +30,19 @@ export function PageHeader({
 }) {
   const supportingText = subtitle ?? description;
 
+  // Publish the page title so the topbar renders it. The big <h1> that used to
+  // live here moved into the header (Renato 2026-09-09).
+  const setPageTitle = usePageTitle()?.setTitle;
+  useEffect(() => {
+    setPageTitle?.(title);
+  }, [title, setPageTitle]);
+
+  // Without the title, the card is only worth rendering when it still carries a
+  // subtitle, a status or actions. The back-link stays above it regardless.
+  const hasCard = Boolean(supportingText || status || actions);
+
+  if (!backLink && !hasCard) return null;
+
   return (
     <div className={cn('space-y-3', className)}>
       {backLink ? (
@@ -42,27 +59,32 @@ export function PageHeader({
         </Link>
       ) : null}
 
-      <div className="rounded-xl border border-border/80 bg-card px-4 py-4 shadow-sm shadow-black/[0.03] sm:px-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0 space-y-1.5">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{title}</h1>
+      {hasCard ? (
+        <div className="rounded-xl border border-border/80 bg-card px-4 py-4 shadow-sm shadow-black/[0.03] sm:px-5">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             {supportingText ? (
               <div className="max-w-3xl min-w-0 text-sm leading-6 text-muted-foreground [overflow-wrap:anywhere]">
                 {supportingText}
               </div>
+            ) : (
+              <div />
+            )}
+
+            {status || actions ? (
+              <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+                {status ? (
+                  <div className="flex flex-wrap items-center gap-2">{status}</div>
+                ) : null}
+                {actions ? (
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    {actions}
+                  </div>
+                ) : null}
+              </div>
             ) : null}
           </div>
-
-          {status || actions ? (
-            <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-              {status ? <div className="flex flex-wrap items-center gap-2">{status}</div> : null}
-              {actions ? (
-                <div className="flex flex-wrap items-center gap-2 lg:justify-end">{actions}</div>
-              ) : null}
-            </div>
-          ) : null}
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

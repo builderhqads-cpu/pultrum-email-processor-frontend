@@ -1,12 +1,13 @@
 'use client';
 
+import type {ReactNode} from 'react';
 import {ExternalLink, Inbox, RefreshCw, Trash2} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 
 import {Link} from '@/i18n/navigation';
 import {useEmail} from '@/hooks/use-email';
-import {useOrderActions} from '@/hooks/use-order-actions';
+import {useEmailClassificationActions} from '@/hooks/use-email-classification';
 import {EmailDetailsCard} from '@/components/emails/EmailDetailsCard';
 import {Button, buttonVariants} from '@/components/ui/button';
 import {EmptyState} from '@/components/ui/empty-state';
@@ -16,19 +17,29 @@ export function EmailPreviewPane({
   emailId,
   deleteLabel,
   deleting,
-  onDeleteRequest
+  onDeleteRequest,
+  refetchAction,
+  deleteAllAction
 }: {
   emailId: string;
   deleteLabel: string;
   deleting: boolean;
   onDeleteRequest: () => void;
+  /** Page-level Refetch, rendered FIRST in the bar. */
+  refetchAction?: ReactNode;
+  /** Page-level Delete-all, rendered LAST (after Delete email). */
+  deleteAllAction?: ReactNode;
 }) {
   const t = useTranslations('emails.detail');
   const tOrder = useTranslations('orders.detail');
   const tCommon = useTranslations('common');
   const email = useEmail(emailId);
   const order = email.data?.order ?? null;
-  const actions = useOrderActions(order?.id ?? '');
+  // Reprocess acts on the whole EMAIL (re-runs /eml-process): it re-splits a
+  // multi-order email into all its orders and reloads the customer profile
+  // (documenttypes, aiInstructions, fixed fields). The order-level reprocess
+  // only refilled a single order — wrong for a batch email (Renato 2026-09-09).
+  const {reclassify} = useEmailClassificationActions();
 
   async function runOrderAction(opts: {
     fn: () => Promise<unknown>;
@@ -49,33 +60,35 @@ export function EmailPreviewPane({
 
   const actionBar = (
     <div className="sticky top-0 z-10 flex flex-wrap items-center justify-end gap-2 border-b bg-background/95 p-3 backdrop-blur supports-backdrop-filter:bg-background/80">
+      {refetchAction}
       {order ? (
-        <>
-          <Link
-            href={`/orders/${order.id}`}
-            className={buttonVariants({variant: 'outline', size: 'sm'})}
-          >
-            <ExternalLink className="h-4 w-4" />
-            {t('openLinkedOrder')}
-          </Link>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={actions.reprocess.loading}
-            onClick={() =>
-              runOrderAction({
-                fn: () => actions.reprocess.mutateAsync(),
-                label: tOrder('actions.reprocess'),
-                success: tOrder('toast.reprocessSuccess'),
-                error: tOrder('toast.reprocessError')
-              })
-            }
-          >
-            <RefreshCw className="h-4 w-4" />
-            {tOrder('actions.reprocess')}
-          </Button>
-        </>
+        <Link
+          href={`/orders/${order.id}`}
+          className={buttonVariants({variant: 'outline', size: 'sm'})}
+        >
+          <ExternalLink className="h-4 w-4" />
+          {t('openLinkedOrder')}
+        </Link>
       ) : null}
+      {/* Reprocess is EMAIL-level (re-runs /eml-process), so it must be available
+          even when no order exists yet — e.g. a FAILED e-mail that never produced
+          an order (Renato 2026-09-09). */}
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={reclassify.isPending}
+        onClick={() =>
+          runOrderAction({
+            fn: () => reclassify.mutateAsync(emailId),
+            label: tOrder('actions.reprocess'),
+            success: tOrder('toast.reprocessSuccess'),
+            error: tOrder('toast.reprocessError')
+          })
+        }
+      >
+        <RefreshCw className="h-4 w-4" />
+        {tOrder('actions.reprocess')}
+      </Button>
       <Button
         size="sm"
         variant="destructive"
@@ -85,6 +98,7 @@ export function EmailPreviewPane({
         <Trash2 className="h-4 w-4" />
         {deleteLabel}
       </Button>
+      {deleteAllAction}
     </div>
   );
 

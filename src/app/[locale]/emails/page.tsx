@@ -340,34 +340,33 @@ export default function EmailsPage() {
 
   const hasEmails = ((emails.data ?? []) as EmailMessageListItem[]).length > 0;
 
+  // Page-level inbox actions, rendered inside the preview action bar next to the
+  // per-email actions: Refetch first, Delete all emails last (Renato 2026-09-09).
+  const refetchAction = (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={refetchAll}
+      disabled={!mounted || isLoading}
+    >
+      {tCommon("refetch")}
+    </Button>
+  );
+  const deleteAllAction = (
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={() => setConfirmDeleteAll(true)}
+      disabled={!mounted || isLoading || !hasEmails || deleteAllEmails.isPending}
+    >
+      <Trash2 className="mr-1.5 h-4 w-4" />
+      {labels.deleteAllAction}
+    </Button>
+  );
+
   return (
     <div className="mx-auto flex w-full min-w-0 flex-col gap-4 lg:h-[calc(100vh-7rem)]">
-      <PageHeader
-        title={labels.inboxTitle}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refetchAll}
-              disabled={!mounted || isLoading}
-            >
-              {tCommon("refetch")}
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setConfirmDeleteAll(true)}
-              disabled={
-                !mounted || isLoading || !hasEmails || deleteAllEmails.isPending
-              }
-            >
-              <Trash2 className="mr-1.5 h-4 w-4" />
-              {labels.deleteAllAction}
-            </Button>
-          </div>
-        }
-      />
+      <PageHeader title={labels.inboxTitle} />
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
         {/* Left: inbox list */}
@@ -514,6 +513,8 @@ export default function EmailsPage() {
             <EmailPreviewPane
               key={selectedId}
               emailId={selectedId}
+              refetchAction={refetchAction}
+              deleteAllAction={deleteAllAction}
               deleteLabel={labels.deleteAction}
               deleting={deleteEmail.isPending}
               onDeleteRequest={() =>
@@ -524,13 +525,19 @@ export default function EmailsPage() {
               }
             />
           ) : (
-            <div className="flex h-full items-center justify-center p-6">
-              <EmptyState
-                icon={MailOpen}
-                title={labels.selectEmailTitle}
-                description={labels.selectEmailDescription}
-                className="border-0 bg-transparent shadow-none"
-              />
+            <div className="flex h-full min-h-0 flex-col">
+              <div className="flex flex-wrap items-center justify-end gap-2 border-b p-3">
+                {refetchAction}
+                {deleteAllAction}
+              </div>
+              <div className="flex flex-1 items-center justify-center p-6">
+                <EmptyState
+                  icon={MailOpen}
+                  title={labels.selectEmailTitle}
+                  description={labels.selectEmailDescription}
+                  className="border-0 bg-transparent shadow-none"
+                />
+              </div>
             </div>
           )}
         </Card>
@@ -623,7 +630,7 @@ const emailPageLabels: Record<
     selectEmailTitle: "Selecione um e-mail",
     selectEmailDescription:
       "Escolha um e-mail na lista a esquerda para ver o preview e as acoes.",
-    deleteAction: "Excluir",
+    deleteAction: "Excluir e-mail",
     deleteLoading: "Excluindo e-mail...",
     deleteSuccess: "E-mail excluido",
     deleteSuccessWithOrder: "E-mail e pedido vinculado excluidos",
@@ -631,7 +638,7 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Excluir este e-mail?",
     deleteConfirm:
       "Essa acao remove o e-mail do sistema. Se houver um pedido vinculado, ele e os replies tambem serao removidos.",
-    deleteAllAction: "Excluir todos",
+    deleteAllAction: "Excluir todos os e-mails",
     deleteAllLoading: "Excluindo todos os e-mails...",
     deleteAllSuccess: (n) =>
       n === 1 ? "1 e-mail excluido" : `${n} e-mails excluidos`,
@@ -656,7 +663,7 @@ const emailPageLabels: Record<
     selectEmailTitle: "Select an email",
     selectEmailDescription:
       "Pick an email from the list on the left to preview it and take action.",
-    deleteAction: "Delete",
+    deleteAction: "Delete email",
     deleteLoading: "Deleting email...",
     deleteSuccess: "Email deleted",
     deleteSuccessWithOrder: "Email and linked order deleted",
@@ -664,7 +671,7 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Delete this email?",
     deleteConfirm:
       "This removes the email from the system. If an order is linked, it and its replies are removed too.",
-    deleteAllAction: "Delete all",
+    deleteAllAction: "Delete all emails",
     deleteAllLoading: "Deleting all emails...",
     deleteAllSuccess: (n) =>
       n === 1 ? "1 email deleted" : `${n} emails deleted`,
@@ -689,7 +696,7 @@ const emailPageLabels: Record<
     selectEmailTitle: "Selecteer een e-mail",
     selectEmailDescription:
       "Kies een e-mail uit de lijst links om het voorbeeld te zien en actie te ondernemen.",
-    deleteAction: "Verwijderen",
+    deleteAction: "E-mail verwijderen",
     deleteLoading: "E-mail verwijderen...",
     deleteSuccess: "E-mail verwijderd",
     deleteSuccessWithOrder: "E-mail en gekoppelde opdracht verwijderd",
@@ -697,7 +704,7 @@ const emailPageLabels: Record<
     deleteConfirmTitle: "Deze e-mail verwijderen?",
     deleteConfirm:
       "Hiermee wordt de e-mail uit het systeem verwijderd. Een gekoppelde opdracht en antwoorden worden ook verwijderd.",
-    deleteAllAction: "Alles verwijderen",
+    deleteAllAction: "Alle e-mails verwijderen",
     deleteAllLoading: "Alle e-mails verwijderen...",
     deleteAllSuccess: (n) =>
       n === 1 ? "1 e-mail verwijderd" : `${n} e-mails verwijderd`,

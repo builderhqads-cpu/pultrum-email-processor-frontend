@@ -617,15 +617,7 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto flex w-full min-w-0 flex-col gap-4 lg:h-[calc(100vh-7rem)]">
-      <PageHeader
-        title={t('title')}
-        subtitle={t('queueSubtitle')}
-        actions={
-          <Button variant="outline" size="sm" onClick={() => orders.refetch()} disabled={!mounted || orders.loading}>
-            {tCommon('refetch')}
-          </Button>
-        }
-      />
+      <PageHeader title={t('title')} />
 
       <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <CardHeader className="flex-row items-center justify-between gap-3 border-b">
@@ -661,6 +653,15 @@ export default function OrdersPage() {
                 <SelectItem value="batch">{t('filters.typeBatch')}</SelectItem>
               </SelectContent>
             </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 shrink-0"
+              onClick={() => orders.refetch()}
+              disabled={!mounted || orders.loading}
+            >
+              {tCommon('refetch')}
+            </Button>
           </div>
           {selected.size > 0 ? (
             <div className="flex shrink-0 items-center gap-2">

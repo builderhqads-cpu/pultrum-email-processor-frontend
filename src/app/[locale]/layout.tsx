@@ -16,7 +16,7 @@ const fontSans = Geist({subsets: ['latin'], variable: '--font-sans'});
 const fontMono = Geist_Mono({subsets: ['latin'], variable: '--font-geist-mono'});
 
 export const metadata = {
-  title: 'Pultrum AI',
+  title: 'Pultrum | Orderintaker',
   description: 'Automated logistics email processing, built with AI.'
 };
 
@@ -41,6 +41,13 @@ export default async function LocaleLayout(props: LayoutProps<'/[locale]'>) {
       className={`${fontSans.variable} ${fontMono.variable}`}
     >
       <body className="min-h-screen overflow-x-hidden bg-background font-sans text-foreground antialiased">
+        {/* Set the theme class before paint to avoid a flash of the wrong theme. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();"
+          }}
+        />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
             <AuthProvider>

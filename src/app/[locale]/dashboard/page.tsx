@@ -118,14 +118,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto flex min-w-0 w-full flex-col gap-5">
-      <PageHeader
-        title={t('title')}
-        actions={
-          <Button variant="outline" size="sm" onClick={refetchAll} disabled={!mounted || isLoading}>
-            {tCommon('refetch')}
-          </Button>
-        }
-      />
+      <PageHeader title={t('title')} />
 
       {hasError ? (
         <Card>
@@ -206,6 +199,14 @@ export default function DashboardPage() {
       <Card className="flex min-h-[60vh] min-w-0 flex-1 flex-col overflow-hidden">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-base">{t('workQueue.title')}</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetchAll}
+            disabled={!mounted || isLoading}
+          >
+            {tCommon('refetch')}
+          </Button>
         </CardHeader>
         <CardContent className="min-w-0 flex-1 overflow-auto">
           <table className="w-full table-fixed border-separate border-spacing-0 text-sm">

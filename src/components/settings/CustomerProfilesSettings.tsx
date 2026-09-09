@@ -15,6 +15,8 @@ import type {
   CustomerProfile,
   CustomerProfileCatalogField,
   CustomerProfileMutationInput,
+  DocumentTypeRuleCategory,
+  DocumentTypeRules,
   FieldRequirement
 } from '@/types';
 import type {Locale} from '@/i18n/routing';
@@ -67,7 +69,17 @@ type FormState = {
   fields: Record<string, string>;
   /** Free-text guidance for the AI on how this customer builds their documents. */
   aiInstructions: string;
+  /** Per-file-type Transpas documenttype pins (Sander). Empty = use the AI. */
+  documentTypeRules: DocumentTypeRules;
 };
+
+// The coarse file-type categories shown in the documenttype editor, in order.
+const DOCUMENT_TYPE_RULE_CATEGORIES: DocumentTypeRuleCategory[] = [
+  'excel',
+  'pdf',
+  'word',
+  'image'
+];
 
 // Same group order as the order view (Niek): Algemeen, Laden, Lossen, Goederen.
 const fieldGroupOrder: CustomerProfileFieldGroup[] = [
@@ -95,7 +107,8 @@ const emptyFormState = (): FormState => ({
   active: true,
   notes: '',
   fields: {},
-  aiInstructions: ''
+  aiInstructions: '',
+  documentTypeRules: {}
 });
 
 export function CustomerProfilesSettings() {
@@ -188,7 +201,8 @@ export function CustomerProfilesSettings() {
       fields: Object.fromEntries(
         (profile.fields ?? []).map((field) => [field.key, field.value ?? ''])
       ),
-      aiInstructions: profile.aiInstructions ?? ''
+      aiInstructions: profile.aiInstructions ?? '',
+      documentTypeRules: {...(profile.documentTypeRules ?? {})}
     });
     setDialogOpen(true);
   }
@@ -212,6 +226,20 @@ export function CustomerProfilesSettings() {
     }));
   }, []);
 
+  // Documenttype pin per file type (Sander). Keep digits only; empty clears it.
+  const updateDocumentTypeRule = useCallback(
+    (category: DocumentTypeRuleCategory, value: string) => {
+      const digits = value.replace(/\D/g, '');
+      setForm((current) => {
+        const next = {...current.documentTypeRules};
+        if (digits) next[category] = digits;
+        else delete next[category];
+        return {...current, documentTypeRules: next};
+      });
+    },
+    []
+  );
+
   function buildPayload(): CustomerProfileMutationInput {
     return {
       name: form.name.trim(),
@@ -220,6 +248,14 @@ export function CustomerProfilesSettings() {
       active: form.active,
       notes: form.notes.trim() || null,
       aiInstructions: form.aiInstructions.trim() || null,
+      documentTypeRules: (() => {
+        const rules: DocumentTypeRules = {};
+        for (const category of DOCUMENT_TYPE_RULE_CATEGORIES) {
+          const value = (form.documentTypeRules[category] ?? '').trim();
+          if (value) rules[category] = value;
+        }
+        return Object.keys(rules).length ? rules : null;
+      })(),
       fields: Object.entries(form.fields)
         .map(([key, value]) => ({ key, value: value.trim() }))
         .filter((field) => field.value.length > 0)
@@ -483,6 +519,36 @@ export function CustomerProfilesSettings() {
                         ? labels.form.aiInstructionsEdit
                         : labels.form.aiInstructionsAdd}
                     </Button>
+                  </div>
+
+                  <div className="min-w-0 space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {labels.form.documentTypes}
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      {labels.form.documentTypesHelp}
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      {DOCUMENT_TYPE_RULE_CATEGORIES.map((category) => (
+                        <div
+                          key={category}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span className="text-sm text-foreground">
+                            {labels.form.documentTypeCategories[category]}
+                          </span>
+                          <Input
+                            value={form.documentTypeRules[category] ?? ''}
+                            onChange={(event) =>
+                              updateDocumentTypeRule(category, event.target.value)
+                            }
+                            inputMode="numeric"
+                            placeholder={labels.form.documentTypePlaceholder}
+                            className="h-8 w-28 text-sm"
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                 </CardContent>
@@ -843,6 +909,10 @@ const customerProfileLabels: Record<
       aiInstructionsPlaceholder: string;
       aiInstructionsAdd: string;
       aiInstructionsEdit: string;
+      documentTypes: string;
+      documentTypesHelp: string;
+      documentTypePlaceholder: string;
+      documentTypeCategories: Record<DocumentTypeRuleCategory, string>;
     };
     groups: Record<CustomerProfileFieldGroup, string>;
     requirements: Record<RequirementKey, string>;
@@ -914,7 +984,17 @@ Data de entrega: sempre na segunda coluna da tabela
 Cada linha da planilha e uma ordem separada
 Ignorar os dados do rodape (assinatura e contatos)`,
       aiInstructionsAdd: 'Adicionar instrucoes',
-      aiInstructionsEdit: 'Ver / editar instrucoes'
+      aiInstructionsEdit: 'Ver / editar instrucoes',
+      documentTypes: 'Tipo de documento por anexo',
+      documentTypesHelp:
+        'Fixe o documenttype do Transpas por tipo de arquivo deste cliente (sobrepoe o julgamento da IA). Deixe em branco para a IA decidir. Ex.: Excel = 87, PDF = 91.',
+      documentTypePlaceholder: 'ex.: 87',
+      documentTypeCategories: {
+        excel: 'Excel / CSV',
+        pdf: 'PDF',
+        word: 'Word',
+        image: 'Imagens (jpg/png)'
+      }
     },
     groups: {
       pickup: 'Pickup / Coleta',
@@ -994,7 +1074,17 @@ Delivery date: always in the second column of the table
 Each row of the spreadsheet is a separate order
 Ignore the footer details (signature and contacts)`,
       aiInstructionsAdd: 'Add instructions',
-      aiInstructionsEdit: 'View / edit instructions'
+      aiInstructionsEdit: 'View / edit instructions',
+      documentTypes: 'Document type per attachment',
+      documentTypesHelp:
+        "Pin the Transpas documenttype per file type for this customer (overrides the AI's judgement). Leave blank to let the AI decide. E.g. Excel = 87, PDF = 91.",
+      documentTypePlaceholder: 'e.g. 87',
+      documentTypeCategories: {
+        excel: 'Excel / CSV',
+        pdf: 'PDF',
+        word: 'Word',
+        image: 'Images (jpg/png)'
+      }
     },
     groups: {
       pickup: 'Pickup',
@@ -1074,7 +1164,17 @@ Losdatum: altijd in de tweede kolom van de tabel
 Elke regel van het overzicht is een aparte order
 Negeer de gegevens in de voettekst (handtekening en contacten)`,
       aiInstructionsAdd: 'Instructies toevoegen',
-      aiInstructionsEdit: 'Instructies bekijken / bewerken'
+      aiInstructionsEdit: 'Instructies bekijken / bewerken',
+      documentTypes: 'Documenttype per bijlage',
+      documentTypesHelp:
+        'Leg het Transpas-documenttype per bestandstype vast voor deze klant (overschrijft de AI). Laat leeg om de AI te laten beslissen. Bijv. Excel = 87, PDF = 91.',
+      documentTypePlaceholder: 'bijv. 87',
+      documentTypeCategories: {
+        excel: 'Excel / CSV',
+        pdf: 'PDF',
+        word: 'Word',
+        image: "Afbeeldingen (jpg/png)"
+      }
     },
     groups: {
       pickup: 'Laden',

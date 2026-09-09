@@ -3,6 +3,9 @@
     "dashboard": "Dashboard",
     "emails": "E-mails",
     "orders": "Opdrachten",
+    "customers": "Klanten",
+    "aiStatus": "AI-status",
+    "integrations": "Integraties",
     "settings": "Instellingen"
   },
   "dashboard": {
@@ -334,6 +337,25 @@
   },
   "settings": {
     "title": "Instellingen",
+    "aiStatus": {
+      "title": "AI-service",
+      "description": "Status en incidentgeschiedenis van de AI-pijplijn, op basis van de vastgelegde AI-aanroepen.",
+      "statusOperational": "Operationeel",
+      "statusIncident": "Incident",
+      "statusNotConfigured": "Niet geconfigureerd",
+      "statusUnavailable": "Niet beschikbaar",
+      "uptime7": "7 dagen",
+      "uptime30": "30 dagen",
+      "uptime90": "90 dagen",
+      "recentEvents": "Recente gebeurtenissen",
+      "incident": "Incident",
+      "recovery": "Hersteld",
+      "noEvents": "Geen incidenten in deze periode.",
+      "ongoingSince": "Lopend incident sinds {since}.",
+      "windowNote": "Op basis van de laatste {days} dagen AI-aanroepen.",
+      "lastRequest": "laatste aanroep {when}",
+      "loading": "AI-status laden…"
+    },
     "backend": {
       "title": "Backend",
       "apiUrl": "API URL",
@@ -356,12 +378,34 @@
     },
     "creativeGears": {
       "title": "Creative Gears",
+      "description": "Beschikbaarheid van de XML-leveringsintegratie.",
       "configStatus": "Geconfigureerd",
-      "endpointConfigured": "Endpoint geconfigureerd"
+      "endpointConfigured": "Endpoint geconfigureerd",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Niet ingesteld"
+    },
+    "cgStatus": {
+      "title": "XML-levering (Creative Gears)",
+      "description": "Status en leveringslog van de XML-integratie met Transpas.",
+      "statusOperational": "Operationeel",
+      "statusIncident": "Incident",
+      "statusNotConfigured": "Niet geconfigureerd",
+      "statusUnavailable": "Niet beschikbaar",
+      "uptime7": "7 dagen",
+      "uptime30": "30 dagen",
+      "uptime90": "90 dagen",
+      "recentDeliveries": "Recente leveringen",
+      "noDeliveries": "Geen XML-leveringen in deze periode.",
+      "windowNote": "Op basis van de laatste {days} dagen XML-leveringen.",
+      "lastDelivery": "laatste levering {when}",
+      "loading": "Leveringsstatus laden…"
     },
     "ai": {
       "title": "AI",
-      "configStatus": "API geconfigureerd"
+      "description": "Algemene staat van de AI-configuratie.",
+      "configStatus": "API geconfigureerd",
+      "endpoint": "Endpoint",
+      "endpointUnset": "Niet ingesteld"
     }
   },
   "topbar": {
@@ -375,7 +419,8 @@
     "toast": {
       "syncSuccess": "Mailbox gesynchroniseerd",
       "syncError": "Mailbox sync mislukt"
-    }
+    },
+    "toggleTheme": "Thema wisselen"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -385,7 +430,7 @@
     "forgotPassword": "Wachtwoord vergeten?",
     "forgotPasswordHint": "Neem contact op met je beheerder om je wachtwoord te resetten.",
     "email": "Je e-mail",
-    "emailPlaceholder": "admin@renovoia.local",
+    "emailPlaceholder": "jij@voorbeeld.com",
     "password": "Wachtwoord",
     "passwordPlaceholder": "••••••••",
     "signIn": "Inloggen",
@@ -412,7 +457,8 @@
       "submit": "Wachtwoord resetten",
       "success": "Wachtwoord bijgewerkt. Log in om door te gaan.",
       "error": "Wachtwoord resetten mislukt"
-    }
+    },
+    "footer": "© {year} Renovo IA"
   },
   "languages": {
     "nl": "NL",
@@ -477,6 +523,6 @@
     "tryAgain": "Opnieuw proberen"
   },
   "app": {
-    "name": "Pultrum AI"
+    "name": "Pultrum | Orderintaker"
   }
 }
