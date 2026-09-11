@@ -234,6 +234,18 @@ export type Attachment = {
   createdAt?: IsoDateTimeString;
   /** Niek: whether this attachment is embedded in the Creative Gears XML. */
   includedInXml?: boolean;
+  /** Niek: the Transpas documenttype this file goes out as (e.g. "87"). */
+  documentType?: string | null;
+  /** Human label for the documenttype (e.g. "Document lossen"). */
+  concerns?: string | null;
+};
+
+/** The original e-mail as a document embedded in the XML (documenttype 19). */
+export type EmailDocument = {
+  fileName: string;
+  mimeType?: string | null;
+  documentType: string;
+  concerns: string;
 };
 
 // GET /emails
@@ -280,6 +292,8 @@ export type EmailMessage = {
   classifiedAt?: IsoDateTimeString | null;
   mailbox: Mailbox;
   attachments: Attachment[];
+  /** Niek: the original e-mail listed as an XML document (type 19), or null. */
+  emailDocument?: EmailDocument | null;
   order: Pick<
     TransportOrder,
     | "id"

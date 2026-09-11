@@ -157,6 +157,16 @@ export function AttachmentCards({
                       <span>{labels.inXml}</span>
                     </Badge>
                   ) : null}
+                  {/* Niek: the Transpas documenttype this file goes out as. */}
+                  {attachment.documentType ? (
+                    <Badge
+                      variant="outline"
+                      className="border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-950/20 dark:text-indigo-300"
+                    >
+                      {attachment.documentType}
+                      {attachment.concerns ? ` · ${attachment.concerns}` : ''}
+                    </Badge>
+                  ) : null}
                   <Badge className={cn(extractionTone.badgeClassName)} variant="outline">
                     {extractionTone.icon}
                     <span>{labels.statuses[extractionStatus] ?? extractionStatus}</span>

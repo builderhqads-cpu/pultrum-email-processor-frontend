@@ -77,13 +77,52 @@ export function OriginalEmailCard({emailMessageId}: {emailMessageId: string}) {
             <OrderCollapsibleSection
               title={t('originalEmail.attachments')}
               description={labels.attachmentsDescription}
-              defaultOpen={Boolean(email.data.attachments?.length)}
-              badge={<Badge variant="outline">{email.data.attachments?.length ?? 0}</Badge>}
+              defaultOpen={Boolean(
+                email.data.attachments?.length || email.data.emailDocument
+              )}
+              badge={
+                <Badge variant="outline">
+                  {(email.data.attachments?.length ?? 0) +
+                    (email.data.emailDocument ? 1 : 0)}
+                </Badge>
+              }
             >
-              <AttachmentCards
-                attachments={email.data.attachments}
-                emptyLabel={t('originalEmail.noAttachments')}
-              />
+              {email.data.emailDocument || email.data.attachments?.length ? (
+                <div className="flex w-full flex-col gap-3">
+                  {/* Niek 2026-09-11: the original e-mail itself is sent as an XML
+                      document (type 19), so list it here alongside the files. */}
+                  {email.data.emailDocument ? (
+                    <div className="flex w-full min-w-0 items-start justify-between gap-3 rounded-xl border bg-background p-4 shadow-sm">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+                          <Mail className="h-5 w-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium" title={email.data.emailDocument.fileName}>
+                            {email.data.emailDocument.fileName}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{labels.emailDocument}</div>
+                        </div>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className="shrink-0 border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-950/20 dark:text-indigo-300"
+                      >
+                        {email.data.emailDocument.documentType}
+                        {email.data.emailDocument.concerns ? ` · ${email.data.emailDocument.concerns}` : ''}
+                      </Badge>
+                    </div>
+                  ) : null}
+
+                  {email.data.attachments?.length ? (
+                    <AttachmentCards attachments={email.data.attachments} />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  {t('originalEmail.noAttachments')}
+                </div>
+              )}
             </OrderCollapsibleSection>
 
             <OrderCollapsibleSection
@@ -120,24 +159,28 @@ const emailSectionLabels: Record<Locale, {
   attachmentsDescription: string;
   bodyDescription: string;
   viewOriginal: string;
+  emailDocument: string;
 }> = {
   pt: {
     senderDetails: 'Dados do remetente',
-    attachmentsDescription: 'Arquivos enviados junto com o email original.',
+    attachmentsDescription: 'Todos os documentos enviados no XML (o e-mail e os anexos).',
     bodyDescription: 'Leia o conteudo completo sem perder a visao geral do pedido.',
-    viewOriginal: 'Ver original'
+    viewOriginal: 'Ver original',
+    emailDocument: 'E-mail original (enviado no XML)'
   },
   en: {
     senderDetails: 'Sender details',
-    attachmentsDescription: 'Files attached to the original email.',
+    attachmentsDescription: 'Every document sent in the XML (the e-mail and the attachments).',
     bodyDescription: 'Read the full message without losing the order context.',
-    viewOriginal: 'View original'
+    viewOriginal: 'View original',
+    emailDocument: 'Original e-mail (sent in the XML)'
   },
   nl: {
     senderDetails: 'Afzendergegevens',
-    attachmentsDescription: 'Bestanden die bij de originele e-mail zijn meegestuurd.',
+    attachmentsDescription: 'Alle documenten die in de XML worden meegestuurd (de e-mail en de bijlagen).',
     bodyDescription: 'Lees het volledige bericht zonder het orderoverzicht te verliezen.',
-    viewOriginal: 'Origineel bekijken'
+    viewOriginal: 'Origineel bekijken',
+    emailDocument: 'Originele e-mail (meegestuurd in de XML)'
   }
 };
 
