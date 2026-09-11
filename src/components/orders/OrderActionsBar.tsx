@@ -128,12 +128,12 @@ export function OrderActionsBar({
           <ConfirmAction
             title={t('confirm.reprocessTitle')}
             description={t('confirm.reprocessDesc')}
-            actionLabel={t('actions.reprocess')}
+            actionLabel={t('actions.reprocessOrder')}
             variant="outline"
             loading={actions.reprocess.loading}
             onConfirm={() =>
               runAction({
-                label: t('actions.reprocess'),
+                label: t('actions.reprocessOrder'),
                 success: t('toast.reprocessSuccess'),
                 errorFallback: t('toast.reprocessError'),
                 fn: () => actions.reprocess.mutateAsync()

@@ -80,14 +80,14 @@ export function EmailPreviewPane({
         onClick={() =>
           runOrderAction({
             fn: () => reclassify.mutateAsync(emailId),
-            label: tOrder('actions.reprocess'),
-            success: tOrder('toast.reprocessSuccess'),
-            error: tOrder('toast.reprocessError')
+            label: tOrder('actions.reprocessEmail'),
+            success: tOrder('toast.reprocessEmailSuccess'),
+            error: tOrder('toast.reprocessEmailError')
           })
         }
       >
         <RefreshCw className="h-4 w-4" />
-        {tOrder('actions.reprocess')}
+        {tOrder('actions.reprocessEmail')}
       </Button>
       <Button
         size="sm"

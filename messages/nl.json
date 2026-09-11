@@ -197,14 +197,15 @@
       "errorTitle": "Kon opdracht niet laden",
       "empty": "Opdracht niet gevonden",
       "actions": {
-        "reprocess": "Opnieuw verwerken",
+        "reprocessOrder": "Opdracht opnieuw verwerken",
+        "reprocessEmail": "E-mail opnieuw verwerken",
         "processWithAi": "E-mail verwerken met AI",
         "generateReply": "Klantantwoord genereren",
         "sendXml": "XML sturen"
       },
       "confirm": {
         "reprocessTitle": "Opdracht opnieuw verwerken?",
-        "reprocessDesc": "Dit voert de verwerkingspipeline opnieuw uit met dezelfde opdrachtgegevens.",
+        "reprocessDesc": "Alleen deze opdracht wordt opnieuw verwerkt (het klantprofiel wordt opnieuw toegepast). Andere opdrachten in dezelfde e-mail worden niet beïnvloed.",
         "processAiTitle": "E-mail verwerken met AI?",
         "processAiDesc": "Dit voert AI-extractie uit op de e-mail en bijlagen en werkt de gedetecteerde velden bij.",
         "replyAiTitle": "Klantantwoord genereren?",
@@ -215,6 +216,8 @@
       "toast": {
         "reprocessSuccess": "Opdracht opnieuw verwerkt",
         "reprocessError": "Opnieuw verwerken mislukt",
+        "reprocessEmailSuccess": "E-mail opnieuw verwerkt",
+        "reprocessEmailError": "E-mail opnieuw verwerken mislukt",
         "processWithAiSuccess": "E-mail verwerkt met AI",
         "processWithAiError": "E-mail verwerken met AI mislukt",
         "generateReplySuccess": "Conceptantwoord gegenereerd",

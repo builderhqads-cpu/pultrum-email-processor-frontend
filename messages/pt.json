@@ -197,14 +197,15 @@
       "errorTitle": "Falha ao carregar pedido",
       "empty": "Pedido não encontrado",
       "actions": {
-        "reprocess": "Reprocessar",
+        "reprocessOrder": "Reprocessar pedido",
+        "reprocessEmail": "Reprocessar e-mail",
         "processWithAi": "Processar email com IA",
         "generateReply": "Gerar resposta ao cliente",
         "sendXml": "Enviar XML"
       },
       "confirm": {
         "reprocessTitle": "Reprocessar este pedido?",
-        "reprocessDesc": "Isso executa novamente o pipeline de processamento com os mesmos dados do pedido.",
+        "reprocessDesc": "Apenas este pedido é reprocessado (o perfil do cliente é reaplicado). Os demais pedidos do mesmo e-mail não são afetados.",
         "processAiTitle": "Processar email com IA?",
         "processAiDesc": "Isso executa extração por IA no email e anexos e atualiza os campos detectados.",
         "replyAiTitle": "Gerar resposta ao cliente?",
@@ -215,6 +216,8 @@
       "toast": {
         "reprocessSuccess": "Pedido reprocessado",
         "reprocessError": "Falha ao reprocessar pedido",
+        "reprocessEmailSuccess": "E-mail reprocessado",
+        "reprocessEmailError": "Falha ao reprocessar e-mail",
         "processWithAiSuccess": "Email processado com IA",
         "processWithAiError": "Falha ao processar email com IA",
         "generateReplySuccess": "Rascunho gerado",

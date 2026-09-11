@@ -197,14 +197,15 @@
       "errorTitle": "Failed to load order",
       "empty": "Order not found",
       "actions": {
-        "reprocess": "Reprocess",
+        "reprocessOrder": "Reprocess order",
+        "reprocessEmail": "Reprocess email",
         "processWithAi": "Process email with AI",
         "generateReply": "Generate customer reply",
         "sendXml": "Send XML"
       },
       "confirm": {
         "reprocessTitle": "Reprocess this order?",
-        "reprocessDesc": "This will run the processing pipeline again for the same order data.",
+        "reprocessDesc": "Only this order is reprocessed (its customer profile is re-applied). Other orders in the same email are not affected.",
         "processAiTitle": "Process email with AI?",
         "processAiDesc": "This will run AI extraction against the email and attachments and update detected fields.",
         "replyAiTitle": "Generate customer reply?",
@@ -215,6 +216,8 @@
       "toast": {
         "reprocessSuccess": "Order reprocessed",
         "reprocessError": "Failed to reprocess order",
+        "reprocessEmailSuccess": "Email reprocessed",
+        "reprocessEmailError": "Failed to reprocess email",
         "processWithAiSuccess": "Email processed with AI",
         "processWithAiError": "Failed to process email with AI",
         "generateReplySuccess": "Reply draft generated",
