@@ -27,6 +27,8 @@ function isNotFound(err: unknown) {
 export function OrderActionsBar({
   orderId,
   canSendXml,
+  canForceSendXml = false,
+  missingFieldLabels = [],
   onAfterAction,
   title,
   sticky = true,
@@ -34,6 +36,10 @@ export function OrderActionsBar({
 }: {
   orderId: string;
   canSendXml: boolean;
+  /** Niek 2026-09-11: show a "Force send" action when a normal send is blocked. */
+  canForceSendXml?: boolean;
+  /** Labels of the still-missing fields, listed in the force-send confirmation. */
+  missingFieldLabels?: string[];
   onAfterAction: () => Promise<unknown> | unknown;
   title?: React.ReactNode;
   sticky?: boolean;
@@ -125,6 +131,29 @@ export function OrderActionsBar({
             }
           />
 
+          {canForceSendXml ? (
+            <ConfirmAction
+              title={t('confirm.forceXmlTitle')}
+              description={
+                missingFieldLabels.length
+                  ? `${t('confirm.forceXmlDesc')} ${t('confirm.forceXmlMissing')}: ${missingFieldLabels.join(', ')}`
+                  : t('confirm.forceXmlDesc')
+              }
+              actionLabel={t('actions.forceSendXml')}
+              variant="outline"
+              className="border-amber-400 text-amber-700 hover:bg-amber-50 dark:border-amber-500/50 dark:text-amber-300 dark:hover:bg-amber-950/30"
+              loading={actions.forceSendXml.loading}
+              onConfirm={() =>
+                runAction({
+                  label: t('actions.forceSendXml'),
+                  success: t('toast.forceSendXmlSuccess'),
+                  errorFallback: t('toast.forceSendXmlError'),
+                  fn: () => actions.forceSendXml.mutateAsync()
+                })
+              }
+            />
+          ) : null}
+
           <ConfirmAction
             title={t('confirm.reprocessTitle')}
             description={t('confirm.reprocessDesc')}
@@ -150,6 +179,7 @@ export function OrderActionsBar({
           {actions.reprocess.error ? <div>{String(actions.reprocess.error.message)}</div> : null}
           {actions.generateAiReply.error ? <div>{String(actions.generateAiReply.error.message)}</div> : null}
           {actions.sendXml.error ? <div>{String(actions.sendXml.error.message)}</div> : null}
+          {actions.forceSendXml.error ? <div>{String(actions.forceSendXml.error.message)}</div> : null}
         </div>
       </div>
     </div>

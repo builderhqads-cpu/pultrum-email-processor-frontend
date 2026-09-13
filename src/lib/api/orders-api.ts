@@ -116,12 +116,30 @@ export async function sendOrderXml(id: string) {
   return data;
 }
 
+// Niek 2026-09-11: force send this order even with required fields missing
+// (customer_id still required).
+export async function forceSendOrderXml(id: string) {
+  const {data} = await apiClient.post<EnqueuedResponse>(
+    `/orders/${id}/force-send-xml`,
+  );
+  return data;
+}
+
 export type BatchXmlResponse = {enqueued: number; skipped: number; total: number};
 
 // Niek: send the XML for a whole batch at once.
 export async function sendBatchXml(batchImportId: string) {
   const {data} = await apiClient.post<BatchXmlResponse>(
     `/orders/batch/${batchImportId}/send-xml`,
+  );
+  return data;
+}
+
+// Niek 2026-09-11: force send the whole batch (missing fields ignored per order;
+// customer_id still required).
+export async function forceSendBatchXml(batchImportId: string) {
+  const {data} = await apiClient.post<BatchXmlResponse>(
+    `/orders/batch/${batchImportId}/force-send-xml`,
   );
   return data;
 }

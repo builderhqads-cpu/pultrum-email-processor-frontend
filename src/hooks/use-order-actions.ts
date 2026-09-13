@@ -3,6 +3,7 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {
   ApiError,
+  forceSendOrderXml,
   generateOrderAiReply,
   generateOrderReplyDraft,
   reprocessOrder,
@@ -40,6 +41,11 @@ export function useOrderActions(orderId: string) {
     onSuccess: invalidate
   });
 
+  const forceSendXml = useMutation<EnqueuedResponse, ApiError, void>({
+    mutationFn: () => forceSendOrderXml(orderId),
+    onSuccess: invalidate
+  });
+
   return {
     reprocess: {
       ...reprocess,
@@ -60,6 +66,11 @@ export function useOrderActions(orderId: string) {
       ...sendXml,
       loading: sendXml.isPending,
       error: sendXml.error
+    },
+    forceSendXml: {
+      ...forceSendXml,
+      loading: forceSendXml.isPending,
+      error: forceSendXml.error
     }
   };
 }

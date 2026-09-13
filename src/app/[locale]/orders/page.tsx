@@ -2,13 +2,13 @@
 
 import {Fragment, useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ChevronRight, ExternalLink, FileCheck2, FileOutput, FileX2, MoreHorizontal, PackageSearch, Search} from 'lucide-react';
+import {ChevronRight, ExternalLink, FileCheck2, FileOutput, FileX2, MoreHorizontal, PackageSearch, Search, Zap} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 
 import type {Locale} from '@/i18n/routing';
-import {sendBatchXml, sendOrderXml} from '@/lib/api/orders-api';
+import {forceSendBatchXml, sendBatchXml, sendOrderXml} from '@/lib/api/orders-api';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useOrders} from '@/hooks/use-orders';
 import {useEmails} from '@/hooks/use-emails';
@@ -23,6 +23,17 @@ import {StatusBadge} from '@/components/ui/StatusBadge';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Pagination} from '@/components/ui/pagination';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -138,6 +149,20 @@ function isSendableStatus(status?: string | null) {
   );
 }
 
+// Force send (Niek 2026-09-11): statuses an order can be forced from. Mirrors
+// XML_FORCE_SEND_STATUSES on the backend.
+function isForceStatus(status?: string | null) {
+  return (
+    isSendableStatus(status) ||
+    status === 'WAITING_CUSTOMER_RESPONSE' ||
+    status === 'MISSING_INFORMATION' ||
+    status === 'MANUAL_REVIEW' ||
+    status === 'NEW_ORDER' ||
+    status === 'MODIFICATION_DETECTED' ||
+    status === 'XML_GENERATED'
+  );
+}
+
 function isToday(value?: string | null) {
   if (!value) return false;
   const date = new Date(value);
@@ -241,6 +266,17 @@ export default function OrdersPage() {
   const queryClient = useQueryClient();
   const sendBatch = useMutation({
     mutationFn: (batchImportId: string) => sendBatchXml(batchImportId),
+    onSuccess: (r) => {
+      toast.success(t('batch.sent', {enqueued: r.enqueued, skipped: r.skipped}));
+      queryClient.invalidateQueries({queryKey: ['orders']});
+    },
+    onError: () => toast.error(t('batch.error')),
+  });
+
+  // Niek 2026-09-11: force send the whole batch even with missing data
+  // (customer_id still required, so orders without it fail rather than send blank).
+  const forceSendBatch = useMutation({
+    mutationFn: (batchImportId: string) => forceSendBatchXml(batchImportId),
     onSuccess: (r) => {
       toast.success(t('batch.sent', {enqueued: r.enqueued, skipped: r.skipped}));
       queryClient.invalidateQueries({queryKey: ['orders']});
@@ -873,17 +909,50 @@ export default function OrdersPage() {
                         onClick={(event) => event.stopPropagation()}
                         className="text-right"
                       >
-                        {group.items.some((i) => isSendableStatus(i.status)) ? (
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            title={t('batch.sendXml')}
-                            disabled={sendBatch.isPending}
-                            onClick={() => sendBatch.mutate(group.key)}
-                          >
-                            <FileOutput className="h-4 w-4" />
-                          </Button>
-                        ) : null}
+                        <div className="flex items-center justify-end gap-1">
+                          {group.items.some((i) => isSendableStatus(i.status)) ? (
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              title={t('batch.sendXml')}
+                              disabled={sendBatch.isPending}
+                              onClick={() => sendBatch.mutate(group.key)}
+                            >
+                              <FileOutput className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                          {group.items.some(
+                            (i) => isForceStatus(i.status) && !isSendableStatus(i.status)
+                          ) ? (
+                            <AlertDialog>
+                              <AlertDialogTrigger
+                                render={
+                                  <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    className="text-amber-600 hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                                    title={t('batch.forceSendXml')}
+                                    disabled={forceSendBatch.isPending}
+                                  />
+                                }
+                              >
+                                <Zap className="h-4 w-4" />
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>{t('batch.forceTitle')}</AlertDialogTitle>
+                                  <AlertDialogDescription>{t('batch.forceDesc')}</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+                                  <AlertDialogClose onClick={() => forceSendBatch.mutate(group.key)}>
+                                    {t('batch.forceSendXml')}
+                                  </AlertDialogClose>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : null}
+                        </div>
                       </TableCell>
                     </TableRow>
                     {expanded

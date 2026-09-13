@@ -201,7 +201,8 @@
         "reprocessEmail": "Reprocessar e-mail",
         "processWithAi": "Processar email com IA",
         "generateReply": "Gerar resposta ao cliente",
-        "sendXml": "Enviar XML"
+        "sendXml": "Enviar XML",
+        "forceSendXml": "Forçar envio do XML"
       },
       "confirm": {
         "reprocessTitle": "Reprocessar este pedido?",
@@ -211,7 +212,10 @@
         "replyAiTitle": "Gerar resposta ao cliente?",
         "replyAiDesc": "Isso solicita à IA a geração de um rascunho editável pedindo informações faltantes.",
         "xmlTitle": "Enviar XML deste pedido?",
-        "xmlDesc": "Isso tentará entregar o XML para o Creative Gears."
+        "xmlDesc": "Isso tentará entregar o XML para o Creative Gears.",
+        "forceXmlTitle": "Forçar envio do XML com dados faltando?",
+        "forceXmlDesc": "Isso envia o pedido ao Creative Gears mesmo com campos obrigatórios faltando. O número do cliente (klantnummer) continua obrigatório.",
+        "forceXmlMissing": "Ainda faltando"
       },
       "toast": {
         "reprocessSuccess": "Pedido reprocessado",
@@ -223,7 +227,9 @@
         "generateReplySuccess": "Rascunho gerado",
         "generateReplyError": "Falha ao gerar rascunho",
         "sendXmlSuccess": "XML enviado",
-        "sendXmlError": "Falha ao enviar XML"
+        "sendXmlError": "Falha ao enviar XML",
+        "forceSendXmlSuccess": "XML enviado (forçado)",
+        "forceSendXmlError": "Falha ao forçar envio do XML"
       },
       "originalEmail": {
         "title": "Email original",
@@ -328,6 +334,9 @@
     },
     "batch": {
       "sendXml": "Enviar XML do lote",
+      "forceSendXml": "Forçar envio do lote",
+      "forceTitle": "Forçar o envio do lote inteiro?",
+      "forceDesc": "Todos os pedidos deste lote são enviados ao Creative Gears mesmo com campos obrigatórios faltando. Pedidos sem número do cliente (klantnummer) são pulados, pois ele continua obrigatório.",
       "allSent": "XML enviado",
       "sentCount": "XML enviado · {sent}/{total}",
       "sent": "{enqueued} pedido(s) na fila de XML, {skipped} pulado(s)",

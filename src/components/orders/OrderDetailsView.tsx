@@ -38,6 +38,20 @@ function canManuallySendXml(status: string, missingFieldsCount: number) {
   );
 }
 
+// Force send (Niek 2026-09-11): allowed from the normal statuses plus the
+// "stuck waiting for info" ones. Mirrors XML_FORCE_SEND_STATUSES on the backend.
+const FORCE_SEND_STATUSES = new Set([
+  'READY_TO_XML',
+  'CREATIVE_GEARS_REJECTED',
+  'FAILED',
+  'WAITING_CUSTOMER_RESPONSE',
+  'MISSING_INFORMATION',
+  'MANUAL_REVIEW',
+  'NEW_ORDER',
+  'MODIFICATION_DETECTED',
+  'XML_GENERATED'
+]);
+
 export function OrderDetailsView({id}: {id: string}) {
   const order = useOrder(id);
   const t = useTranslations('orders.detail');
@@ -78,6 +92,9 @@ export function OrderDetailsView({id}: {id: string}) {
   const detectedCount = data.fields.filter((field) => hasValue(field.value)).length;
   const missingCount = data.missingFields.length + data.validationWarnings.length;
   const canSendXml = canManuallySendXml(data.status, data.missingFields.length);
+  // Offer "Force send" only when a normal send is blocked but the status still
+  // allows forcing (i.e. an order stuck on missing info).
+  const canForceSendXml = !canSendXml && FORCE_SEND_STATUSES.has(data.status);
 
   return (
     <div className="space-y-6">
@@ -142,6 +159,8 @@ export function OrderDetailsView({id}: {id: string}) {
           <OrderActionsBar
             orderId={id}
             canSendXml={canSendXml}
+            canForceSendXml={canForceSendXml}
+            missingFieldLabels={data.missingFields.map((f) => f.label || f.key)}
             onAfterAction={() => order.refetch()}
             sticky={false}
             title={labels.quickActions}

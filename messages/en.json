@@ -201,7 +201,8 @@
         "reprocessEmail": "Reprocess email",
         "processWithAi": "Process email with AI",
         "generateReply": "Generate customer reply",
-        "sendXml": "Send XML"
+        "sendXml": "Send XML",
+        "forceSendXml": "Force send XML"
       },
       "confirm": {
         "reprocessTitle": "Reprocess this order?",
@@ -211,7 +212,10 @@
         "replyAiTitle": "Generate customer reply?",
         "replyAiDesc": "This will ask AI to generate an editable draft reply requesting missing information.",
         "xmlTitle": "Send XML for this order?",
-        "xmlDesc": "This will attempt to deliver the XML payload to Creative Gears."
+        "xmlDesc": "This will attempt to deliver the XML payload to Creative Gears.",
+        "forceXmlTitle": "Force send XML with missing data?",
+        "forceXmlDesc": "This sends the order to Creative Gears even though required fields are still missing. The customer number (klantnummer) is still required.",
+        "forceXmlMissing": "Still missing"
       },
       "toast": {
         "reprocessSuccess": "Order reprocessed",
@@ -223,7 +227,9 @@
         "generateReplySuccess": "Reply draft generated",
         "generateReplyError": "Failed to generate reply draft",
         "sendXmlSuccess": "XML sent",
-        "sendXmlError": "Failed to send XML"
+        "sendXmlError": "Failed to send XML",
+        "forceSendXmlSuccess": "XML force sent",
+        "forceSendXmlError": "Failed to force send XML"
       },
       "originalEmail": {
         "title": "Original email",
@@ -325,6 +331,9 @@
     },
     "batch": {
       "sendXml": "Send batch XML",
+      "forceSendXml": "Force send batch",
+      "forceTitle": "Force send the whole batch?",
+      "forceDesc": "Every order in this batch is sent to Creative Gears even if required fields are missing. Orders without a customer number (klantnummer) are skipped, as it stays required.",
       "allSent": "XML sent",
       "sentCount": "XML sent · {sent}/{total}",
       "sent": "{enqueued} order(s) queued for XML, {skipped} skipped",

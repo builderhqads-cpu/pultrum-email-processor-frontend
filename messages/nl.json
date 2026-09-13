@@ -201,7 +201,8 @@
         "reprocessEmail": "E-mail opnieuw verwerken",
         "processWithAi": "E-mail verwerken met AI",
         "generateReply": "Klantantwoord genereren",
-        "sendXml": "XML sturen"
+        "sendXml": "XML sturen",
+        "forceSendXml": "XML geforceerd sturen"
       },
       "confirm": {
         "reprocessTitle": "Opdracht opnieuw verwerken?",
@@ -211,7 +212,10 @@
         "replyAiTitle": "Klantantwoord genereren?",
         "replyAiDesc": "Dit laat AI een bewerkbare conceptmail genereren om ontbrekende informatie op te vragen.",
         "xmlTitle": "XML voor deze opdracht verzenden?",
-        "xmlDesc": "Dit probeert de XML-payload te leveren aan Creative Gears."
+        "xmlDesc": "Dit probeert de XML-payload te leveren aan Creative Gears.",
+        "forceXmlTitle": "XML sturen met ontbrekende gegevens?",
+        "forceXmlDesc": "Dit stuurt de opdracht naar Creative Gears ook al ontbreken er verplichte velden. Het klantnummer blijft verplicht.",
+        "forceXmlMissing": "Nog ontbrekend"
       },
       "toast": {
         "reprocessSuccess": "Opdracht opnieuw verwerkt",
@@ -223,7 +227,9 @@
         "generateReplySuccess": "Conceptantwoord gegenereerd",
         "generateReplyError": "Conceptantwoord genereren mislukt",
         "sendXmlSuccess": "XML verzonden",
-        "sendXmlError": "XML verzenden mislukt"
+        "sendXmlError": "XML verzenden mislukt",
+        "forceSendXmlSuccess": "XML geforceerd verzonden",
+        "forceSendXmlError": "Geforceerd verzenden mislukt"
       },
       "originalEmail": {
         "title": "Originele e-mail",
@@ -325,6 +331,9 @@
     },
     "batch": {
       "sendXml": "Batch XML verzenden",
+      "forceSendXml": "Batch geforceerd verzenden",
+      "forceTitle": "Hele batch geforceerd verzenden?",
+      "forceDesc": "Elke opdracht in deze batch wordt naar Creative Gears gestuurd, ook als er verplichte velden ontbreken. Opdrachten zonder klantnummer worden overgeslagen, want dat blijft verplicht.",
       "allSent": "XML verzonden",
       "sentCount": "XML verzonden · {sent}/{total}",
       "sent": "{enqueued} opdracht(en) in wachtrij voor XML, {skipped} overgeslagen",
