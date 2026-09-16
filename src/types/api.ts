@@ -182,6 +182,11 @@ export type CustomerProfile = {
    * the AI mapping. e.g. { excel: '87', pdf: '91', image: '92' }.
    */
   documentTypeRules?: DocumentTypeRules | null;
+  /**
+   * Niek/Derix (2026-09-16): when true, an empty invoice reference is filled with
+   * the order's TR number. Per-customer; off by default.
+   */
+  invoiceReferenceFallbackToTr?: boolean;
   createdAt: IsoDateTimeString;
   updatedAt: IsoDateTimeString;
   fields: CustomerProfileField[];
@@ -201,6 +206,7 @@ export type CustomerProfileMutationInput = {
   notes?: string | null;
   aiInstructions?: string | null;
   documentTypeRules?: DocumentTypeRules | null;
+  invoiceReferenceFallbackToTr?: boolean;
   fields?: Array<{
     key: string;
     value: string;
