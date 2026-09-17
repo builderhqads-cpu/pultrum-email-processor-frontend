@@ -1,6 +1,6 @@
 'use client';
 
-import {memo, useCallback, useMemo, useState} from 'react';
+import {memo, useCallback, useMemo, useRef, useState} from 'react';
 import {ChevronDown, Pencil, Plus, Trash2, Users} from 'lucide-react';
 import {useLocale} from 'next-intl';
 import {toast} from 'sonner';
@@ -796,12 +796,18 @@ function AiInstructionsEditorBody({
   onCancel: () => void;
   onSave: (value: string) => void;
 }) {
-  const [draft, setDraft] = useState(initialValue);
+  // Uncontrolled on purpose: a controlled <textarea value={draft}> re-renders
+  // React on EVERY keystroke, and repainting this large field inside the big
+  // modal is expensive over an RDS/remote-desktop session (~0.5s/keystroke lag
+  // reported by Pultrum, 2026-09-17). defaultValue + a ref lets the browser
+  // handle typing natively; the value is only read on save. The body remounts
+  // each time the dialog opens, so defaultValue always reflects the latest text.
+  const ref = useRef<HTMLTextAreaElement>(null);
   return (
     <>
       <Textarea
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
+        ref={ref}
+        defaultValue={initialValue}
         placeholder={placeholder}
         className="min-h-0 min-w-0 flex-1 resize-none"
       />
@@ -809,7 +815,7 @@ function AiInstructionsEditorBody({
         <Button variant="outline" onClick={onCancel}>
           {cancelLabel}
         </Button>
-        <Button onClick={() => onSave(draft)}>{saveLabel}</Button>
+        <Button onClick={() => onSave(ref.current?.value ?? '')}>{saveLabel}</Button>
       </DialogFooter>
     </>
   );
