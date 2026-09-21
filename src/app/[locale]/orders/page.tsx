@@ -2,13 +2,13 @@
 
 import {Fragment, useEffect, useMemo, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ChevronRight, ExternalLink, FileCheck2, FileOutput, FileX2, MoreHorizontal, PackageSearch, Search, Zap} from 'lucide-react';
+import {ChevronRight, ExternalLink, FileCheck2, FileOutput, FileX2, MoreHorizontal, PackageSearch, Search, Trash2, Zap} from 'lucide-react';
 import {useLocale, useMessages, useTranslations} from 'next-intl';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {toast} from 'sonner';
 
 import type {Locale} from '@/i18n/routing';
-import {forceSendBatchXml, sendBatchXml, sendOrderXml} from '@/lib/api/orders-api';
+import {deleteOrder, forceSendBatchXml, sendBatchXml, sendOrderXml} from '@/lib/api/orders-api';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useOrders} from '@/hooks/use-orders';
 import {useEmails} from '@/hooks/use-emails';
@@ -300,6 +300,24 @@ export default function OrdersPage() {
       queryClient.invalidateQueries({queryKey: ['orders']});
     },
     onError: () => toast.error(t('bulk.error')),
+  });
+
+  // Renato 2026-09-21: delete the selected orders (fan out one call each) so the
+  // planner can clear wrongly-processed orders and reprocess the email cleanly.
+  const deleteSelected = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const results = await Promise.allSettled(ids.map((id) => deleteOrder(id)));
+      const ok = results.filter((r) => r.status === 'fulfilled').length;
+      return {ok, failed: results.length - ok};
+    },
+    onSuccess: ({ok, failed}) => {
+      if (failed > 0) toast.warning(t('bulk.deletedPartial', {ok, failed}));
+      else toast.success(t('bulk.deleted', {count: ok}));
+      setSelected(new Set());
+      queryClient.invalidateQueries({queryKey: ['orders']});
+      queryClient.invalidateQueries({queryKey: ['emails']});
+    },
+    onError: () => toast.error(t('bulk.deleteError')),
   });
 
   const [q, setQ] = useState('');
@@ -715,6 +733,33 @@ export default function OrdersPage() {
                 <FileOutput className="h-4 w-4" />
                 {t('bulk.send', {count: selectedSendableIds.length})}
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={deleteSelected.isPending}
+                    />
+                  }
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t('bulk.delete', {count: selected.size})}
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t('bulk.deleteTitle', {count: selected.size})}</AlertDialogTitle>
+                    <AlertDialogDescription>{t('bulk.deleteDesc')}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
+                    <AlertDialogClose onClick={() => deleteSelected.mutate([...selected])}>
+                      {t('bulk.delete', {count: selected.size})}
+                    </AlertDialogClose>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button
                 size="sm"
                 variant="ghost"

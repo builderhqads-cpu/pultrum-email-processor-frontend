@@ -343,6 +343,12 @@
       "send": "XML verzenden ({count})",
       "sent": "{count} opdracht(en) in wachtrij voor XML",
       "sentPartial": "{ok} in wachtrij, {failed} mislukt",
+      "delete": "Verwijderen ({count})",
+      "deleteTitle": "{count} opdracht(en) verwijderen?",
+      "deleteDesc": "De geselecteerde opdrachten worden definitief verwijderd (met hun velden en XML-leveringen). De e-mail wordt niet verwijderd — je kunt die opnieuw verwerken om de opdrachten opnieuw aan te maken.",
+      "deleted": "{count} opdracht(en) verwijderd",
+      "deletedPartial": "{ok} verwijderd, {failed} mislukt",
+      "deleteError": "Opdrachten verwijderen mislukt",
       "clear": "Wissen",
       "error": "XML verzenden mislukt"
     }

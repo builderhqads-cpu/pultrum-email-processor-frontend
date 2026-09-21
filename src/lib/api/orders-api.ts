@@ -116,6 +116,15 @@ export async function sendOrderXml(id: string) {
   return data;
 }
 
+// Renato 2026-09-21: delete a single order (clear wrongly-processed orders and
+// reprocess the email without stale rows).
+export async function deleteOrder(id: string) {
+  const {data} = await apiClient.delete<{deleted: boolean; id: string}>(
+    `/orders/${id}`
+  );
+  return data;
+}
+
 // Niek 2026-09-11: force send this order even with required fields missing
 // (customer_id still required).
 export async function forceSendOrderXml(id: string) {

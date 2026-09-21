@@ -346,6 +346,12 @@
       "send": "Enviar XML ({count})",
       "sent": "{count} pedido(s) na fila de XML",
       "sentPartial": "{ok} na fila, {failed} falharam",
+      "delete": "Excluir ({count})",
+      "deleteTitle": "Excluir {count} pedido(s)?",
+      "deleteDesc": "Os pedidos selecionados são removidos permanentemente (com seus campos e envios de XML). Isto não exclui o e-mail — você pode reprocessá-lo para recriar os pedidos.",
+      "deleted": "{count} pedido(s) excluído(s)",
+      "deletedPartial": "{ok} excluído(s), {failed} falharam",
+      "deleteError": "Falha ao excluir pedidos",
       "clear": "Limpar",
       "error": "Falha ao enviar XML"
     }

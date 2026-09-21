@@ -343,6 +343,12 @@
       "send": "Send XML ({count})",
       "sent": "{count} order(s) queued for XML",
       "sentPartial": "{ok} queued, {failed} failed",
+      "delete": "Delete ({count})",
+      "deleteTitle": "Delete {count} order(s)?",
+      "deleteDesc": "The selected orders are permanently removed (with their fields and XML deliveries). This does not delete the e-mail — you can reprocess it to recreate the orders.",
+      "deleted": "{count} order(s) deleted",
+      "deletedPartial": "{ok} deleted, {failed} failed",
+      "deleteError": "Failed to delete orders",
       "clear": "Clear",
       "error": "Failed to send XML"
     }
