@@ -7,6 +7,7 @@ import {
   generateOrderAiReply,
   generateOrderReplyDraft,
   reprocessOrder,
+  reprocessOrderFresh,
   sendOrderXml
 } from '@/lib/api';
 import type {EnqueuedResponse} from '@/types';
@@ -23,6 +24,13 @@ export function useOrderActions(orderId: string) {
 
   const reprocess = useMutation<EnqueuedResponse, ApiError, void>({
     mutationFn: () => reprocessOrder(orderId),
+    onSuccess: invalidate
+  });
+
+  // Renato 2026-09-28: fresh reprocess — overwrites the AI-read fields with a new
+  // extraction (current customer AI instruction), preserving customer-reply data.
+  const reprocessFresh = useMutation<EnqueuedResponse, ApiError, void>({
+    mutationFn: () => reprocessOrderFresh(orderId),
     onSuccess: invalidate
   });
 
@@ -51,6 +59,11 @@ export function useOrderActions(orderId: string) {
       ...reprocess,
       loading: reprocess.isPending,
       error: reprocess.error
+    },
+    reprocessFresh: {
+      ...reprocessFresh,
+      loading: reprocessFresh.isPending,
+      error: reprocessFresh.error
     },
     sendAiRequest: {
       ...sendAiRequest,

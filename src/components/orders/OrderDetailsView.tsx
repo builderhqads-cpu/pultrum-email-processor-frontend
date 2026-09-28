@@ -103,7 +103,11 @@ export function OrderDetailsView({id}: {id: string}) {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Left: original email + advanced */}
         <div className="min-w-0 space-y-6">
-          <OriginalEmailCard emailMessageId={data.emailMessageId} />
+          <OriginalEmailCard
+            emailMessageId={data.emailMessageId}
+            orderId={id}
+            excludedDocumentIds={data.excludedDocumentIds}
+          />
           <OrderCollapsibleSection title={labels.advancedTitle} description={labels.advancedDescription}>
             <AiRequestsCard aiRequests={data.aiRequests} />
           </OrderCollapsibleSection>

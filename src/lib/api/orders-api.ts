@@ -37,6 +37,7 @@ function normalizeOrder(input: Partial<TransportOrder> & {id?: unknown}): Transp
     batch: input.batch ?? null,
     createdAt: typeof input.createdAt === 'string' ? input.createdAt : '',
     updatedAt: typeof input.updatedAt === 'string' ? input.updatedAt : undefined,
+    excludedDocumentIds: asArray<string>(input.excludedDocumentIds),
     fields: asArray(input.fields),
     missingFields: asArray(input.missingFields),
     validationWarnings: asArray(input.validationWarnings),
@@ -91,6 +92,16 @@ export async function reprocessOrder(id: string) {
   return data;
 }
 
+// Renato 2026-09-28: fresh reprocess — re-extract with the current customer AI
+// instruction and overwrite the AI-read fields (values from customer replies are
+// preserved). Lets an edited instruction visibly take effect.
+export async function reprocessOrderFresh(id: string) {
+  const {data} = await apiClient.post<EnqueuedResponse>(
+    `/orders/${id}/reprocess-fresh`
+  );
+  return data;
+}
+
 export async function getOrderXmlPreview(id: string) {
   const {data} = await apiClient.get<{xml: string}>(`/orders/${id}/xml-preview`);
   return data;
@@ -122,6 +133,22 @@ export async function deleteOrder(id: string) {
   const {data} = await apiClient.delete<{deleted: boolean; id: string}>(
     `/orders/${id}`
   );
+  return data;
+}
+
+// Niek: include/exclude one document (attachment id, or "email" for the .eml)
+// from this order's XML during the conference — reversible, without deleting.
+export async function setOrderDocumentExcluded(
+  orderId: string,
+  documentId: string,
+  excluded: boolean
+) {
+  const {data} = await apiClient.put<{
+    orderId: string;
+    documentId: string;
+    excluded: boolean;
+    excludedDocumentIds: string[];
+  }>(`/orders/${orderId}/documents/${documentId}`, {excluded});
   return data;
 }
 

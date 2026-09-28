@@ -459,6 +459,8 @@ export type TransportOrder = {
   } | null;
   createdAt: IsoDateTimeString;
   updatedAt?: IsoDateTimeString;
+  /** Documents excluded from THIS order's XML (attachment ids, or "email"). */
+  excludedDocumentIds: string[];
   fields: OrderField[];
   missingFields: MissingField[];
   validationWarnings: ValidationWarning[];

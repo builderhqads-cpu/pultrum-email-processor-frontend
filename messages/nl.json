@@ -198,6 +198,7 @@
       "empty": "Opdracht niet gevonden",
       "actions": {
         "reprocessOrder": "Opdracht opnieuw verwerken",
+        "reprocessOrderFresh": "Opnieuw verwerken (verse extractie)",
         "reprocessEmail": "E-mail opnieuw verwerken",
         "processWithAi": "E-mail verwerken met AI",
         "generateReply": "Klantantwoord genereren",
@@ -207,6 +208,8 @@
       "confirm": {
         "reprocessTitle": "Opdracht opnieuw verwerken?",
         "reprocessDesc": "Alleen deze opdracht wordt opnieuw verwerkt (het klantprofiel wordt opnieuw toegepast). Andere opdrachten in dezelfde e-mail worden niet beïnvloed.",
+        "reprocessFreshTitle": "Opnieuw verwerken met een verse extractie?",
+        "reprocessFreshDesc": "Extraheert deze opdracht opnieuw met de huidige AI-instructie van de klant en overschrijft de door de AI gelezen velden, zodat een gewijzigde instructie effect heeft. Waarden die de klant in een antwoord heeft doorgegeven, blijven behouden.",
         "processAiTitle": "E-mail verwerken met AI?",
         "processAiDesc": "Dit voert AI-extractie uit op de e-mail en bijlagen en werkt de gedetecteerde velden bij.",
         "replyAiTitle": "Klantantwoord genereren?",

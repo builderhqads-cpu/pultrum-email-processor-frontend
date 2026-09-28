@@ -169,6 +169,22 @@ export function OrderActionsBar({
               })
             }
           />
+
+          <ConfirmAction
+            title={t('confirm.reprocessFreshTitle')}
+            description={t('confirm.reprocessFreshDesc')}
+            actionLabel={t('actions.reprocessOrderFresh')}
+            variant="outline"
+            loading={actions.reprocessFresh.loading}
+            onConfirm={() =>
+              runAction({
+                label: t('actions.reprocessOrderFresh'),
+                success: t('toast.reprocessSuccess'),
+                errorFallback: t('toast.reprocessError'),
+                fn: () => actions.reprocessFresh.mutateAsync()
+              })
+            }
+          />
         </div>
 
         <div className="flex flex-col gap-1 text-xs text-destructive">
@@ -177,6 +193,7 @@ export function OrderActionsBar({
           ) : null}
           {sendReply.error ? <div>{String(sendReply.error.message)}</div> : null}
           {actions.reprocess.error ? <div>{String(actions.reprocess.error.message)}</div> : null}
+          {actions.reprocessFresh.error ? <div>{String(actions.reprocessFresh.error.message)}</div> : null}
           {actions.generateAiReply.error ? <div>{String(actions.generateAiReply.error.message)}</div> : null}
           {actions.sendXml.error ? <div>{String(actions.sendXml.error.message)}</div> : null}
           {actions.forceSendXml.error ? <div>{String(actions.forceSendXml.error.message)}</div> : null}

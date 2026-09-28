@@ -198,6 +198,7 @@
       "empty": "Pedido não encontrado",
       "actions": {
         "reprocessOrder": "Reprocessar pedido",
+        "reprocessOrderFresh": "Reprocessar (extração fresca)",
         "reprocessEmail": "Reprocessar e-mail",
         "processWithAi": "Processar email com IA",
         "generateReply": "Gerar resposta ao cliente",
@@ -207,6 +208,8 @@
       "confirm": {
         "reprocessTitle": "Reprocessar este pedido?",
         "reprocessDesc": "Apenas este pedido é reprocessado (o perfil do cliente é reaplicado). Os demais pedidos do mesmo e-mail não são afetados.",
+        "reprocessFreshTitle": "Reprocessar com extração fresca?",
+        "reprocessFreshDesc": "Re-extrai este pedido com a instrução de IA atual do cliente e sobrescreve os campos lidos pela IA, para que uma instrução editada tenha efeito. Os valores que o cliente informou em uma resposta são mantidos.",
         "processAiTitle": "Processar email com IA?",
         "processAiDesc": "Isso executa extração por IA no email e anexos e atualiza os campos detectados.",
         "replyAiTitle": "Gerar resposta ao cliente?",

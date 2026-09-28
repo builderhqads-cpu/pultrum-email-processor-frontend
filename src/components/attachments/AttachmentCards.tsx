@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileCheck2, FileText, ImageIcon, LoaderCircle, Table} from 'lucide-react';
+import {AlertTriangle, CheckCircle2, Download, ExternalLink, Eye, FileCheck2, FileText, FileX2, ImageIcon, LoaderCircle, Table, Undo2} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 
 import type {Attachment, Locale} from '@/types';
@@ -17,17 +17,31 @@ import {
 } from '@/components/ui/dialog';
 import {cn} from '@/lib/utils';
 
+/**
+ * Niek: per-order include/exclude of a document from THIS order's XML. Present
+ * only in the order-detail context (the queue/email context has no order).
+ */
+type AttachmentExclusion = {
+  excludedIds: Set<string>;
+  /** The document id currently being toggled (disables its button). */
+  pendingId?: string | null;
+  onToggle: (attachmentId: string, exclude: boolean) => void;
+};
+
 type AttachmentCardsProps = {
   attachments?: Attachment[] | null;
   emptyLabel?: string;
   /** 'compact' renders email-client-style chips (icon + name + size). */
   variant?: 'full' | 'compact';
+  /** When set (order detail), each XML-eligible attachment gets a toggle. */
+  exclusion?: AttachmentExclusion;
 };
 
 export function AttachmentCards({
   attachments,
   emptyLabel,
-  variant = 'full'
+  variant = 'full',
+  exclusion
 }: AttachmentCardsProps) {
   const locale = useLocale() as Locale;
   const tCommon = useTranslations('common');
@@ -147,8 +161,17 @@ export function AttachmentCards({
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  {/* Niek: mark the attachments embedded in the Creative Gears XML. */}
-                  {attachment.includedInXml ? (
+                  {/* Niek: mark the attachments embedded in the Creative Gears XML;
+                      an operator-excluded document shows an amber "Excluded" badge. */}
+                  {attachment.includedInXml && excludedNow(exclusion, attachment.id) ? (
+                    <Badge
+                      variant="outline"
+                      className="border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300"
+                    >
+                      <FileX2 className="h-3.5 w-3.5" />
+                      <span>{labels.excludedFromXml}</span>
+                    </Badge>
+                  ) : attachment.includedInXml ? (
                     <Badge
                       variant="outline"
                       className="border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
@@ -244,6 +267,41 @@ export function AttachmentCards({
                   >
                     <Download className="h-4 w-4" />
                     {labels.download}
+                  </Button>
+                ) : null}
+
+                {/* Niek: include/exclude this document from the order's XML. Only
+                    XML-eligible documents can be toggled (others never go out). */}
+                {exclusion && attachment.includedInXml ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      'w-full min-w-0 whitespace-normal break-words',
+                      excludedNow(exclusion, attachment.id)
+                        ? 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-950/20'
+                        : 'border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-900/40 dark:text-amber-300 dark:hover:bg-amber-950/20'
+                    )}
+                    disabled={exclusion.pendingId === attachment.id}
+                    onClick={() =>
+                      exclusion.onToggle(
+                        attachment.id,
+                        !excludedNow(exclusion, attachment.id)
+                      )
+                    }
+                  >
+                    {excludedNow(exclusion, attachment.id) ? (
+                      <>
+                        <Undo2 className="h-4 w-4" />
+                        {labels.includeInXml}
+                      </>
+                    ) : (
+                      <>
+                        <FileX2 className="h-4 w-4" />
+                        {labels.excludeFromXml}
+                      </>
+                    )}
                   </Button>
                 ) : null}
               </div>
@@ -367,6 +425,10 @@ function OfficePreviewDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function excludedNow(exclusion: AttachmentExclusion | undefined, id: string) {
+  return exclusion?.excludedIds.has(id) ?? false;
 }
 
 function MetaItem({label, value}: {label: string; value: string}) {
@@ -590,6 +652,9 @@ function downloadAttachment(attachment: Attachment) {
 type AttachmentLabels = {
   noAttachments: string;
   inXml: string;
+  excludedFromXml: string;
+  excludeFromXml: string;
+  includeInXml: string;
   typeLabel: string;
   sizeLabel: string;
   extractionLabel: string;
@@ -610,6 +675,9 @@ const attachmentLabels: Record<Locale, AttachmentLabels> = {
   pt: {
     noAttachments: 'Sem anexos',
     inXml: 'No XML',
+    excludedFromXml: 'Fora do XML',
+    excludeFromXml: 'Tirar do XML',
+    includeInXml: 'Incluir no XML',
     typeLabel: 'Tipo',
     sizeLabel: 'Tamanho',
     extractionLabel: 'Status de extracao',
@@ -635,6 +703,9 @@ const attachmentLabels: Record<Locale, AttachmentLabels> = {
   en: {
     noAttachments: 'No attachments',
     inXml: 'In XML',
+    excludedFromXml: 'Excluded',
+    excludeFromXml: 'Remove from XML',
+    includeInXml: 'Add back to XML',
     typeLabel: 'Type',
     sizeLabel: 'Size',
     extractionLabel: 'Extraction status',
@@ -660,6 +731,9 @@ const attachmentLabels: Record<Locale, AttachmentLabels> = {
   nl: {
     noAttachments: 'Geen bijlagen',
     inXml: 'In XML',
+    excludedFromXml: 'Uitgesloten',
+    excludeFromXml: 'Uit XML halen',
+    includeInXml: 'Weer in XML',
     typeLabel: 'Type',
     sizeLabel: 'Grootte',
     extractionLabel: 'Extractiestatus',

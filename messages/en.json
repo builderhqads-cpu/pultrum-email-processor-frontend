@@ -198,6 +198,7 @@
       "empty": "Order not found",
       "actions": {
         "reprocessOrder": "Reprocess order",
+        "reprocessOrderFresh": "Reprocess (fresh extraction)",
         "reprocessEmail": "Reprocess email",
         "processWithAi": "Process email with AI",
         "generateReply": "Generate customer reply",
@@ -207,6 +208,8 @@
       "confirm": {
         "reprocessTitle": "Reprocess this order?",
         "reprocessDesc": "Only this order is reprocessed (its customer profile is re-applied). Other orders in the same email are not affected.",
+        "reprocessFreshTitle": "Reprocess with a fresh extraction?",
+        "reprocessFreshDesc": "Re-extracts this order with the current customer AI instruction and overwrites the AI-read fields, so an edited instruction takes effect. Values the customer supplied in a reply are kept.",
         "processAiTitle": "Process email with AI?",
         "processAiDesc": "This will run AI extraction against the email and attachments and update detected fields.",
         "replyAiTitle": "Generate customer reply?",
