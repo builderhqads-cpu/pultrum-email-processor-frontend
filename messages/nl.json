@@ -149,7 +149,10 @@
       "showing": "Toont {count} van {total} (max {pageSize})",
       "typeSingle": "Losse opdrachten",
       "typeBatch": "Batches",
-      "counts": "{single} los · {batch} batches"
+      "counts": "{single} los · {batch} batches",
+      "sort": "Sorteren",
+      "sortArrival": "Aankomstvolgorde",
+      "sortUpdated": "Recent bijgewerkt"
     },
     "error": {
       "title": "Kon opdrachten niet laden"
@@ -160,6 +163,9 @@
       "selected": "geselecteerd",
       "selectAll": "Alle rijen selecteren",
       "selectRow": "Rij selecteren",
+      "multiTag": "Meerdere",
+      "singleTag": "Los",
+      "orderTag": "Opdracht",
       "columns": {
         "id": "ID",
         "customer": "Klant",
@@ -580,6 +586,16 @@
     "body": "E-mailverwerking kan tijdelijk vertraagd zijn of mislukken.",
     "viewDetails": "Status bekijken",
     "dismiss": "Sluiten"
+  },
+  "whatsNew": {
+    "title": "Wat is nieuw",
+    "subtitle": "Wat er in deze update is veranderd.",
+    "open": "Nieuws bekijken",
+    "types": {
+      "feature": "Nieuw",
+      "improvement": "Verbeteringen",
+      "fix": "Oplossingen"
+    }
   },
   "app": {
     "name": "Pultrum | Orderintaker"

@@ -149,7 +149,10 @@
       "showing": "Mostrando {count} de {total} (máx {pageSize})",
       "typeSingle": "Pedidos avulsos",
       "typeBatch": "Lotes",
-      "counts": "{single} avulsos · {batch} lotes"
+      "counts": "{single} avulsos · {batch} lotes",
+      "sort": "Ordenar",
+      "sortArrival": "Ordem de chegada",
+      "sortUpdated": "Atualizados recentemente"
     },
     "error": {
       "title": "Falha ao carregar pedidos"
@@ -160,6 +163,9 @@
       "selected": "selecionado(s)",
       "selectAll": "Selecionar todas as linhas",
       "selectRow": "Selecionar linha",
+      "multiTag": "Múltiplos",
+      "singleTag": "Avulso",
+      "orderTag": "Pedido",
       "columns": {
         "id": "ID curto",
         "customer": "Cliente",
@@ -583,6 +589,16 @@
     "body": "O processamento de e-mails pode atrasar ou falhar temporariamente.",
     "viewDetails": "Ver status",
     "dismiss": "Dispensar"
+  },
+  "whatsNew": {
+    "title": "Novidades",
+    "subtitle": "O que mudou nesta atualização.",
+    "open": "Ver novidades",
+    "types": {
+      "feature": "Novidades",
+      "improvement": "Melhorias",
+      "fix": "Correções"
+    }
   },
   "app": {
     "name": "Pultrum | Orderintaker"

@@ -149,7 +149,10 @@
       "showing": "Showing {count} of {total} (max {pageSize})",
       "typeSingle": "Single orders",
       "typeBatch": "Batches",
-      "counts": "{single} single · {batch} batches"
+      "counts": "{single} single · {batch} batches",
+      "sort": "Sort",
+      "sortArrival": "Arrival order",
+      "sortUpdated": "Recently updated"
     },
     "error": {
       "title": "Failed to load orders"
@@ -160,6 +163,9 @@
       "selected": "selected",
       "selectAll": "Select all rows",
       "selectRow": "Select row",
+      "multiTag": "Multiple",
+      "singleTag": "Single",
+      "orderTag": "Order",
       "columns": {
         "id": "Short ID",
         "customer": "Customer",
@@ -580,6 +586,16 @@
     "body": "E-mail processing may be delayed or fail temporarily.",
     "viewDetails": "View status",
     "dismiss": "Dismiss"
+  },
+  "whatsNew": {
+    "title": "What's new",
+    "subtitle": "What changed in this update.",
+    "open": "View what's new",
+    "types": {
+      "feature": "New",
+      "improvement": "Improvements",
+      "fix": "Fixes"
+    }
   },
   "app": {
     "name": "Pultrum | Orderintaker"

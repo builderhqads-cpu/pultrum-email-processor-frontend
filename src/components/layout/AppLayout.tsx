@@ -4,6 +4,7 @@ import {AppSidebar} from './AppSidebar';
 import {PageTitleProvider} from './page-title';
 import {AppTopbar} from './AppTopbar';
 import {RouterStatusBanner} from './RouterStatusBanner';
+import {WhatsNewProvider} from './WhatsNew';
 import type {Locale} from '@/i18n/routing';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useEffect, useMemo} from 'react';
@@ -62,16 +63,18 @@ export function AppLayout({
     // app is locked to the viewport height (h-screen + overflow-hidden) and the
     // content area gets its own vertical scroll (Renato 2026-09-09).
     <PageTitleProvider>
-      <div className="flex h-screen overflow-hidden bg-muted/40">
-        <AppSidebar locale={locale} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <AppTopbar locale={locale} />
-          <RouterStatusBanner locale={locale} />
-          <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
-            {children}
-          </main>
+      <WhatsNewProvider>
+        <div className="flex h-screen overflow-hidden bg-muted/40">
+          <AppSidebar locale={locale} />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <AppTopbar locale={locale} />
+            <RouterStatusBanner locale={locale} />
+            <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </WhatsNewProvider>
     </PageTitleProvider>
   );
 }

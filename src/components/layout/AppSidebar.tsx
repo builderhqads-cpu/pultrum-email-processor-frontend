@@ -15,6 +15,7 @@ import type {Locale} from '@/i18n/routing';
 import {Link, usePathname} from '@/i18n/navigation';
 import {cn} from '@/lib/utils';
 import {buildDate, buildLabel} from '@/lib/build-info';
+import {useWhatsNew} from './WhatsNew';
 
 const navIcons = {
   dashboard: LayoutDashboard,
@@ -95,19 +96,24 @@ function SidebarNav({
  */
 function SidebarVersion({collapsible}: {collapsible?: boolean}) {
   const locale = useLocale();
+  const t = useTranslations();
   const date = buildDate(locale);
+  const {open} = useWhatsNew();
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={open}
+      title={t('whatsNew.open')}
       className={cn(
-        'overflow-hidden whitespace-nowrap px-3 py-1 leading-tight',
+        'block w-full overflow-hidden whitespace-nowrap rounded-md px-3 py-1 text-left leading-tight transition-colors hover:bg-accent/60',
         collapsible &&
           'opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100'
       )}
     >
       <div className="font-mono text-[11px] text-muted-foreground/70">{buildLabel()}</div>
       {date ? <div className="text-[11px] text-muted-foreground/60">{date}</div> : null}
-    </div>
+    </button>
   );
 }
 

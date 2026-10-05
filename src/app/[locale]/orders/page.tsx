@@ -69,20 +69,34 @@ function formatDateTime(value: string, locale: string) {
   }).format(date);
 }
 
-function getRowAccent(status: string) {
-  if (status === 'WAITING_CUSTOMER_RESPONSE' || status === 'MISSING_INFORMATION') {
-    return 'border-l-2 border-l-yellow-400';
+// Left accent colors. Applied to the FIRST CELL of a row (not the <tr>): table
+// rows don't render left borders reliably across browsers, cells do (Renato).
+const ACCENT = {
+  green: 'border-l-2 border-l-emerald-400',
+  yellow: 'border-l-2 border-l-yellow-400',
+  red: 'border-l-2 border-l-destructive/70',
+  sky: 'border-l-2 border-l-sky-400',
+  none: 'border-l-2 border-l-transparent'
+} as const;
+
+// "Complete" = ready to send to XML. Waiting/missing (and failures) never count
+// as complete, so they always get the yellow/red accent.
+function isOrderComplete(it: {status: string; completeness?: number | null}): boolean {
+  if (
+    it.status === 'WAITING_CUSTOMER_RESPONSE' ||
+    it.status === 'MISSING_INFORMATION' ||
+    it.status === 'FAILED' ||
+    it.status === 'CREATIVE_GEARS_REJECTED'
+  ) {
+    return false;
   }
-  if (status === 'READY_TO_XML' || status === 'CREATIVE_GEARS_ACCEPTED') {
-    return 'border-l-2 border-l-emerald-400';
-  }
-  if (status === 'FAILED' || status === 'CREATIVE_GEARS_REJECTED') {
-    return 'border-l-2 border-l-destructive/70';
-  }
-  if (status === 'AI_PROCESSING' || status === 'PROCESSING') {
-    return 'border-l-2 border-l-sky-400';
-  }
-  return 'border-l-2 border-l-transparent';
+  return (it.completeness ?? 0) >= 70;
+}
+
+function getRowAccent(item: {status: string; completeness?: number | null}): string {
+  if (item.status === 'FAILED' || item.status === 'CREATIVE_GEARS_REJECTED') return ACCENT.red;
+  if (item.status === 'AI_PROCESSING' || item.status === 'PROCESSING') return ACCENT.sky;
+  return isOrderComplete(item) ? ACCENT.green : ACCENT.yellow;
 }
 
 // --- Batch aggregates (Niek: a batch header should summarize its orders) ---
@@ -120,14 +134,18 @@ function getBatchXmlSummary(items: {status: string}[]) {
   return {accepted, rejected, total: items.length};
 }
 
-// Left accent for a batch = its most attention-needing status (error first).
-function getBatchAccent(items: {status: string}[]): string {
-  const r = getBatchRollup(items);
-  if (r.error) return 'border-l-2 border-l-destructive/70';
-  if (r.waiting) return 'border-l-2 border-l-yellow-400';
-  if (r.processing) return 'border-l-2 border-l-sky-400';
-  if (r.ready) return 'border-l-2 border-l-emerald-400';
-  return 'border-l-2 border-l-transparent';
+// Left accent for a group header (Multi or Single). Green ONLY when every order
+// is complete (ready for XML, completeness >= 70%); yellow when any order is
+// still incomplete; red when any failed/rejected. So a COLLAPSED group already
+// shows yellow when something inside needs attention (Renato 2026-10-05).
+function getGroupAccent(
+  items: {status: string; completeness?: number | null}[]
+): string {
+  const hasError = items.some(
+    (it) => it.status === 'FAILED' || it.status === 'CREATIVE_GEARS_REJECTED'
+  );
+  if (hasError) return ACCENT.red;
+  return items.every(isOrderComplete) ? ACCENT.green : ACCENT.yellow;
 }
 
 function avgCompleteness(
@@ -325,6 +343,9 @@ export default function OrdersPage() {
   // Niek: batches and single orders were mixed in one list, which felt messy.
   // This lets the planner narrow the queue to just batches or just single orders.
   const [typeFilter, setTypeFilter] = useState<'all' | 'single' | 'batch'>('all');
+  // Renato 2026-10-05: default to arrival order (createdAt) so viewing an order
+  // never bubbles it to the top; "updated" is opt-in for a recently-touched view.
+  const [sortBy, setSortBy] = useState<'arrival' | 'updated'>('arrival');
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const queueTab = useMemo<QueueTabKey>(() => {
@@ -340,17 +361,6 @@ export default function OrdersPage() {
   const orderById = useMemo(() => {
     const list = (orders.data ?? []) as TransportOrderListItem[];
     return new Map(list.map((order) => [order.id, order]));
-  }, [orders.data]);
-
-  // How many orders each batch produced, so the list can show "12/20" (Niek).
-  const batchTotals = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const item of (orders.data ?? []) as TransportOrderListItem[]) {
-      if (item.batchImportId) {
-        map.set(item.batchImportId, (map.get(item.batchImportId) ?? 0) + 1);
-      }
-    }
-    return map;
   }, [orders.data]);
 
   const baseFiltered = useMemo(() => {
@@ -370,11 +380,16 @@ export default function OrdersPage() {
         return true;
       })
       .sort((a, b) => {
+        // Arrival order (default): createdAt is stable, so opening an order
+        // never reorders the list. "Updated" sorts by the last change instead.
+        if (sortBy === 'arrival') {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
         const aTime = new Date(getOrderLastUpdated(a)).getTime();
         const bTime = new Date(getOrderLastUpdated(b)).getTime();
         return bTime - aTime;
       });
-  }, [orders.data, q, department, emailsById]);
+  }, [orders.data, q, department, emailsById, sortBy]);
 
   const filtered = useMemo(() => {
     if (queueTab === 'today') {
@@ -445,7 +460,7 @@ export default function OrdersPage() {
   // on an empty view. Snap back to the first page whenever the set changes.
   useEffect(() => {
     setPage(1);
-  }, [q, department, queueTab, typeFilter]);
+  }, [q, department, queueTab, typeFilter, sortBy]);
 
   const pageCount = Math.max(1, Math.ceil(orderGroups.length / groupPageSize));
   const currentPage = Math.min(page, pageCount);
@@ -519,7 +534,7 @@ export default function OrdersPage() {
 
   const renderOrderRow = (
     item: TransportOrderListItem,
-    opts: {nested?: boolean} = {}
+    opts: {nested?: boolean; orderLabel?: string} = {}
   ) => {
     const updatedAt = getOrderLastUpdated(item);
     const isSelected = selected.has(item.id);
@@ -533,12 +548,14 @@ export default function OrdersPage() {
         onClick={() => openOrder(item.id)}
         className={cn(
           'cursor-pointer',
-          getRowAccent(item.status),
           opts.nested && 'bg-muted/10',
           isSelected && 'bg-muted/60'
         )}
       >
-        <TableCell onClick={(event) => event.stopPropagation()}>
+        <TableCell
+          onClick={(event) => event.stopPropagation()}
+          className={getRowAccent(item)}
+        >
           <input
             type="checkbox"
             aria-label={t('table.selectRow')}
@@ -573,15 +590,12 @@ export default function OrdersPage() {
                 : ''}
               {getMessageString(messages, `enums.orderType.${item.type}`) ?? item.type}
             </div>
-            {/* Line 3 — batch position + external (loading) reference. */}
-            {item.batchImportId || item.externalReference ? (
+            {/* Line 3 — order position within its group + external (loading) ref. */}
+            {opts.orderLabel || item.externalReference ? (
               <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                {item.batchImportId ? (
+                {opts.orderLabel ? (
                   <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                    {item.batchSequence != null &&
-                    batchTotals.get(item.batchImportId)
-                      ? `Batch ${item.batchSequence}/${batchTotals.get(item.batchImportId)}`
-                      : 'Batch'}
+                    {opts.orderLabel}
                   </span>
                 ) : null}
                 {item.externalReference ? (
@@ -705,6 +719,24 @@ export default function OrdersPage() {
                 <SelectItem value="all">{t('filters.all')}</SelectItem>
                 <SelectItem value="single">{t('filters.typeSingle')}</SelectItem>
                 <SelectItem value="batch">{t('filters.typeBatch')}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={sortBy}
+              onValueChange={(value) =>
+                setSortBy(value as 'arrival' | 'updated')
+              }
+            >
+              <SelectTrigger className="h-8 w-[170px] shrink-0">
+                <SelectValue placeholder={t('filters.sort')}>
+                  {sortBy === 'arrival'
+                    ? t('filters.sortArrival')
+                    : t('filters.sortUpdated')}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="arrival">{t('filters.sortArrival')}</SelectItem>
+                <SelectItem value="updated">{t('filters.sortUpdated')}</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -858,7 +890,81 @@ export default function OrdersPage() {
 
             <TableBody>
               {pagedGroups.map((group) => {
-                if (group.kind === 'single') return renderOrderRow(group.item);
+                if (group.kind === 'single') {
+                  const item = group.item;
+                  const expanded = expandedBatches.has(group.key);
+                  const relatedEmail = item.emailMessageId
+                    ? emailsById.get(item.emailMessageId)
+                    : undefined;
+                  const updatedAt = getOrderLastUpdated(item);
+                  return (
+                    <Fragment key={group.key}>
+                      {/* Single order as a collapsible group — same style as a
+                          Multi group (Renato 2026-10-05), with one "Order 1/1". */}
+                      <TableRow
+                        className="cursor-pointer bg-muted/40 hover:bg-muted/60"
+                        onClick={() => toggleBatch(group.key)}
+                      >
+                        <TableCell className={getGroupAccent([item])}>
+                          <ChevronRight
+                            className={cn(
+                              'h-4 w-4 text-muted-foreground transition-transform',
+                              expanded && 'rotate-90'
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell className="whitespace-normal">
+                          <span className="inline-flex items-center rounded bg-violet-100 px-1.5 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-950/40 dark:text-violet-300">
+                            {t('table.singleTag')}
+                          </span>
+                          <div
+                            className="mt-0.5 truncate text-xs text-muted-foreground"
+                            title={item.customerEmail || tCommon('na')}
+                          >
+                            {item.customerEmail || tCommon('na')}
+                          </div>
+                        </TableCell>
+                        <TableCell className="whitespace-normal">
+                          <div
+                            className="line-clamp-2 text-sm font-medium text-foreground"
+                            title={relatedEmail?.subject || tCommon('na')}
+                          >
+                            {relatedEmail?.subject || tCommon('na')}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">—</TableCell>
+                        <TableCell>
+                          <CompletenessCell value={item.completeness} />
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <StatusBadge status={item.status ?? tCommon('na')} />
+                            {item.status === 'CREATIVE_GEARS_ACCEPTED' ? (
+                              <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                                <FileCheck2 className="h-3 w-3" /> {t('xml.sent')}
+                              </span>
+                            ) : item.status === 'CREATIVE_GEARS_REJECTED' ? (
+                              <span className="flex items-center gap-1 text-[11px] font-medium text-destructive">
+                                <FileX2 className="h-3 w-3" /> {t('xml.rejected')}
+                              </span>
+                            ) : null}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {updatedAt ? formatDateTime(updatedAt, uiLocale) : tCommon('na')}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">—</TableCell>
+                        <TableCell className="text-right" />
+                      </TableRow>
+                      {expanded
+                        ? renderOrderRow(item, {
+                            nested: true,
+                            orderLabel: `${t('table.orderTag')} 1/1`
+                          })
+                        : null}
+                    </Fragment>
+                  );
+                }
 
                 const expanded = expandedBatches.has(group.key);
                 const first = group.items[0];
@@ -883,13 +989,10 @@ export default function OrdersPage() {
                   <Fragment key={group.key}>
                     {/* Batch header: column-aligned summary of its orders (Niek) */}
                     <TableRow
-                      className={cn(
-                        'cursor-pointer bg-muted/40 hover:bg-muted/60',
-                        getBatchAccent(group.items)
-                      )}
+                      className="cursor-pointer bg-muted/40 hover:bg-muted/60"
                       onClick={() => toggleBatch(group.key)}
                     >
-                      <TableCell>
+                      <TableCell className={getGroupAccent(group.items)}>
                         <ChevronRight
                           className={cn(
                             'h-4 w-4 text-muted-foreground transition-transform',
@@ -899,7 +1002,7 @@ export default function OrdersPage() {
                       </TableCell>
                       <TableCell className="whitespace-normal">
                         <span className="inline-flex items-center rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                          Batch · {group.items.length}
+                          {t('table.multiTag')} · {group.items.length}
                         </span>
                         <div
                           className="mt-0.5 truncate text-xs text-muted-foreground"
@@ -1002,7 +1105,13 @@ export default function OrdersPage() {
                     </TableRow>
                     {expanded
                       ? group.items.map((item) =>
-                          renderOrderRow(item, {nested: true})
+                          renderOrderRow(item, {
+                            nested: true,
+                            orderLabel:
+                              item.batchSequence != null
+                                ? `${t('table.orderTag')} ${item.batchSequence}/${group.items.length}`
+                                : t('table.orderTag')
+                          })
                         )
                       : null}
                   </Fragment>
