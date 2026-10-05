@@ -22,7 +22,10 @@ import {
 
 const SEEN_KEY = 'pultrum:changelog-seen';
 
-const WhatsNewContext = createContext<{open: () => void}>({open: () => {}});
+const WhatsNewContext = createContext<{open: () => void; hasUnseen: boolean}>({
+  open: () => {},
+  hasUnseen: false
+});
 
 export function useWhatsNew() {
   return useContext(WhatsNewContext);
@@ -31,37 +34,43 @@ export function useWhatsNew() {
 /**
  * Shows the "What's New" dialog automatically the first time a user loads the
  * app after a release they haven't seen (tracked per browser in localStorage),
- * and exposes open() so the sidebar version stamp can reopen it anytime.
+ * exposes open() so the sidebar can reopen it anytime, and `hasUnseen` so the
+ * sidebar entry can show an attention badge until the release is viewed.
  */
 export function WhatsNewProvider({children}: {children: React.ReactNode}) {
   const [open, setOpen] = useState(false);
+  const [hasUnseen, setHasUnseen] = useState(false);
 
   useEffect(() => {
     if (!LATEST_VERSION) return;
     try {
       const seen = localStorage.getItem(SEEN_KEY);
       if (seen !== LATEST_VERSION) {
-        setOpen(true);
-        localStorage.setItem(SEEN_KEY, LATEST_VERSION);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setHasUnseen(true);
+        setOpen(true); // auto-open once; "seen" is only set when it is closed.
       }
     } catch {
       // ignore storage failures (private mode etc.)
     }
   }, []);
 
-  function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) {
-      try {
-        localStorage.setItem(SEEN_KEY, LATEST_VERSION);
-      } catch {
-        // ignore
-      }
+  function markSeen() {
+    setHasUnseen(false);
+    try {
+      localStorage.setItem(SEEN_KEY, LATEST_VERSION);
+    } catch {
+      // ignore
     }
   }
 
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) markSeen();
+  }
+
   return (
-    <WhatsNewContext.Provider value={{open: () => setOpen(true)}}>
+    <WhatsNewContext.Provider value={{open: () => setOpen(true), hasUnseen}}>
       {children}
       <WhatsNewDialog open={open} onOpenChange={handleOpenChange} />
     </WhatsNewContext.Provider>

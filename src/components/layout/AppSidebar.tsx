@@ -2,11 +2,13 @@
 
 import {
   Activity,
+  BarChart3,
   Boxes,
   LayoutDashboard,
   Mail,
   Package,
   Settings,
+  Sparkles,
   Users
 } from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
@@ -15,6 +17,8 @@ import type {Locale} from '@/i18n/routing';
 import {Link, usePathname} from '@/i18n/navigation';
 import {cn} from '@/lib/utils';
 import {buildDate, buildLabel} from '@/lib/build-info';
+import {useAuth} from '@/hooks/use-auth';
+import {isAuditAdmin} from '@/lib/audit-access';
 import {useWhatsNew} from './WhatsNew';
 
 const navIcons = {
@@ -24,6 +28,7 @@ const navIcons = {
   customers: Users,
   aiStatus: Activity,
   integrations: Boxes,
+  reports: BarChart3,
   settings: Settings
 } as const;
 
@@ -39,6 +44,9 @@ const navItems: Array<{key: NavKey; href: string}> = [
   {key: 'settings', href: '/settings'}
 ];
 
+// Renovo-only item (cost/audit reports), appended for allowlisted users.
+const reportsItem: {key: NavKey; href: string} = {key: 'reports', href: '/reports'};
+
 function SidebarNav({
   locale,
   onNavigate,
@@ -51,10 +59,12 @@ function SidebarNav({
 }) {
   const t = useTranslations();
   const pathname = usePathname() || '';
+  const {user} = useAuth();
+  const items = isAuditAdmin(user?.email) ? [...navItems, reportsItem] : navItems;
 
   return (
     <nav className="space-y-1">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const Icon = navIcons[item.key];
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
@@ -94,25 +104,70 @@ function SidebarNav({
  * Logout moved to the user menu in the topbar, so this footer now answers
  * "which build is live?" at a glance.
  */
-function SidebarVersion({collapsible}: {collapsible?: boolean}) {
-  const locale = useLocale();
+/**
+ * Sidebar footer (Renato 2026-10-05): a single control pinned at the very bottom
+ * that opens "What's New" and carries the build/version as its caption — so the
+ * icon and the version are ONE clickable block (no redundant targets). When
+ * there is an unseen release the icon turns amber with a pulsing dot.
+ */
+function SidebarFooter({
+  collapsible,
+  onNavigate
+}: {
+  collapsible?: boolean;
+  onNavigate?: () => void;
+}) {
   const t = useTranslations();
+  const locale = useLocale();
   const date = buildDate(locale);
-  const {open} = useWhatsNew();
+  const {open, hasUnseen} = useWhatsNew();
 
   return (
     <button
       type="button"
-      onClick={open}
-      title={t('whatsNew.open')}
+      onClick={() => {
+        onNavigate?.();
+        open();
+      }}
+      title={t('whatsNew.title')}
       className={cn(
-        'block w-full overflow-hidden whitespace-nowrap rounded-md px-3 py-1 text-left leading-tight transition-colors hover:bg-accent/60',
-        collapsible &&
-          'opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100'
+        'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors',
+        hasUnseen ? 'hover:bg-amber-50 dark:hover:bg-amber-950/30' : 'hover:bg-accent/70'
       )}
     >
-      <div className="font-mono text-[11px] text-muted-foreground/70">{buildLabel()}</div>
-      {date ? <div className="text-[11px] text-muted-foreground/60">{date}</div> : null}
+      <span className="relative flex h-4 w-4 shrink-0 items-center justify-center">
+        <Sparkles
+          className={cn('h-4 w-4', hasUnseen ? 'text-amber-500' : 'text-muted-foreground')}
+        />
+        {hasUnseen ? (
+          <span className="absolute -right-1 -top-1 flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+          </span>
+        ) : null}
+      </span>
+      <span
+        className={cn(
+          'min-w-0 flex-1 overflow-hidden whitespace-nowrap leading-tight',
+          collapsible &&
+            'max-w-0 opacity-0 transition-all duration-200 group-hover/sidebar:max-w-[180px] group-hover/sidebar:opacity-100'
+        )}
+      >
+        <span
+          className={cn(
+            'block text-sm',
+            hasUnseen
+              ? 'font-medium text-amber-600 dark:text-amber-400'
+              : 'text-foreground'
+          )}
+        >
+          {t('whatsNew.title')}
+        </span>
+        <span className="block font-mono text-[11px] text-muted-foreground/60">
+          {buildLabel()}
+          {date ? ` · ${date}` : ''}
+        </span>
+      </span>
     </button>
   );
 }
@@ -139,7 +194,7 @@ export function AppSidebar({locale}: {locale: Locale}) {
           <SidebarNav locale={locale} collapsible />
         </div>
         <div className="mt-auto p-3">
-          <SidebarVersion collapsible />
+          <SidebarFooter collapsible />
         </div>
       </aside>
     </div>
@@ -166,7 +221,7 @@ export function AppSidebarContent({
         <SidebarNav locale={locale} onNavigate={onNavigate} />
       </div>
       <div className="mt-auto p-3">
-        <SidebarVersion />
+        <SidebarFooter onNavigate={onNavigate} />
       </div>
     </div>
   );

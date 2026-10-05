@@ -8,3 +8,4 @@ export * from "./ai-status-api";
 export * from "./cg-status-api";
 export * from "./automation-api";
 export * from "./customer-profiles-api";
+export * from "./audit-api";

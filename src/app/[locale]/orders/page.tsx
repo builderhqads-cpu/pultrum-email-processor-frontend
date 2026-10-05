@@ -534,7 +534,7 @@ export default function OrdersPage() {
 
   const renderOrderRow = (
     item: TransportOrderListItem,
-    opts: {nested?: boolean; orderLabel?: string} = {}
+    opts: {nested?: boolean; orderLabel?: string; orderLabelTone?: 'sky' | 'violet'} = {}
   ) => {
     const updatedAt = getOrderLastUpdated(item);
     const isSelected = selected.has(item.id);
@@ -594,7 +594,14 @@ export default function OrdersPage() {
             {opts.orderLabel || item.externalReference ? (
               <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                 {opts.orderLabel ? (
-                  <span className="rounded bg-sky-100 px-1 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                  <span
+                    className={cn(
+                      'rounded px-1 py-0.5 text-[10px] font-medium',
+                      opts.orderLabelTone === 'violet'
+                        ? 'bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300'
+                        : 'bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300'
+                    )}
+                  >
                     {opts.orderLabel}
                   </span>
                 ) : null}
@@ -959,7 +966,8 @@ export default function OrdersPage() {
                       {expanded
                         ? renderOrderRow(item, {
                             nested: true,
-                            orderLabel: `${t('table.orderTag')} 1/1`
+                            orderLabel: `${t('table.orderTag')} 1/1`,
+                            orderLabelTone: 'violet'
                           })
                         : null}
                     </Fragment>

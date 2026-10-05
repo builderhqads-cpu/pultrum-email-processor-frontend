@@ -529,6 +529,40 @@ export type MicrosoftConnectionStatusResponse = {
   hasRefreshToken: boolean;
 };
 
+// GET /audit/email-stats (Renovo-only cost/processing report)
+export type EmailStatsGroupBy = "day" | "customer" | "day_customer";
+
+export type EmailStatsSummary = {
+  from: IsoDateTimeString;
+  to: IsoDateTimeString;
+  timezone: string;
+  totalCalls: number;
+  totalEmails: number;
+  succeeded: number;
+  failed: number;
+  totalCostUsd: number;
+  avgCostPerEmail: number;
+  customerCount: number;
+};
+
+export type EmailStatsRow = {
+  date?: string;
+  customer?: string;
+  emails: number;
+  calls: number;
+  succeeded: number;
+  failed: number;
+  costUsd: number;
+  tokens: number;
+  avgCostPerEmail: number;
+};
+
+export type EmailStatsResponse = {
+  summary: EmailStatsSummary;
+  groupBy: EmailStatsGroupBy;
+  rows: EmailStatsRow[];
+};
+
 export type HealthResponse = {
   status: string;
   config?: {
