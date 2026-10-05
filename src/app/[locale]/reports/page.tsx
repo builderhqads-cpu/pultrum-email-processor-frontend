@@ -429,6 +429,7 @@ function BarChart({
     );
   }
   const max = Math.max(1, ...rows.map(value));
+  const BAR_AREA = 130; // px — the tallest bar; labels sit below.
   return (
     <div className="flex h-40 items-end gap-0.5 overflow-x-auto pb-1">
       {rows.map((r, i) => {
@@ -437,15 +438,13 @@ function BarChart({
         return (
           <div
             key={`${r.date}:${i}`}
-            className="flex min-w-[10px] flex-1 flex-col items-center gap-1"
+            className="flex min-w-[10px] flex-1 flex-col items-center justify-end gap-1"
             title={`${r.date}: ${format(v)}`}
           >
-            <div className="flex w-full flex-1 items-end">
-              <div
-                className={cn('w-full rounded-t transition-all', color)}
-                style={{height: `${Math.max(2, (v / max) * 100)}%`}}
-              />
-            </div>
+            <div
+              className={cn('w-full rounded-t transition-all', color)}
+              style={{height: `${Math.max(2, (v / max) * BAR_AREA)}px`}}
+            />
             <span className="w-full truncate text-center text-[9px] text-muted-foreground">
               {label}
             </span>
