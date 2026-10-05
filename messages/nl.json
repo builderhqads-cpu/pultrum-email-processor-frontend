@@ -196,6 +196,22 @@
       "openOriginalEmail": "Originele e-mail openen",
       "errorTitle": "Kon opdracht niet laden",
       "empty": "Opdracht niet gevonden",
+      "errorBanner": {
+        "retry": "Opnieuw proberen",
+        "retrying": "Opdracht opnieuw verwerken...",
+        "retryQueued": "Opdracht in wachtrij voor herverwerking",
+        "retryError": "Opnieuw verwerken van opdracht mislukt",
+        "resend": "XML opnieuw verzenden",
+        "resending": "XML opnieuw verzenden...",
+        "resendQueued": "XML in wachtrij voor verzending",
+        "noMessage": "Er is geen aanvullende foutmelding vastgelegd.",
+        "kind": {
+          "ai": "AI-extractie mislukt",
+          "xml": "XML-verzending mislukt",
+          "rejected": "Creative Gears heeft de XML afgewezen",
+          "generic": "Verwerking van deze opdracht is mislukt"
+        }
+      },
       "actions": {
         "reprocessOrder": "Opdracht opnieuw verwerken",
         "reprocessOrderFresh": "Opnieuw verwerken (verse extractie)",
@@ -441,7 +457,9 @@
       "syncSuccess": "Mailbox gesynchroniseerd",
       "syncError": "Mailbox sync mislukt"
     },
-    "toggleTheme": "Thema wisselen"
+    "toggleTheme": "Thema wisselen",
+    "darkMode": "Donkere modus",
+    "lightMode": "Lichte modus"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -541,7 +559,27 @@
     "na": "—",
     "view": "Bekijken",
     "refetch": "Verversen",
-    "tryAgain": "Opnieuw proberen"
+    "tryAgain": "Opnieuw proberen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "copyXml": "XML kopiëren",
+    "downloadXml": "XML downloaden",
+    "copyJson": "JSON kopiëren",
+    "copyDiagnostic": "Diagnose kopiëren",
+    "diagnosticCopied": "Diagnose gekopieerd",
+    "retry": "Opnieuw",
+    "edit": "Bewerken",
+    "save": "Opslaan",
+    "saved": "Opgeslagen",
+    "clear": "Wissen",
+    "displayOnly": "Weergave",
+    "displayOnlyHint": "Weergaveveld — wordt niet in de XML verzonden (de naam in de XML komt uit Laden/Lossen)."
+  },
+  "routerStatus": {
+    "title": "AI-service verstoord.",
+    "body": "E-mailverwerking kan tijdelijk vertraagd zijn of mislukken.",
+    "viewDetails": "Status bekijken",
+    "dismiss": "Sluiten"
   },
   "app": {
     "name": "Pultrum | Orderintaker"

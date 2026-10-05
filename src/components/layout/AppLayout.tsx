@@ -3,6 +3,7 @@
 import {AppSidebar} from './AppSidebar';
 import {PageTitleProvider} from './page-title';
 import {AppTopbar} from './AppTopbar';
+import {RouterStatusBanner} from './RouterStatusBanner';
 import type {Locale} from '@/i18n/routing';
 import {usePathname, useRouter} from '@/i18n/navigation';
 import {useEffect, useMemo} from 'react';
@@ -65,6 +66,7 @@ export function AppLayout({
         <AppSidebar locale={locale} />
         <div className="flex min-w-0 flex-1 flex-col">
           <AppTopbar locale={locale} />
+          <RouterStatusBanner locale={locale} />
           <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
             {children}
           </main>

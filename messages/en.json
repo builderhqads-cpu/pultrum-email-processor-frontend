@@ -196,6 +196,22 @@
       "openOriginalEmail": "Open original email",
       "errorTitle": "Failed to load order",
       "empty": "Order not found",
+      "errorBanner": {
+        "retry": "Retry",
+        "retrying": "Reprocessing order...",
+        "retryQueued": "Order queued for reprocessing",
+        "retryError": "Failed to reprocess order",
+        "resend": "Resend XML",
+        "resending": "Resending XML...",
+        "resendQueued": "XML queued for delivery",
+        "noMessage": "No additional error message was recorded.",
+        "kind": {
+          "ai": "AI extraction failed",
+          "xml": "XML delivery failed",
+          "rejected": "Creative Gears rejected the XML",
+          "generic": "Processing this order failed"
+        }
+      },
       "actions": {
         "reprocessOrder": "Reprocess order",
         "reprocessOrderFresh": "Reprocess (fresh extraction)",
@@ -441,7 +457,9 @@
       "syncSuccess": "Mailbox synced",
       "syncError": "Mailbox sync failed"
     },
-    "toggleTheme": "Toggle theme"
+    "toggleTheme": "Toggle theme",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -541,7 +559,27 @@
     "na": "—",
     "view": "View",
     "refetch": "Refetch",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyXml": "Copy XML",
+    "downloadXml": "Download XML",
+    "copyJson": "Copy JSON",
+    "copyDiagnostic": "Copy diagnostic",
+    "diagnosticCopied": "Diagnostic copied",
+    "retry": "Retry",
+    "edit": "Edit",
+    "save": "Save",
+    "saved": "Saved",
+    "clear": "Clear",
+    "displayOnly": "Display",
+    "displayOnlyHint": "Display field — not sent in the XML (the XML name comes from Pickup/Delivery)."
+  },
+  "routerStatus": {
+    "title": "AI service degraded.",
+    "body": "E-mail processing may be delayed or fail temporarily.",
+    "viewDetails": "View status",
+    "dismiss": "Dismiss"
   },
   "app": {
     "name": "Pultrum | Orderintaker"

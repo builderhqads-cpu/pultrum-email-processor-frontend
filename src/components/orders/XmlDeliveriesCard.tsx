@@ -1,13 +1,14 @@
 'use client';
 
 import {useState} from 'react';
-import {FileCode2} from 'lucide-react';
+import {Download, FileCode2} from 'lucide-react';
 import {useLocale, useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 
 import {getOrderXmlPreview} from '@/lib/api';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
+import {CopyButton} from '@/components/ui/copy-button';
 import {StatusBadge} from '@/components/ui/StatusBadge';
 import {
   Dialog,
@@ -25,6 +26,21 @@ function toTime(value: string | null | undefined) {
   if (!value) return 0;
   const t = new Date(value).getTime();
   return Number.isNaN(t) ? 0 : t;
+}
+
+/** QoL (Renato 2026-10-05): download the shown XML as a .xml file. */
+function downloadXml(xml: string | null | undefined, filename: string) {
+  const text = (xml ?? '').toString();
+  if (!text || typeof window === 'undefined') return;
+  const blob = new Blob([text], {type: 'application/xml'});
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
 }
 
 export function XmlDeliveriesCard({
@@ -169,8 +185,32 @@ export function XmlDeliveriesCard({
                 ) : null}
 
                 <div>
-                  <div className="mb-1 text-xs text-muted-foreground">
-                    {t('xmlDeliveries.xmlPayload')}
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {t('xmlDeliveries.xmlPayload')}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <CopyButton
+                        value={selected.xmlPayload}
+                        label={tCommon('copyXml')}
+                        variant="ghost"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() =>
+                          downloadXml(
+                            selected.xmlPayload,
+                            `order-${orderId ?? 'xml'}.xml`
+                          )
+                        }
+                      >
+                        <Download className="h-4 w-4" />
+                        {tCommon('downloadXml')}
+                      </Button>
+                    </div>
                   </div>
                   <pre className="max-h-[60vh] overflow-auto rounded-lg border bg-muted/20 p-3 text-xs">
                     <code>{selected.xmlPayload}</code>
@@ -203,9 +243,35 @@ export function XmlDeliveriesCard({
               {tCommon('loading')}
             </div>
           ) : (
-            <pre className="max-h-[65vh] overflow-auto rounded-lg border bg-muted/20 p-3 text-xs">
-              <code>{previewXml ?? ''}</code>
-            </pre>
+            <>
+              {previewXml ? (
+                <div className="flex items-center justify-end gap-1">
+                  <CopyButton
+                    value={previewXml}
+                    label={tCommon('copyXml')}
+                    variant="ghost"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() =>
+                      downloadXml(
+                        previewXml,
+                        `order-${orderId ?? 'xml'}-preview.xml`
+                      )
+                    }
+                  >
+                    <Download className="h-4 w-4" />
+                    {tCommon('downloadXml')}
+                  </Button>
+                </div>
+              ) : null}
+              <pre className="max-h-[65vh] overflow-auto rounded-lg border bg-muted/20 p-3 text-xs">
+                <code>{previewXml ?? ''}</code>
+              </pre>
+            </>
           )}
         </DialogContent>
       </Dialog>

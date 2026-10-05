@@ -10,6 +10,7 @@ import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils';
 import type {Locale} from '@/i18n/routing';
 import {OrderDetailHeader} from '@/components/orders/OrderDetailHeader';
+import {OrderErrorBanner} from '@/components/orders/OrderErrorBanner';
 import {OrderActionsBar} from '@/components/orders/OrderActionsBar';
 import {OriginalEmailCard} from '@/components/orders/OriginalEmailCard';
 import {OrderStatusSummary} from '@/components/orders/OrderStatusSummary';
@@ -100,6 +101,8 @@ export function OrderDetailsView({id}: {id: string}) {
     <div className="space-y-6">
       <OrderDetailHeader orderId={id} order={data} />
 
+      <OrderErrorBanner order={data} orderId={id} onRetry={() => order.refetch()} />
+
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Left: original email + advanced */}
         <div className="min-w-0 space-y-6">
@@ -138,13 +141,14 @@ export function OrderDetailsView({id}: {id: string}) {
             </div>
             <CardContent className="pt-5">
               {dataTab === 'detected' ? (
-                <OrderFieldsCard fields={data.fields} hideHeader />
+                <OrderFieldsCard fields={data.fields} hideHeader orderId={id} />
               ) : (
                 <MissingFieldsCard
                   fields={data.fields}
                   missingFields={data.missingFields}
                   validationWarnings={data.validationWarnings}
                   hideHeader
+                  orderId={id}
                 />
               )}
             </CardContent>

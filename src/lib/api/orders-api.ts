@@ -136,6 +136,20 @@ export async function deleteOrder(id: string) {
   return data;
 }
 
+// Renato 2026-10-05 (QoL): manually correct one field value (marked MANUAL).
+export async function updateOrderField(
+  orderId: string,
+  key: string,
+  value: string
+) {
+  const {data} = await apiClient.patch<{
+    orderId: string;
+    key: string;
+    value: string;
+  }>(`/orders/${orderId}/fields/${encodeURIComponent(key)}`, {value});
+  return data;
+}
+
 // Niek: include/exclude one document (attachment id, or "email" for the .eml)
 // from this order's XML during the conference — reversible, without deleting.
 export async function setOrderDocumentExcluded(

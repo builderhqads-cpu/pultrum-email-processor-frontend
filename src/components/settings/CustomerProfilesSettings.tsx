@@ -17,6 +17,7 @@ import type {
   CustomerProfileMutationInput,
   DocumentTypeRuleCategory,
   DocumentTypeRules,
+  XmlAttachmentCategories,
   FieldRequirement
 } from '@/types';
 import type {Locale} from '@/i18n/routing';
@@ -71,6 +72,8 @@ type FormState = {
   aiInstructions: string;
   /** Per-file-type Transpas documenttype pins (Sander). Empty = use the AI. */
   documentTypeRules: DocumentTypeRules;
+  /** Which attachment types go in the XML. Absent category = included (default). */
+  xmlAttachmentCategories: XmlAttachmentCategories;
 };
 
 // The coarse file-type categories shown in the documenttype editor, in order.
@@ -108,7 +111,8 @@ const emptyFormState = (): FormState => ({
   notes: '',
   fields: {},
   aiInstructions: '',
-  documentTypeRules: {}
+  documentTypeRules: {},
+  xmlAttachmentCategories: {}
 });
 
 export function CustomerProfilesSettings() {
@@ -194,7 +198,7 @@ export function CustomerProfilesSettings() {
     setEditingProfile(profile);
     setForm({
       name: profile.name,
-      contactEmail: profile.contactEmail,
+      contactEmail: profile.contactEmail ?? '',
       additionalContactEmails: profile.additionalContactEmails.join('\n'),
       active: profile.active,
       notes: profile.notes ?? '',
@@ -202,7 +206,8 @@ export function CustomerProfilesSettings() {
         (profile.fields ?? []).map((field) => [field.key, field.value ?? ''])
       ),
       aiInstructions: profile.aiInstructions ?? '',
-      documentTypeRules: {...(profile.documentTypeRules ?? {})}
+      documentTypeRules: {...(profile.documentTypeRules ?? {})},
+      xmlAttachmentCategories: {...(profile.xmlAttachmentCategories ?? {})}
     });
     setDialogOpen(true);
   }
@@ -240,10 +245,26 @@ export function CustomerProfilesSettings() {
     []
   );
 
+  // Renato 2026-10-05: switch an attachment type on/off for the XML. ON (true)
+  // is the default, so we only STORE the ones turned OFF (false); the rest stay
+  // absent = included. Empty map clears the setting (all included).
+  const updateXmlAttachmentCategory = useCallback(
+    (category: DocumentTypeRuleCategory, included: boolean) => {
+      setForm((current) => {
+        const next = {...current.xmlAttachmentCategories};
+        if (included) delete next[category];
+        else next[category] = false;
+        return {...current, xmlAttachmentCategories: next};
+      });
+    },
+    []
+  );
+
   function buildPayload(): CustomerProfileMutationInput {
     return {
       name: form.name.trim(),
-      contactEmail: form.contactEmail.trim(),
+      // Optional (2026-10-05): empty e-mail is allowed — profile matched by name.
+      contactEmail: form.contactEmail.trim() || null,
       additionalContactEmails: parseEmailLines(form.additionalContactEmails),
       active: form.active,
       notes: form.notes.trim() || null,
@@ -256,6 +277,15 @@ export function CustomerProfilesSettings() {
         }
         return Object.keys(rules).length ? rules : null;
       })(),
+      xmlAttachmentCategories: (() => {
+        const cats: XmlAttachmentCategories = {};
+        for (const category of DOCUMENT_TYPE_RULE_CATEGORIES) {
+          if (form.xmlAttachmentCategories[category] === false) {
+            cats[category] = false;
+          }
+        }
+        return Object.keys(cats).length ? cats : null;
+      })(),
       fields: Object.entries(form.fields)
         .map(([key, value]) => ({ key, value: value.trim() }))
         .filter((field) => field.value.length > 0)
@@ -264,7 +294,8 @@ export function CustomerProfilesSettings() {
 
   async function handleSubmit() {
     const payload = buildPayload();
-    if (!payload.name || !payload.contactEmail) return;
+    // Only the NAME is required now — the contact e-mail is optional.
+    if (!payload.name) return;
 
     const toastId = toast.loading(
       editingProfile ? labels.updateLoading : labels.createLoading
@@ -297,7 +328,7 @@ export function CustomerProfilesSettings() {
     const toastId = toast.loading(labels.deleteLoading);
     try {
       await deleteCustomerProfile.mutateAsync(profile.id);
-      toast.success(labels.deleteSuccess.replace('{email}', profile.contactEmail), {
+      toast.success(labels.deleteSuccess.replace('{email}', profile.contactEmail ?? profile.name), {
         id: toastId
       });
       setDeleteTarget(null);
@@ -354,7 +385,7 @@ export function CustomerProfilesSettings() {
                     <TableRow key={profile.id}>
                       <TableCell>
                         <div className="font-medium text-foreground">{profile.name}</div>
-                        <div className="text-xs text-muted-foreground">{profile.contactEmail}</div>
+                        <div className="text-xs text-muted-foreground">{profile.contactEmail || '—'}</div>
                         {profile.additionalContactEmails.length ? (
                           <div className="text-xs text-muted-foreground">
                             +{profile.additionalContactEmails.length} {labels.additionalEmailsCount}
@@ -450,6 +481,9 @@ export function CustomerProfilesSettings() {
                         placeholder={labels.form.contactEmailPlaceholder}
                         className="min-w-0"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        {labels.form.contactEmailOptional}
+                      </p>
                     </div>
                     <div className="min-w-0 space-y-1.5">
                       <label className="text-sm font-medium text-foreground">
@@ -551,6 +585,57 @@ export function CustomerProfilesSettings() {
                     </div>
                   </div>
 
+                  {/* Renato 2026-10-05: per-customer switches for which attachment
+                      types go in the XML. The original e-mail is always sent. */}
+                  <div className="min-w-0 space-y-1.5">
+                    <label className="text-sm font-medium text-foreground">
+                      {labels.form.xmlAttachments}
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      {labels.form.xmlAttachmentsHelp}
+                    </p>
+                    <div className="space-y-2 pt-1">
+                      {DOCUMENT_TYPE_RULE_CATEGORIES.map((category) => {
+                        const included =
+                          form.xmlAttachmentCategories[category] !== false;
+                        return (
+                          <div
+                            key={category}
+                            className="flex items-center justify-between gap-3"
+                          >
+                            <span className="text-sm text-foreground">
+                              {labels.form.documentTypeCategories[category]}
+                            </span>
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={included}
+                              aria-label={
+                                labels.form.documentTypeCategories[category]
+                              }
+                              onClick={() =>
+                                updateXmlAttachmentCategory(category, !included)
+                              }
+                              className={cn(
+                                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors',
+                                included
+                                  ? 'bg-emerald-500'
+                                  : 'bg-muted-foreground/30'
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
+                                  included ? 'translate-x-4' : 'translate-x-0.5'
+                                )}
+                              />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                 </CardContent>
               </Card>
             </div>
@@ -644,7 +729,6 @@ export function CustomerProfilesSettings() {
               onClick={handleSubmit}
               disabled={
                 !form.name.trim() ||
-                !form.contactEmail.trim() ||
                 createCustomerProfile.isPending ||
                 updateCustomerProfile.isPending
               }
@@ -691,7 +775,7 @@ export function CustomerProfilesSettings() {
               {deleteTarget
                 ? labels.deleteConfirmDescription
                     .replace('{name}', deleteTarget.name)
-                    .replace('{email}', deleteTarget.contactEmail)
+                    .replace('{email}', deleteTarget.contactEmail ?? deleteTarget.name)
                 : ''}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -903,6 +987,7 @@ const customerProfileLabels: Record<
       namePlaceholder: string;
       contactEmail: string;
       contactEmailPlaceholder: string;
+      contactEmailOptional: string;
       additionalContactEmails: string;
       additionalContactEmailsPlaceholder: string;
       additionalContactEmailsHint: string;
@@ -919,6 +1004,8 @@ const customerProfileLabels: Record<
       documentTypesHelp: string;
       documentTypePlaceholder: string;
       documentTypeCategories: Record<DocumentTypeRuleCategory, string>;
+      xmlAttachments: string;
+      xmlAttachmentsHelp: string;
     };
     groups: Record<CustomerProfileFieldGroup, string>;
     requirements: Record<RequirementKey, string>;
@@ -974,6 +1061,7 @@ const customerProfileLabels: Record<
       namePlaceholder: 'Ex.: ACME Logistics',
       contactEmail: 'Email de contato',
       contactEmailPlaceholder: 'cliente@empresa.com',
+      contactEmailOptional: 'Opcional — um perfil pode ser criado somente com o nome.',
       additionalContactEmails: 'Emails adicionais',
       additionalContactEmailsPlaceholder: 'compras@empresa.com\nlogistica@empresa.com',
       additionalContactEmailsHint: 'Um e-mail — ou um dominio inteiro (ex.: derix.de) — por linha. Serao reconhecidos para este perfil.',
@@ -1000,7 +1088,10 @@ Ignorar os dados do rodape (assinatura e contatos)`,
         pdf: 'PDF',
         word: 'Word',
         image: 'Imagens (jpg/png)'
-      }
+      },
+      xmlAttachments: 'Anexos no XML',
+      xmlAttachmentsHelp:
+        'Escolha quais tipos de anexo vao no XML deste cliente. Desligue os que nao devem ir. O e-mail original e sempre enviado.'
     },
     groups: {
       pickup: 'Pickup / Coleta',
@@ -1064,6 +1155,7 @@ Ignorar os dados do rodape (assinatura e contatos)`,
       namePlaceholder: 'Example: ACME Logistics',
       contactEmail: 'Contact email',
       contactEmailPlaceholder: 'customer@company.com',
+      contactEmailOptional: 'Optional — a profile can be created with just the name.',
       additionalContactEmails: 'Additional emails',
       additionalContactEmailsPlaceholder: 'purchasing@company.com\nlogistics@company.com',
       additionalContactEmailsHint: 'One email — or a whole domain (e.g. derix.de) — per line. These match this customer profile.',
@@ -1090,7 +1182,10 @@ Ignore the footer details (signature and contacts)`,
         pdf: 'PDF',
         word: 'Word',
         image: 'Images (jpg/png)'
-      }
+      },
+      xmlAttachments: 'Attachments in the XML',
+      xmlAttachmentsHelp:
+        'Choose which attachment types go in this customer’s XML. Turn off the ones that should not be included. The original e-mail is always sent.'
     },
     groups: {
       pickup: 'Pickup',
@@ -1154,6 +1249,7 @@ Ignore the footer details (signature and contacts)`,
       namePlaceholder: 'Bijv. ACME Logistics',
       contactEmail: 'Contact e-mail',
       contactEmailPlaceholder: 'klant@bedrijf.com',
+      contactEmailOptional: 'Optioneel — een profiel kan met alleen een naam worden aangemaakt.',
       additionalContactEmails: 'Extra e-mails',
       additionalContactEmailsPlaceholder: 'inkoop@bedrijf.com\nlogistiek@bedrijf.com',
       additionalContactEmailsHint: 'Een e-mailadres — of een heel domein (bijv. derix.de) — per regel. Deze worden herkend voor dit klantprofiel.',
@@ -1180,7 +1276,10 @@ Negeer de gegevens in de voettekst (handtekening en contacten)`,
         pdf: 'PDF',
         word: 'Word',
         image: "Afbeeldingen (jpg/png)"
-      }
+      },
+      xmlAttachments: 'Bijlagen in de XML',
+      xmlAttachmentsHelp:
+        'Kies welke bijlagetypen in de XML van deze klant meegaan. Zet uit wat niet mee mag. De originele e-mail wordt altijd meegestuurd.'
     },
     groups: {
       pickup: 'Laden',

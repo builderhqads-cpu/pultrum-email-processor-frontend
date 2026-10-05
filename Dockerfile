@@ -11,6 +11,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+# Build/version stamp shown in the portal (Renato 2026-10-05). The slim image
+# has no git, so deploy.sh passes these as build args:
+#   --build-arg BUILD_SHA=$(git -C <frontend> rev-parse --short HEAD) \
+#   --build-arg BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+# When absent, next.config falls back to "dev".
+ARG BUILD_SHA
+ARG BUILD_TIME
+ENV BUILD_SHA=$BUILD_SHA
+ENV BUILD_TIME=$BUILD_TIME
+
 COPY package*.json ./
 RUN npm ci
 

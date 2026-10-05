@@ -169,7 +169,8 @@ export type CustomerProfileField = {
 export type CustomerProfile = {
   id: string;
   name: string;
-  contactEmail: string;
+  /** Optional (2026-10-05): a profile can be created with only a name. */
+  contactEmail: string | null;
   contactEmails: string[];
   additionalContactEmails: string[];
   active: boolean;
@@ -182,6 +183,12 @@ export type CustomerProfile = {
    * the AI mapping. e.g. { excel: '87', pdf: '91', image: '92' }.
    */
   documentTypeRules?: DocumentTypeRules | null;
+  /**
+   * Renato 2026-10-05: per-customer switches for which ATTACHMENT file types are
+   * embedded in the XML. Absent category = included (default = all on). The
+   * original e-mail (.eml) is always sent and never affected.
+   */
+  xmlAttachmentCategories?: XmlAttachmentCategories | null;
   /**
    * Niek/Derix (2026-09-16): when true, an empty invoice reference is filled with
    * the order's TR number. Per-customer; off by default.
@@ -198,14 +205,19 @@ export type DocumentTypeRules = Partial<
   Record<DocumentTypeRuleCategory, string>
 >;
 
+export type XmlAttachmentCategories = Partial<
+  Record<DocumentTypeRuleCategory, boolean>
+>;
+
 export type CustomerProfileMutationInput = {
   name?: string;
-  contactEmail?: string;
+  contactEmail?: string | null;
   additionalContactEmails?: string[];
   active?: boolean;
   notes?: string | null;
   aiInstructions?: string | null;
   documentTypeRules?: DocumentTypeRules | null;
+  xmlAttachmentCategories?: XmlAttachmentCategories | null;
   invoiceReferenceFallbackToTr?: boolean;
   fields?: Array<{
     key: string;

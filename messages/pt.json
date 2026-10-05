@@ -196,6 +196,22 @@
       "openOriginalEmail": "Abrir email original",
       "errorTitle": "Falha ao carregar pedido",
       "empty": "Pedido não encontrado",
+      "errorBanner": {
+        "retry": "Tentar novamente",
+        "retrying": "Reprocessando pedido...",
+        "retryQueued": "Pedido reenviado para processamento",
+        "retryError": "Falha ao reprocessar pedido",
+        "resend": "Reenviar XML",
+        "resending": "Reenviando XML...",
+        "resendQueued": "XML reenviado para entrega",
+        "noMessage": "Nenhuma mensagem de erro adicional foi registrada.",
+        "kind": {
+          "ai": "A extração por IA falhou",
+          "xml": "Falha ao enviar o XML",
+          "rejected": "O Creative Gears rejeitou o XML",
+          "generic": "O processamento deste pedido falhou"
+        }
+      },
       "actions": {
         "reprocessOrder": "Reprocessar pedido",
         "reprocessOrderFresh": "Reprocessar (extração fresca)",
@@ -444,7 +460,9 @@
       "syncSuccess": "Mailbox sincronizada",
       "syncError": "Falha ao sincronizar mailbox"
     },
-    "toggleTheme": "Alternar tema"
+    "toggleTheme": "Alternar tema",
+    "darkMode": "Modo escuro",
+    "lightMode": "Modo claro"
   },
   "auth": {
     "brand": "RENOVO IA",
@@ -544,7 +562,27 @@
     "na": "—",
     "view": "Ver",
     "refetch": "Recarregar",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copyXml": "Copiar XML",
+    "downloadXml": "Baixar XML",
+    "copyJson": "Copiar JSON",
+    "copyDiagnostic": "Copiar diagnóstico",
+    "diagnosticCopied": "Diagnóstico copiado",
+    "retry": "Tentar novamente",
+    "edit": "Editar",
+    "save": "Salvar",
+    "saved": "Salvo",
+    "clear": "Limpar",
+    "displayOnly": "Exibição",
+    "displayOnlyHint": "Campo de exibição — não é enviado no XML (o nome no XML vem de Laden/Lossen)."
+  },
+  "routerStatus": {
+    "title": "Serviço de IA instável.",
+    "body": "O processamento de e-mails pode atrasar ou falhar temporariamente.",
+    "viewDetails": "Ver status",
+    "dismiss": "Dispensar"
   },
   "app": {
     "name": "Pultrum | Orderintaker"

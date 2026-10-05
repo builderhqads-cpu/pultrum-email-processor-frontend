@@ -5,6 +5,7 @@ import {useLocale, useTranslations} from 'next-intl';
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
+import {CopyButton} from '@/components/ui/copy-button';
 import {StatusBadge} from '@/components/ui/StatusBadge';
 import {
   Dialog,
@@ -19,6 +20,7 @@ import {formatDateTime, safeJson} from './order-detail-utils';
 
 export function AiRequestsCard({aiRequests}: {aiRequests: AiRequest[]}) {
   const t = useTranslations('orders.detail');
+  const tCommon = useTranslations('common');
   const locale = useLocale() as Locale;
   // "Show" opens a wide centered modal (same as the XML preview) so the payload
   // and response JSON are comfortable to read (Renato 2026-09-09), instead of
@@ -94,16 +96,30 @@ export function AiRequestsCard({aiRequests}: {aiRequests: AiRequest[]}) {
 
               <div className="space-y-4 overflow-y-auto pr-1">
                 <div>
-                  <div className="mb-1 text-xs text-muted-foreground">
-                    {t('aiRequests.payload')}
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {t('aiRequests.payload')}
+                    </span>
+                    <CopyButton
+                      value={safeJson(selected.payloadJson)}
+                      variant="ghost"
+                      title={tCommon('copyJson')}
+                    />
                   </div>
                   <pre className="overflow-x-auto rounded-lg border bg-muted/20 p-3 text-xs">
                     <code>{safeJson(selected.payloadJson)}</code>
                   </pre>
                 </div>
                 <div>
-                  <div className="mb-1 text-xs text-muted-foreground">
-                    {t('aiRequests.response')}
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {t('aiRequests.response')}
+                    </span>
+                    <CopyButton
+                      value={safeJson(selected.responseJson)}
+                      variant="ghost"
+                      title={tCommon('copyJson')}
+                    />
                   </div>
                   <pre className="overflow-x-auto rounded-lg border bg-muted/20 p-3 text-xs">
                     <code>{safeJson(selected.responseJson)}</code>

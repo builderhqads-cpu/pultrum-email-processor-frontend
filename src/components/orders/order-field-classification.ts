@@ -5,7 +5,7 @@ import type {
   ValidationWarning
 } from '@/types';
 
-export type FieldOrigin = 'email' | 'ai' | 'profile' | 'system' | 'calculated' | 'optional';
+export type FieldOrigin = 'email' | 'ai' | 'profile' | 'system' | 'calculated' | 'optional' | 'manual';
 export type FieldGroup = 'pickup' | 'delivery' | 'cargo' | 'general' | 'calculated' | 'technical' | 'additional';
 
 // Group membership + display order per Niek's spec (2026-08-07). Order within
@@ -110,6 +110,20 @@ export const TECHNICAL_FIELD_KEYS = [
   'barcode'
 ] as const;
 
+// Display-only fields (Renato 2026-10-05): shown on the panel to help resolve
+// the customer/profile, but NEVER emitted in the XML. Editing them by hand has
+// no effect on the XML (the <name> there comes from pickup_name/delivery_name),
+// so the inline pencil is hidden to avoid the "I edited it but the XML didn't
+// change" confusion. `opdrachtgever`/`principal` are aliases of each other.
+export const DISPLAY_ONLY_FIELD_KEYS = new Set<string>([
+  'opdrachtgever',
+  'principal'
+]);
+
+export function isDisplayOnlyField(key: string): boolean {
+  return DISPLAY_ONLY_FIELD_KEYS.has(key);
+}
+
 export const OPTIONAL_FIELD_KEYS = new Set([
   'pickup_remarks',
   'delivery_remarks',
@@ -157,6 +171,7 @@ export function normalizeFieldSource(source: string | null | undefined) {
 export function getFieldOrigin(field: Pick<OrderField, 'key' | 'required' | 'source'>): FieldOrigin {
   const source = normalizeFieldSource(field.source);
 
+  if (source === 'MANUAL') return 'manual';
   if (source === 'AI') return 'ai';
   if (source === 'CUSTOMER_PROFILE') return 'profile';
   if (source === 'SYSTEM' || source === 'GENERATED') return 'system';

@@ -7,6 +7,8 @@ import {Link, useRouter} from '@/i18n/navigation';
 import {PageHeader} from '@/components/layout/PageHeader';
 import {Badge} from '@/components/ui/badge';
 import {Button, buttonVariants} from '@/components/ui/button';
+import {CopyButton} from '@/components/ui/copy-button';
+import {safeJson} from './order-detail-utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +22,32 @@ import type {TransportOrder} from '@/types';
 
 function shortId(id: string) {
   return id.split('-')[0] ?? id.slice(0, 8);
+}
+
+/**
+ * QoL (Renato 2026-10-05): a ready-to-paste diagnostic block for bug reports —
+ * customer, references, status + the latest AI Response JSON. Mirrors the report
+ * template (customer + order ref + what happened + the JSON that pinpoints it).
+ */
+function buildDiagnostic(order: TransportOrder): string {
+  const invoiceRef =
+    order.fields?.find((f) => f.key === 'invoice_reference')?.value || '';
+  const latestAi = [...(order.aiRequests ?? [])].sort(
+    (a, b) =>
+      (new Date(b.createdAt).getTime() || 0) -
+      (new Date(a.createdAt).getTime() || 0)
+  )[0];
+  return [
+    `Customer: ${order.customerEmail || '-'}`,
+    `Invoice reference: ${invoiceRef || '-'}`,
+    `External reference: ${order.externalReference || '-'}`,
+    `Short ID: ${shortId(order.id)}`,
+    `Order ID: ${order.id}`,
+    `Status: ${order.status || '-'}`,
+    '',
+    'Response JSON:',
+    latestAi?.responseJson ? safeJson(latestAi.responseJson) : '(none)'
+  ].join('\n');
 }
 
 export function OrderDetailHeader({
@@ -49,11 +77,18 @@ export function OrderDetailHeader({
               {order.customerEmail || tCommon('na')}
             </div>
             {invoiceReference ? (
-              <div
-                className="truncate font-mono text-xs font-medium text-foreground"
-                title={invoiceReference}
-              >
-                {invoiceReference}
+              <div className="flex items-center gap-1">
+                <span
+                  className="truncate font-mono text-xs font-medium text-foreground"
+                  title={invoiceReference}
+                >
+                  {invoiceReference}
+                </span>
+                <CopyButton
+                  value={invoiceReference}
+                  variant="ghost"
+                  title={tCommon('copy')}
+                />
               </div>
             ) : null}
             {order.batch ? (
@@ -79,7 +114,10 @@ export function OrderDetailHeader({
                 ) : null}
               </div>
             ) : null}
-            <div className="break-all font-mono text-xs [overflow-wrap:anywhere]">{orderId}</div>
+            <div className="flex items-center gap-1">
+              <span className="break-all font-mono text-xs [overflow-wrap:anywhere]">{orderId}</span>
+              <CopyButton value={orderId} variant="ghost" title={tCommon('copy')} />
+            </div>
           </div>
         ) : (
           <span className="break-all font-mono text-xs [overflow-wrap:anywhere]">{orderId}</span>
@@ -87,13 +125,23 @@ export function OrderDetailHeader({
       }
       status={order ? <StatusBadge status={order.status ?? tCommon('na')} /> : null}
       actions={
-        order?.emailMessageId ? (
-          <Link
-            href={`/emails?selected=${order.emailMessageId}`}
-            className={buttonVariants({variant: 'outline', size: 'sm'})}
-          >
-            {tOrders('detail.openOriginalEmail')}
-          </Link>
+        order ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyButton
+              value={buildDiagnostic(order)}
+              label={tCommon('copyDiagnostic')}
+              copiedLabel={tCommon('diagnosticCopied')}
+              variant="outline"
+            />
+            {order.emailMessageId ? (
+              <Link
+                href={`/emails?selected=${order.emailMessageId}`}
+                className={buttonVariants({variant: 'outline', size: 'sm'})}
+              >
+                {tOrders('detail.openOriginalEmail')}
+              </Link>
+            ) : null}
+          </div>
         ) : null
       }
     />
