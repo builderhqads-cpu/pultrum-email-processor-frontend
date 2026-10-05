@@ -8,6 +8,7 @@
  */
 const AUDIT_ADMIN_EMAILS = [
   'admin@renovoia.local',
+  'admin@renovoia.com',
   'contact@evoluicomia.com.br'
 ];
 
