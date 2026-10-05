@@ -530,7 +530,7 @@ export type MicrosoftConnectionStatusResponse = {
 };
 
 // GET /audit/email-stats (Renovo-only cost/processing report)
-export type EmailStatsGroupBy = "day" | "customer" | "day_customer";
+export type EmailStatsGroupBy = "day" | "customer" | "model" | "day_customer";
 
 export type EmailStatsSummary = {
   from: IsoDateTimeString;
@@ -548,6 +548,7 @@ export type EmailStatsSummary = {
 export type EmailStatsRow = {
   date?: string;
   customer?: string;
+  model?: string;
   emails: number;
   calls: number;
   succeeded: number;

@@ -138,6 +138,17 @@ export default function ReportsPage() {
     );
   }
 
+  const showDate = groupBy === 'day' || groupBy === 'day_customer';
+  const showCustomer = groupBy === 'customer' || groupBy === 'day_customer';
+  const showModelGroup = groupBy === 'model';
+  const showModelInfo = groupBy !== 'model';
+  const colCount =
+    (showModelGroup ? 1 : 0) +
+    (showDate ? 1 : 0) +
+    (showCustomer ? 1 : 0) +
+    (showModelInfo ? 1 : 0) +
+    5;
+
   return (
     <div className="space-y-5">
       <PageHeader title={labels.title} />
@@ -204,6 +215,7 @@ export default function ReportsPage() {
                 <SelectContent>
                   <SelectItem value="day">{labels.groups.day}</SelectItem>
                   <SelectItem value="customer">{labels.groups.customer}</SelectItem>
+                  <SelectItem value="model">{labels.groups.model}</SelectItem>
                   <SelectItem value="day_customer">{labels.groups.day_customer}</SelectItem>
                 </SelectContent>
               </Select>
@@ -294,8 +306,10 @@ export default function ReportsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {groupBy !== 'customer' ? <TableHead>{labels.col.date}</TableHead> : null}
-                  {groupBy !== 'day' ? <TableHead>{labels.col.customer}</TableHead> : null}
+                  {showModelGroup ? <TableHead>{labels.col.model}</TableHead> : null}
+                  {showDate ? <TableHead>{labels.col.date}</TableHead> : null}
+                  {showCustomer ? <TableHead>{labels.col.customer}</TableHead> : null}
+                  {showModelInfo ? <TableHead>{labels.col.model}</TableHead> : null}
                   <TableHead className="text-right">{labels.col.emails}</TableHead>
                   <TableHead className="text-right">{labels.col.calls}</TableHead>
                   <TableHead className="text-right">{labels.col.cost}</TableHead>
@@ -307,19 +321,25 @@ export default function ReportsPage() {
                 {tableStats.isPending ? (
                   Array.from({length: 6}).map((_, i) => (
                     <TableRow key={`sk:${i}`}>
-                      <TableCell colSpan={7}>
+                      <TableCell colSpan={colCount}>
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : tableStats.data?.rows.length ? (
                   tableStats.data.rows.map((row, i) => (
-                    <TableRow key={`${row.date ?? ''}:${row.customer ?? ''}:${i}`}>
-                      {groupBy !== 'customer' ? (
+                    <TableRow key={`${row.date ?? ''}:${row.customer ?? ''}:${row.model ?? ''}:${i}`}>
+                      {showModelGroup ? (
+                        <TableCell className="font-mono text-xs">{row.model}</TableCell>
+                      ) : null}
+                      {showDate ? (
                         <TableCell className="font-mono text-xs">{row.date}</TableCell>
                       ) : null}
-                      {groupBy !== 'day' ? (
+                      {showCustomer ? (
                         <TableCell className="text-sm">{row.customer}</TableCell>
+                      ) : null}
+                      {showModelInfo ? (
+                        <TableCell className="font-mono text-[11px] text-muted-foreground">{row.model}</TableCell>
                       ) : null}
                       <TableCell className="text-right tabular-nums">{fmtInt(row.emails)}</TableCell>
                       <TableCell className="text-right tabular-nums text-muted-foreground">{fmtInt(row.calls)}</TableCell>
@@ -332,7 +352,7 @@ export default function ReportsPage() {
                   ))
                 ) : (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                    <TableCell colSpan={colCount} className="py-10 text-center text-sm text-muted-foreground">
                       {labels.empty}
                     </TableCell>
                   </TableRow>
@@ -463,6 +483,7 @@ const pageLabels: Record<
     col: {
       date: string;
       customer: string;
+      model: string;
       emails: string;
       calls: string;
       cost: string;
@@ -485,7 +506,7 @@ const pageLabels: Record<
     to: 'Até',
     groupBy: 'Agrupar por',
     presets: {'7d': '7 dias', '30d': '30 dias', month: 'Este mês', custom: 'Personalizado'},
-    groups: {day: 'Dia', customer: 'Cliente', day_customer: 'Dia × Cliente'},
+    groups: {day: 'Dia', customer: 'Cliente', model: 'Modelo', day_customer: 'Dia × Cliente'},
     cards: {
       emails: 'E-mails',
       cost: 'Custo total',
@@ -502,6 +523,7 @@ const pageLabels: Record<
     col: {
       date: 'Dia',
       customer: 'Cliente',
+      model: 'Modelo',
       emails: 'E-mails',
       calls: 'Chamadas',
       cost: 'Custo',
@@ -524,7 +546,7 @@ const pageLabels: Record<
     to: 'To',
     groupBy: 'Group by',
     presets: {'7d': '7 days', '30d': '30 days', month: 'This month', custom: 'Custom'},
-    groups: {day: 'Day', customer: 'Customer', day_customer: 'Day × Customer'},
+    groups: {day: 'Day', customer: 'Customer', model: 'Model', day_customer: 'Day × Customer'},
     cards: {
       emails: 'Emails',
       cost: 'Total cost',
@@ -541,6 +563,7 @@ const pageLabels: Record<
     col: {
       date: 'Day',
       customer: 'Customer',
+      model: 'Model',
       emails: 'Emails',
       calls: 'Calls',
       cost: 'Cost',
@@ -563,7 +586,7 @@ const pageLabels: Record<
     to: 'Tot',
     groupBy: 'Groeperen op',
     presets: {'7d': '7 dagen', '30d': '30 dagen', month: 'Deze maand', custom: 'Aangepast'},
-    groups: {day: 'Dag', customer: 'Klant', day_customer: 'Dag × Klant'},
+    groups: {day: 'Dag', customer: 'Klant', model: 'Model', day_customer: 'Dag × Klant'},
     cards: {
       emails: 'E-mails',
       cost: 'Totale kosten',
@@ -580,6 +603,7 @@ const pageLabels: Record<
     col: {
       date: 'Dag',
       customer: 'Klant',
+      model: 'Model',
       emails: 'E-mails',
       calls: 'Aanroepen',
       cost: 'Kosten',
