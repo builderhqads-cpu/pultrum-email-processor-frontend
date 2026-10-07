@@ -1,11 +1,13 @@
 'use client';
 
 import type {ReactNode} from 'react';
-import {ExternalLink, Inbox, RefreshCw, Trash2} from 'lucide-react';
+import {useState} from 'react';
+import {Download, ExternalLink, Inbox, RefreshCw, Trash2} from 'lucide-react';
 import {useTranslations} from 'next-intl';
 import {toast} from 'sonner';
 
 import {Link} from '@/i18n/navigation';
+import {downloadEmailEml} from '@/lib/api';
 import {useEmail} from '@/hooks/use-email';
 import {useEmailClassificationActions} from '@/hooks/use-email-classification';
 import {EmailDetailsCard} from '@/components/emails/EmailDetailsCard';
@@ -40,6 +42,19 @@ export function EmailPreviewPane({
   // (documenttypes, aiInstructions, fixed fields). The order-level reprocess
   // only refilled a single order — wrong for a batch email (Renato 2026-09-09).
   const {reclassify} = useEmailClassificationActions();
+  const [downloadingEml, setDownloadingEml] = useState(false);
+
+  async function handleDownloadEml() {
+    setDownloadingEml(true);
+    try {
+      await downloadEmailEml(emailId, email.data?.subject || 'email');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : undefined;
+      toast.error(message ?? tCommon('error'));
+    } finally {
+      setDownloadingEml(false);
+    }
+  }
 
   async function runOrderAction(opts: {
     fn: () => Promise<unknown>;
@@ -88,6 +103,15 @@ export function EmailPreviewPane({
       >
         <RefreshCw className="h-4 w-4" />
         {tOrder('actions.reprocessEmail')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={downloadingEml}
+        onClick={handleDownloadEml}
+      >
+        <Download className="h-4 w-4" />
+        {tCommon('downloadEml')}
       </Button>
       <Button
         size="sm"

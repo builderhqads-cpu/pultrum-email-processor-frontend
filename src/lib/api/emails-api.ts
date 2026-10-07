@@ -76,3 +76,23 @@ export async function deleteAllEmails() {
   }
   return data as DeleteAllEmailsResponse;
 }
+
+// Renato 2026-10-07: download the raw .eml of an email.
+export async function downloadEmailEml(id: string, fallbackName = "email") {
+  const res = await apiClient.get(`/emails/${id}/eml`, {
+    responseType: "blob",
+  });
+  const blob = res.data as Blob;
+  let filename = `${fallbackName}.eml`;
+  const cd = (res.headers?.["content-disposition"] as string | undefined) ?? "";
+  const match = /filename="?([^"]+)"?/i.exec(cd);
+  if (match?.[1]) filename = match[1];
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

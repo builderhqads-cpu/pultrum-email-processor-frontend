@@ -574,6 +574,7 @@
     "copied": "Copiado",
     "copyXml": "Copiar XML",
     "downloadXml": "Baixar XML",
+    "downloadEml": "Baixar .eml",
     "copyJson": "Copiar JSON",
     "copyDiagnostic": "Copiar diagnóstico",
     "diagnosticCopied": "Diagnóstico copiado",
