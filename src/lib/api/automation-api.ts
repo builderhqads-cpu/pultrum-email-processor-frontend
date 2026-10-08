@@ -8,6 +8,16 @@ export type AutomationSettings = {
   syncMode: SyncMode;
   deliveryMode: DeliveryMode;
   autoXmlConfidenceThreshold: number;
+  // XML-sent confirmation reply (Niek 2026-10-07) — editable template.
+  // Base Subject/Body = Dutch (default); En/De are optional per-language
+  // overrides, chosen by the customer e-mail language (Renato 2026-10-08).
+  xmlConfirmationEnabled?: boolean;
+  xmlConfirmationSubject?: string | null;
+  xmlConfirmationBody?: string | null;
+  xmlConfirmationSubjectEn?: string | null;
+  xmlConfirmationBodyEn?: string | null;
+  xmlConfirmationSubjectDe?: string | null;
+  xmlConfirmationBodyDe?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -15,7 +25,16 @@ export type AutomationSettings = {
 export type UpdateAutomationSettings = Partial<
   Pick<
     AutomationSettings,
-    "syncMode" | "deliveryMode" | "autoXmlConfidenceThreshold"
+    | "syncMode"
+    | "deliveryMode"
+    | "autoXmlConfidenceThreshold"
+    | "xmlConfirmationEnabled"
+    | "xmlConfirmationSubject"
+    | "xmlConfirmationBody"
+    | "xmlConfirmationSubjectEn"
+    | "xmlConfirmationBodyEn"
+    | "xmlConfirmationSubjectDe"
+    | "xmlConfirmationBodyDe"
   >
 >;
 

@@ -5,6 +5,8 @@ import type {
   OrderType,
   Department,
   CustomerReplyDraft,
+  OrderGoodsLine,
+  OrderGoodsLineInput,
   TransportOrder,
   TransportOrderDetailResponse,
   TransportOrderListItem
@@ -42,7 +44,8 @@ function normalizeOrder(input: Partial<TransportOrder> & {id?: unknown}): Transp
     missingFields: asArray(input.missingFields),
     validationWarnings: asArray(input.validationWarnings),
     aiRequests: asArray(input.aiRequests),
-    xmlDeliveries: asArray(input.xmlDeliveries)
+    xmlDeliveries: asArray(input.xmlDeliveries),
+    goodsLines: asArray(input.goodsLines)
   };
 }
 
@@ -210,6 +213,37 @@ export async function updateOrderReplyDraft(
 export async function sendOrderReply(id: string) {
   const {data} = await apiClient.post<{ok: boolean; mocked?: boolean; messageId?: string | null}>(
     `/orders/${id}/send-reply`
+  );
+  return data;
+}
+
+// --- Goods lines (Renato 2026-10-07): manual CRUD per shipment. ---
+export async function createOrderGoodsLine(
+  orderId: string,
+  input: OrderGoodsLineInput
+) {
+  const {data} = await apiClient.post<OrderGoodsLine>(
+    `/orders/${orderId}/goods-lines`,
+    input
+  );
+  return data;
+}
+
+export async function updateOrderGoodsLine(
+  orderId: string,
+  lineId: string,
+  input: OrderGoodsLineInput
+) {
+  const {data} = await apiClient.patch<OrderGoodsLine>(
+    `/orders/${orderId}/goods-lines/${lineId}`,
+    input
+  );
+  return data;
+}
+
+export async function deleteOrderGoodsLine(orderId: string, lineId: string) {
+  const {data} = await apiClient.delete<{deleted: boolean; id: string}>(
+    `/orders/${orderId}/goods-lines/${lineId}`
   );
   return data;
 }

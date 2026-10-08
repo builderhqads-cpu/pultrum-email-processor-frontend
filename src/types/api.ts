@@ -444,6 +444,35 @@ export type XmlDelivery = {
   updatedAt: IsoDateTimeString;
 };
 
+// Goods lines per shipment (Renato 2026-10-07). Multiple goods per order, each
+// with packaging/dimensions/weight-per-unit/barcode. Manual entry in Phase 1.
+export type OrderGoodsLine = {
+  id: string;
+  orderId: string;
+  sequence: number;
+  quantity: number | null;
+  packagingType: string | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
+  weightPerUnit: number | null;
+  barcode: string | null;
+  productDescription: string | null;
+  createdAt: IsoDateTimeString;
+  updatedAt: IsoDateTimeString;
+};
+
+export type OrderGoodsLineInput = {
+  quantity?: number | string | null;
+  packagingType?: string | null;
+  length?: number | string | null;
+  width?: number | string | null;
+  height?: number | string | null;
+  weightPerUnit?: number | string | null;
+  barcode?: string | null;
+  productDescription?: string | null;
+};
+
 // GET /orders/:id
 export type TransportOrder = {
   id: string;
@@ -479,6 +508,7 @@ export type TransportOrder = {
   aiRequests: AiRequest[];
   aiExtraction?: AiExtractionSummary;
   xmlDeliveries: XmlDelivery[];
+  goodsLines?: OrderGoodsLine[];
 };
 
 export type TransportOrderDetailResponse = {

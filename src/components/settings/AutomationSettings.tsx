@@ -35,7 +35,7 @@ export function AutomationSettings() {
 
   if (loading || !data) {
     return (
-      <div className="max-w-3xl space-y-6">
+      <div className="space-y-6">
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-56 w-full" />
       </div>
@@ -52,7 +52,7 @@ export function AutomationSettings() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="space-y-6">
       {/* Email sync */}
       <Card className="min-w-0 overflow-hidden">
         <CardHeader>

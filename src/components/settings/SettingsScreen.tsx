@@ -81,6 +81,7 @@ import { cn } from "@/lib/utils";
 import type { Locale } from "@/i18n/routing";
 import type { Department, Mailbox as MailboxRecord } from "@/types";
 import { AutomationSettings } from "./AutomationSettings";
+import { XmlConfirmationSettings } from "./XmlConfirmationSettings";
 
 function Flag({ ok }: { ok: boolean }) {
   return <StatusBadge status={ok ? "CONFIGURED" : "NOT_CONFIGURED"} />;
@@ -749,7 +750,15 @@ export function SettingsScreen() {
 
 
 
-          {activeTab === "automation" ? <AutomationSettings /> : null}
+          {activeTab === "automation" ? (
+            <div className="grid grid-cols-1 gap-6 2xl:grid-cols-3 2xl:items-start">
+              {/* Col 1: Email sync + Order delivery. Cols 2 & 3: the confirmation
+                  config and the message/preview (XmlConfirmationSettings renders
+                  two cards). Stacks to one column below 2xl. */}
+              <AutomationSettings />
+              <XmlConfirmationSettings />
+            </div>
+          ) : null}
 
         </CardContent>
       </Card>

@@ -30,6 +30,36 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2026-10-07',
+    date: '2026-10-07',
+    changes: [
+      {
+        type: 'feature',
+        text: {
+          pt: 'Mercadorias por linha: registre vários itens no mesmo pedido (quantidade, embalagem, dimensões, peso por unidade e código de barras), direto na tela do pedido.',
+          en: 'Goods per line: record multiple items in the same order (quantity, packaging, dimensions, weight per unit and barcode), right on the order page.',
+          nl: 'Goederen per regel: leg meerdere items in dezelfde opdracht vast (aantal, verpakking, afmetingen, gewicht per stuk en barcode), direct op de opdrachtpagina.'
+        }
+      },
+      {
+        type: 'feature',
+        text: {
+          pt: 'Confirmação automática ao cliente quando o pedido é aceito pelo Transpas — com o texto editável em Configurações → Automação.',
+          en: 'Automatic confirmation to the customer when the order is accepted by Transpas — with an editable message in Settings → Automation.',
+          nl: 'Automatische bevestiging naar de klant wanneer de opdracht door Transpas is geaccepteerd — met een bewerkbaar bericht in Instellingen → Automatisering.'
+        }
+      },
+      {
+        type: 'feature',
+        text: {
+          pt: 'Baixar o e-mail original (.eml) na tela do e-mail.',
+          en: 'Download the original e-mail (.eml) from the e-mail detail.',
+          nl: 'Download de originele e-mail (.eml) vanaf het e-maildetail.'
+        }
+      }
+    ]
+  },
+  {
     version: '2026-10-05',
     date: '2026-10-05',
     changes: [
