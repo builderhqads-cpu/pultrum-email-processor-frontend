@@ -44,9 +44,9 @@ export const CHANGELOG: ChangelogEntry[] = [
       {
         type: 'feature',
         text: {
-          pt: 'Confirmação automática ao cliente quando o pedido é aceito pelo Transpas — com o texto editável em Configurações → Automação.',
-          en: 'Automatic confirmation to the customer when the order is accepted by Transpas — with an editable message in Settings → Automation.',
-          nl: 'Automatische bevestiging naar de klant wanneer de opdracht door Transpas is geaccepteerd — met een bewerkbaar bericht in Instellingen → Automatisering.'
+          pt: 'Confirmação automática ao cliente quando o pedido é aceito pelo Transpas — no idioma do e-mail dele (NL/EN/DE) e com o texto editável em Configurações → Automação.',
+          en: 'Automatic confirmation to the customer when the order is accepted by Transpas — in their e-mail language (NL/EN/DE), with an editable message in Settings → Automation.',
+          nl: 'Automatische bevestiging naar de klant wanneer de opdracht door Transpas is geaccepteerd — in de taal van zijn e-mail (NL/EN/DE), met een bewerkbaar bericht in Instellingen → Automatisering.'
         }
       },
       {
