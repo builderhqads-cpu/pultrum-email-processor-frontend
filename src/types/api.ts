@@ -496,6 +496,8 @@ export type TransportOrder = {
       id: string;
       sequence: number | null;
       reference: string | null;
+      status?: OrderStatus;
+      completeness?: number | null;
     }>;
   } | null;
   createdAt: IsoDateTimeString;

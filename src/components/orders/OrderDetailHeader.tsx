@@ -24,6 +24,29 @@ function shortId(id: string) {
   return id.split('-')[0] ?? id.slice(0, 8);
 }
 
+// Status dot for the batch picker — mirrors the order list accents so the picker
+// flags which siblings still need attention vs are ready (Renato 2026-10-12).
+const ORDER_DOT = {
+  green: 'bg-emerald-400',
+  yellow: 'bg-yellow-400',
+  red: 'bg-destructive',
+  sky: 'bg-sky-400',
+  none: 'bg-muted-foreground/30'
+} as const;
+
+function orderDotTone(item: {
+  status?: string | null;
+  completeness?: number | null;
+}): keyof typeof ORDER_DOT {
+  const s = item.status;
+  if (!s) return 'none';
+  if (s === 'FAILED' || s === 'CREATIVE_GEARS_REJECTED') return 'red';
+  if (s === 'AI_PROCESSING' || s === 'PROCESSING') return 'sky';
+  if (s === 'WAITING_CUSTOMER_RESPONSE' || s === 'MISSING_INFORMATION')
+    return 'yellow';
+  return (item.completeness ?? 0) >= 70 ? 'green' : 'yellow';
+}
+
 /**
  * QoL (Renato 2026-10-05): a ready-to-paste diagnostic block for bug reports —
  * customer, references, status + the latest AI Response JSON. Mirrors the report
@@ -226,7 +249,15 @@ function BatchNav({
                 o.id === currentOrderId && 'font-semibold'
               )}
             >
-              <span className="whitespace-nowrap">{pickerItem(o.sequence)}</span>
+              <span className="flex items-center gap-2 whitespace-nowrap">
+                <span
+                  className={cn(
+                    'h-2 w-2 shrink-0 rounded-full',
+                    ORDER_DOT[orderDotTone(o)]
+                  )}
+                />
+                {pickerItem(o.sequence)}
+              </span>
               {o.reference ? (
                 <span className="truncate font-mono text-[11px] text-muted-foreground">
                   {o.reference}
