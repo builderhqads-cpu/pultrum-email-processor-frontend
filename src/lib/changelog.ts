@@ -30,6 +30,20 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2026-10-12',
+    date: '2026-10-12',
+    changes: [
+      {
+        type: 'improvement',
+        text: {
+          pt: 'Confirmação automática: o e-mail agora usa a mesma fonte do restante da mensagem e deixa uma linha antes da assinatura.',
+          en: 'Automatic confirmation: the e-mail now uses the same font as the rest of the message and leaves a blank line before the signature.',
+          nl: 'Automatische bevestiging: de e-mail gebruikt nu hetzelfde lettertype als de rest van het bericht en laat een witregel vóór de ondertekening.'
+        }
+      }
+    ]
+  },
+  {
     version: '2026-10-07',
     date: '2026-10-07',
     changes: [
