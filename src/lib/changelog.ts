@@ -30,6 +30,20 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2026-10-14',
+    date: '2026-10-14',
+    changes: [
+      {
+        type: 'fix',
+        text: {
+          pt: 'Reprocessar um pedido agora sempre usa as instruções de IA mais recentes do cliente — editou a instrução, o reprocessamento já reflete na hora.',
+          en: 'Reprocessing an order now always uses the customer’s latest AI instructions — editing the instructions takes effect on the next reprocess.',
+          nl: 'Een opdracht opnieuw verwerken gebruikt nu altijd de nieuwste AI-instructies van de klant — aangepaste instructies werken meteen door bij het opnieuw verwerken.'
+        }
+      }
+    ]
+  },
+  {
     version: '2026-10-12',
     date: '2026-10-12',
     changes: [
