@@ -555,6 +555,10 @@ export function CustomerProfilesSettings() {
                     </Button>
                   </div>
 
+                  {/* Niek 2026-10-14: one row per file type — the XML-include
+                      toggle (vinkje) FIRST, then the Transpas documenttype number,
+                      with the category description next to the number. Merges the
+                      former two separate sections (documenttype pins + XML switches). */}
                   <div className="min-w-0 space-y-1.5">
                     <label className="text-sm font-medium text-foreground">
                       {labels.form.documentTypes}
@@ -562,35 +566,6 @@ export function CustomerProfilesSettings() {
                     <p className="text-xs text-muted-foreground">
                       {labels.form.documentTypesHelp}
                     </p>
-                    <div className="space-y-2 pt-1">
-                      {DOCUMENT_TYPE_RULE_CATEGORIES.map((category) => (
-                        <div
-                          key={category}
-                          className="flex items-center justify-between gap-3"
-                        >
-                          <span className="text-sm text-foreground">
-                            {labels.form.documentTypeCategories[category]}
-                          </span>
-                          <Input
-                            value={form.documentTypeRules[category] ?? ''}
-                            onChange={(event) =>
-                              updateDocumentTypeRule(category, event.target.value)
-                            }
-                            inputMode="numeric"
-                            placeholder={labels.form.documentTypePlaceholder}
-                            className="h-8 w-28 text-sm"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Renato 2026-10-05: per-customer switches for which attachment
-                      types go in the XML. The original e-mail is always sent. */}
-                  <div className="min-w-0 space-y-1.5">
-                    <label className="text-sm font-medium text-foreground">
-                      {labels.form.xmlAttachments}
-                    </label>
                     <p className="text-xs text-muted-foreground">
                       {labels.form.xmlAttachmentsHelp}
                     </p>
@@ -599,13 +574,8 @@ export function CustomerProfilesSettings() {
                         const included =
                           form.xmlAttachmentCategories[category] !== false;
                         return (
-                          <div
-                            key={category}
-                            className="flex items-center justify-between gap-3"
-                          >
-                            <span className="text-sm text-foreground">
-                              {labels.form.documentTypeCategories[category]}
-                            </span>
+                          <div key={category} className="flex items-center gap-3">
+                            {/* vinkje = include this attachment type in the XML */}
                             <button
                               type="button"
                               role="switch"
@@ -630,6 +600,20 @@ export function CustomerProfilesSettings() {
                                 )}
                               />
                             </button>
+                            {/* documenttype number */}
+                            <Input
+                              value={form.documentTypeRules[category] ?? ''}
+                              onChange={(event) =>
+                                updateDocumentTypeRule(category, event.target.value)
+                              }
+                              inputMode="numeric"
+                              placeholder={labels.form.documentTypePlaceholder}
+                              className="h-8 w-20 shrink-0 text-sm"
+                            />
+                            {/* omschrijving (description) next to the number */}
+                            <span className="min-w-0 truncate text-sm text-foreground">
+                              {labels.form.documentTypeCategories[category]}
+                            </span>
                           </div>
                         );
                       })}
