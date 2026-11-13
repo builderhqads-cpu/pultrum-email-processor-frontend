@@ -12,6 +12,7 @@ import type {Locale} from '@/i18n/routing';
 import {OrderDetailHeader} from '@/components/orders/OrderDetailHeader';
 import {OrderErrorBanner} from '@/components/orders/OrderErrorBanner';
 import {GoodsLinesCard} from '@/components/orders/GoodsLinesCard';
+import {CapabilitiesCard} from '@/components/orders/CapabilitiesCard';
 import {OrderActionsBar} from '@/components/orders/OrderActionsBar';
 import {OriginalEmailCard} from '@/components/orders/OriginalEmailCard';
 import {OrderStatusSummary} from '@/components/orders/OrderStatusSummary';
@@ -158,6 +159,14 @@ export function OrderDetailsView({id}: {id: string}) {
           {/* Goods lines per shipment (Phase 1, OPEN_TRANSPORT only). */}
           {data.department === 'OPEN_TRANSPORT' ? (
             <GoodsLinesCard orderId={id} lines={data.goodsLines ?? []} />
+          ) : null}
+
+          {/* Capabilities / kenmerken (Phase 1, OPEN_TRANSPORT only). */}
+          {data.department === 'OPEN_TRANSPORT' ? (
+            <CapabilitiesCard
+              orderId={id}
+              capabilities={data.capabilities ?? []}
+            />
           ) : null}
         </div>
 

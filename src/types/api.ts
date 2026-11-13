@@ -473,6 +473,23 @@ export type OrderGoodsLineInput = {
   productDescription?: string | null;
 };
 
+export type CapabilityLink = 'available' | 'required' | 'forbidden';
+
+export type OrderCapability = {
+  id: string;
+  orderId: string;
+  sequence: number;
+  capability: string;
+  link: CapabilityLink;
+  createdAt: IsoDateTimeString;
+  updatedAt: IsoDateTimeString;
+};
+
+export type OrderCapabilityInput = {
+  capability?: string | null;
+  link?: CapabilityLink | string | null;
+};
+
 // GET /orders/:id
 export type TransportOrder = {
   id: string;
@@ -511,6 +528,7 @@ export type TransportOrder = {
   aiExtraction?: AiExtractionSummary;
   xmlDeliveries: XmlDelivery[];
   goodsLines?: OrderGoodsLine[];
+  capabilities?: OrderCapability[];
 };
 
 export type TransportOrderDetailResponse = {

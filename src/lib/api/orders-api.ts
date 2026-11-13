@@ -7,6 +7,8 @@ import type {
   CustomerReplyDraft,
   OrderGoodsLine,
   OrderGoodsLineInput,
+  OrderCapability,
+  OrderCapabilityInput,
   TransportOrder,
   TransportOrderDetailResponse,
   TransportOrderListItem
@@ -45,7 +47,8 @@ function normalizeOrder(input: Partial<TransportOrder> & {id?: unknown}): Transp
     validationWarnings: asArray(input.validationWarnings),
     aiRequests: asArray(input.aiRequests),
     xmlDeliveries: asArray(input.xmlDeliveries),
-    goodsLines: asArray(input.goodsLines)
+    goodsLines: asArray(input.goodsLines),
+    capabilities: asArray(input.capabilities)
   };
 }
 
@@ -244,6 +247,39 @@ export async function updateOrderGoodsLine(
 export async function deleteOrderGoodsLine(orderId: string, lineId: string) {
   const {data} = await apiClient.delete<{deleted: boolean; id: string}>(
     `/orders/${orderId}/goods-lines/${lineId}`
+  );
+  return data;
+}
+
+export async function createOrderCapability(
+  orderId: string,
+  input: OrderCapabilityInput
+) {
+  const {data} = await apiClient.post<OrderCapability>(
+    `/orders/${orderId}/capabilities`,
+    input
+  );
+  return data;
+}
+
+export async function updateOrderCapability(
+  orderId: string,
+  capabilityId: string,
+  input: OrderCapabilityInput
+) {
+  const {data} = await apiClient.patch<OrderCapability>(
+    `/orders/${orderId}/capabilities/${capabilityId}`,
+    input
+  );
+  return data;
+}
+
+export async function deleteOrderCapability(
+  orderId: string,
+  capabilityId: string
+) {
+  const {data} = await apiClient.delete<{deleted: boolean; id: string}>(
+    `/orders/${orderId}/capabilities/${capabilityId}`
   );
   return data;
 }
