@@ -112,6 +112,7 @@ const NL: Record<string, string> = {
   driver_pickup_info: 'Chauffeur laadinfo',
   delivery_reference: 'Losreferentie',
   delivery_date: 'Losdatum van',
+  delivery_date_till: 'Losdatum tot',
   delivery_time: 'Lostijd van',
   delivery_time_till: 'Lostijd tot',
   delivery_time_delivery: 'Lostijd levering',
